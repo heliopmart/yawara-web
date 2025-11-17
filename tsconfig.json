@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "forceConsistentCasingInFileNames": true,
+   "strict": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./packages/types" },
+    { "path": "./apps/frontend" },
+    { "path": "./apps/backend" },
+    
+  ]
+}

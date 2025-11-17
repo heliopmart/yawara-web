@@ -1,0 +1,56 @@
+// apps/frontend/src/components/account/DynamicAlertCard/dynamicAlertCard.module.scss
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss';
+
+.cardContainer {
+    background-color: $color-dark-surface;
+    padding: $spacing-xl;
+    border-radius: 0; // Design flat
+    border-left: 5px solid transparent; // Borda de status
+    width: 100%;
+    max-width: 900px;
+}
+
+.title {
+    font-size: $fs-xxl;
+    font-weight: 700;
+    margin-bottom: $spacing-md;
+    color: $color-text-light;
+}
+
+.message {
+    font-size: $fs-large;
+    color: $color-text-light;
+    margin-bottom: $spacing-lg;
+}
+
+.actionButton {
+    @include button-reset;
+    display: inline-block;
+    background-color: #3f3f3f; 
+    color: $color-text-light;
+    padding: $spacing-sm $spacing-md;
+    border-radius: 4px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    
+    &:hover {
+        background-color: darken(#3f3f3f, 10%);
+    }
+}
+
+// --- CORES DE STATUS ---
+
+.warning {
+    border-left-color: $color-warning; // Borda amarela para ação necessária
+}
+
+.success {
+    border-left-color: $color-success; // Borda verde
+}
+
+.default {
+    border-left-color: $color-text-subtle; // Borda sutil
+}

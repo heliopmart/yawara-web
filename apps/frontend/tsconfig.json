@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "composite": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "types": [
+      "node",
+      "jest"
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@yawara/types": [
+        "../../packages/types/src"
+      ]
+    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "references": [
+    {
+      "path": "../../packages/types"
+    }
+  ],
+  "include": [
+    "public",
+    "src",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

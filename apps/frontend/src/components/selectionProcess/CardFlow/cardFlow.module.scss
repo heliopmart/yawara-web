@@ -1,0 +1,208 @@
+// apps/frontend/src/components/processoSeletivo/CardFlow/cardFlow.module.scss
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+// --- CONTAINER GERAL E TÍTULOS ---
+.cardFlowContainer {
+    padding: $spacing-lg; 
+}
+
+.pageTitle {
+    font-size: $fs-xxl;
+    margin-bottom: $spacing-xl; 
+}
+
+.progressLabel {
+    text-transform: uppercase;
+    font-size: 0.8em;
+    color: $color-text-light;
+    margin-bottom: $spacing-xs;
+}
+
+.progressBar {
+    height: 8px;
+    background-color: $color-dark-surface;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: $spacing-lg;
+}
+
+.progressFill {
+    height: 100%;
+    background-color: $color-primary; 
+    transition: width 0.5s ease-out;
+}
+
+.currentStepHeader {
+    font-size: $fs-large;
+    margin-bottom: $spacing-lg; 
+    text-transform: uppercase;
+}
+
+// --- STEPS GRID (Horizontal Flow) ---
+.stepsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @include desktop {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+        gap: $spacing-md;
+        align-items: flex-start; // CRÍTICO: Evita o esticamento vertical desnecessário
+    }
+}
+
+.stepCard {
+    position: relative;
+    background-color: #272727;
+    padding: $spacing-md;
+    border-radius: 10px;
+    min-height: 220px;
+    text-align: left;
+    border: 1px solid transparent; 
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    height: 100%;
+}
+
+// --- ELEMENTOS DO CARD ---
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: $spacing-xs; 
+}
+
+.statusIcon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: $spacing-sm;
+    font-size: 0.8em;
+    text-align: center;
+    font-weight: bold;
+    color: $color-text-light; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -10px;
+    right: -15px;
+}
+
+.iconCompleted { background-color: $color-success; }
+.iconFailed { background-color: $color-error; }
+.iconDefault { background-color: $color-text-subtle; }
+
+
+.cardTitle {
+    font-size: $fs-base;
+    font-weight: 600;
+}
+
+.cardDescription {
+    font-size: 0.9em;
+    color: $color-text-light; 
+    margin-bottom: $spacing-md;
+    flex-grow: 1; 
+}
+
+.actionButton {
+    display: block;
+    background-color: $color-primary; 
+    color: $color-text-light;
+    border-radius: 10px;
+    padding: $spacing-sm $spacing-md;
+    border-radius: 0; 
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    margin-top: $spacing-md; 
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken($color-primary, 10%);
+    }
+}
+
+.actionButtonSuccess {
+    background-color: $color-success; // VERDE para o botão de envio do desafio
+}
+
+.helpLinks {
+    display: flex;
+    flex-direction: column;
+    margin-top: $spacing-md;
+}
+.helpLink {
+    font-size: 0.8em;
+    color: $color-text-light;
+    text-decoration: underline;
+}
+
+// --- INTERACTION BLOCKS (Bottom Left/Right) ---
+.interactionBlocks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    margin-top: $spacing-xl;
+    
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.nucleusChoice, .finalResult {
+    // Estes agora usam o estilo base .stepCard
+    text-align: left; 
+}
+
+
+.blockTitle {
+    font-size: $fs-base; 
+    font-weight: 500;
+    margin-bottom: $spacing-md;
+    text-transform: uppercase;
+}
+
+.selectionGroup {
+    margin-bottom: $spacing-sm;
+}
+
+.selectInput {
+    width: 100%;
+    padding: $spacing-sm;
+    background-color: #3f3f3f; 
+    color: $color-text-light;
+    
+    border: none; 
+    border-radius: 0; 
+    height: 40px; 
+
+    &:focus {
+        outline: 1px solid $color-text-light; 
+        box-shadow: none;
+    }
+}
+
+.selectionButton {
+    @include button-reset;
+    background-color: $color-primary; 
+    color: $color-text-light;
+    padding: $spacing-sm $spacing-md;
+    border-radius: 0; 
+    font-weight: bold;
+    margin-top: $spacing-md;
+}
+
+.downloadLink {
+    color: $color-primary;
+    text-decoration: underline;
+    display: block; 
+    margin-top: $spacing-md;
+    font-size: 0.9em;
+}

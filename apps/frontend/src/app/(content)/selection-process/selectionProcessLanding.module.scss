@@ -1,0 +1,304 @@
+// apps/frontend/src/app/(content)/processo-seletivo/selectionProcessLanding.module.scss
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
+.heroSection {
+  background-color: $color-secondary;
+  color: #ffffff;
+  padding-top: 10px;
+}
+
+.textContainer {
+  flex: 1 1 50%;
+  padding-bottom: 30px; // Espaço antes da imagem no mobile
+
+  @include desktop {
+    padding-bottom: 0;
+  }
+}
+
+
+.header {
+  position: relative;
+  padding: 40px 20px;
+  flex: 1 1 50%;
+  margin-bottom: 30px;
+  background: linear-gradient(to bottom, #0F0F0F 40%, #151515 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+
+  @include desktop {
+    height: 40vh;
+    padding-bottom: 0;
+  }
+}
+
+.title {
+  font-size: 2.1em;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 10px;
+
+  @include desktop {
+    font-size: 4.1em;
+  }
+}
+
+.subtitle {
+    width: 100%;
+  font-size: 1.1em;
+  font-weight: 300;
+  color: #aaaaaa;
+  margin-bottom: 40px;
+
+  @include desktop(){
+    font-size: 1.2em;
+    width: 50%;
+  }
+}
+
+
+
+// --- 1. HERO / HEADLINE ---
+.heroSection {
+    padding: $spacing-lg 0;
+    text-align: left;
+}
+
+
+.introText {
+    font-size: 1.1em;
+    color: $color-text-subtle;
+    max-width: 800px;
+}
+
+// --- 2. TIMELINE ---
+// Ajuste geral dos títulos para que não quebrem feio em mobile
+.timelineTitle {
+    font-size: 1.8rem; 
+    margin-bottom: $spacing-lg;
+    color: $color-text-light;
+    text-transform: uppercase;
+    text-align: center; 
+    width: 100%;
+
+    @include desktop {
+        font-size: $fs-xxl; 
+        text-align: center;
+    }
+}
+
+// ...
+
+.timelineSection{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: $spacing-lg 0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.timelineGrid {
+    display: flex;
+    overflow-x: auto; 
+    white-space: nowrap; 
+    padding: $spacing-md;
+
+    @include mobile{
+        width: 100%;
+    }
+}
+
+.ctaButton{
+    
+    padding: 15px 20px;
+    background-color: $color-error;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    
+    &:hover{
+        background-color: darken($color-error, 10%);
+    }
+}
+
+.timelineStep {
+    flex: 0 0 120px; 
+    border-top: 2px solid $color-primary;
+    padding-top: $spacing-md;
+    margin-right: $spacing-md;
+    position: relative;
+    text-align: center;
+    
+    &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        right: -$spacing-md;
+        height: 2px;
+        width: $spacing-md;
+        background-color: $color-primary;
+    }
+}
+
+.stepMarker {
+    @include flex-center;
+    width: 25px; // Aumentando um pouco o marcador para melhor visualização
+    height: 25px;
+    background-color: $color-primary;
+    border-radius: 50%;
+    color: $color-text-light;
+    font-size: 0.8em;
+    font-weight: bold;
+    position: absolute;
+    top: -13px; // Ajuste para o novo tamanho
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.timelineLabel {
+    display: block;
+    font-size: 0.75em; // CRÍTICO: Reduzindo o tamanho da fonte para caber
+    color: $color-text-light;
+    white-space: normal;
+    text-align: center; // Centralizando o label do passo
+}
+
+// --- 3. TECNOLOGIA E REDE NEURAL ---
+.techSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: $spacing-xl 0;
+}
+
+.techContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: $spacing-lg;
+    
+    @include desktop {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
+.techImageBlock {
+    flex: 1;
+    display: none;
+    min-height: 300px;
+    background-color: $color-dark-surface; 
+    border: 1px solid $color-dark-surface; 
+    
+    @include desktop {
+        display: flex;
+        flex: 0 0 500px; 
+    }
+}
+
+.techTextBlock {
+    padding: 10px;
+    box-sizing: border-box;
+    flex: 2;
+    max-width: 600px;
+}
+
+.techTitle {
+    font-size: $fs-xxl;
+    color: $color-text-light;
+    margin-bottom: $spacing-lg;
+}
+
+.techIntro {
+    font-weight: bold;
+    color: $color-primary; 
+    margin-bottom: $spacing-md;
+}
+
+.techDescription {
+    color: $color-text-light;
+    margin-bottom: $spacing-md;
+    
+    strong {
+        color: $color-text-light; // Destaque em branco/claro
+    }
+}
+
+// --- 4. FAQ (Acordeão Interativo) ---
+.faqSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: $spacing-lg 0;
+}
+
+.faqTitle {
+    font-size: $fs-xxl;
+    margin-bottom: $spacing-lg;
+}
+
+.faqList {
+    width: 100%;
+    // max-width: 800px;
+}
+
+.faqItem {
+    border-top: 1px solid $color-dark-surface;
+    cursor: pointer;
+    background-color: $color-dark-surface; // Cor de fundo do item FAQ
+    margin-bottom: 2px;
+    padding: $spacing-md;
+}
+
+.faqQuestion {
+    display: flex;
+    justify-content: space-between;
+    font-size: $fs-large;
+    font-weight: 500;
+    color: $color-text-light;
+}
+
+.faqIcon {
+    font-size: 1.5em;
+    color: $color-primary; // Ícone em vermelho
+}
+
+.faqAnswer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out; // Transição para animação suave
+    padding: 0 $spacing-md 0 0;
+    color: $color-text-light
+}
+
+.faqAnswerOpen {
+    max-height: 200px; // Altura máxima para a transição
+    padding-top: $spacing-md;
+}

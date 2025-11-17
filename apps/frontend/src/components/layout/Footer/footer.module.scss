@@ -1,0 +1,118 @@
+// apps/frontend/src/components/layout/Footer/footer.module.scss
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+.footer {
+  background-color: $color-footer-background; // Fundo preto
+  color: $color-dark-surface;
+  padding: $spacing-xl 0 $spacing-md;
+  border-top: 1px solid $color-dark-surface; // Linha sutil de separação
+}
+
+.mainContentWrapper {
+    max-width: $breakpoint-widescreen;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+    display: flex;
+    flex-direction: column; 
+    gap: $spacing-lg;
+
+    @include desktop {
+        flex-direction: row; // Em desktop, logo e links lado a lado
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+}
+
+.logoImage{
+    width: 120px;
+    height: auto;
+
+    link{
+        width: 100%;
+        height: 100%;
+
+        img{
+            position: relative !important;
+            display: block;
+        }
+    }
+
+    @include desktop {
+        width: 200px;
+        height: auto;
+    }
+}
+
+.logoAndCopyright {
+    flex: 1; // Ocupa espaço para o logo
+    text-align: center;
+    
+    @include desktop {
+        text-align: left;
+        max-width: 250px;
+    }
+}
+
+.logoPlaceholder {
+    font-size: 1.1em;
+    font-weight: bold;
+    display: block;
+    margin-bottom: $spacing-md;
+}
+
+// --- GRID DE LINKS ---
+
+.linksGrid {
+    flex: 3; // Ocupa a maior parte do espaço
+    display: grid;
+    // Mobile/Tablet: 2 colunas
+    grid-template-columns: repeat(2, 1fr); 
+    gap: $spacing-lg;
+
+    @include desktop {
+        // Desktop: 4 colunas para links
+        grid-template-columns: repeat(4, 1fr); 
+        gap: $spacing-xl;
+    }
+}
+
+.footerColumn {
+    text-align: left;
+}
+
+.linkList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.linkItem {
+    margin-bottom: $spacing-xs;
+}
+
+.footerLink {
+    color: $color-text-subtle; // Cor sutil
+    font-size: 0.9em;
+    text-decoration: none;
+    
+    &:hover {
+        color: $color-primary; // Destaque ao passar o mouse
+        text-decoration: underline;
+    }
+}
+
+// --- BARRA DE DIREITOS AUTORAIS ---
+
+.copyrightBar {
+    border-top: 1px solid #cccccc;
+    padding-top: $spacing-md;
+    margin-top: $spacing-xl;
+    text-align: center;
+}
+
+.copyrightText {
+    font-size: 0.75em;
+    color: $color-text-subtle;
+}

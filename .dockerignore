@@ -1,0 +1,27 @@
+# Ignorar dependências, pois elas serão instaladas DENTRO do container
+# Esta é a linha mais importante!
+node_modules
+**/node_modules
+
+# Ignorar pastas de build, pois elas serão geradas DENTRO do container
+dist
+build
+*/dist
+*/build
+
+# Ignorar arquivos de log e do npm
+*.log
+npm-debug.log*
+*.tsbuildinfo
+
+# Ignorar o controle de versão e arquivos de cache do S.O.
+.git
+.DS_Store
+
+# Ignorar arquivos de configuração de editor/IDE
+.vscode
+.idea
+
+# Os próprios Dockerfiles não precisam ser copiados para dentro do contexto
+Dockerfile
+*/Dockerfile

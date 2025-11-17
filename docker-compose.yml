@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  frontend:
+    container_name: yawara-frontend
+    build:
+      context: .
+      dockerfile: ./docker/dev/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app/apps/frontend
+      - ./packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true

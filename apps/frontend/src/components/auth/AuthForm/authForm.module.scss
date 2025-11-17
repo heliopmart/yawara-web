@@ -1,0 +1,113 @@
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss';
+
+// --- CONTAINER PRINCIPAL ---
+.authContainer {
+  @include flex-center; // Mixin para centralizar (do utils.scss)
+  width: 100%;
+  padding: $spacing-xl 0;
+  min-height: calc(100vh - 60px - #{$spacing-xl}); 
+}
+
+.authBox {
+  background-color: $color-dark-surface; // Fundo cinza escuro (#111111)
+  padding: $spacing-xl $spacing-lg;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 450px; // Largura mais compacta, como na imagem
+  text-align: center;
+}
+
+.title {
+  font-size: $fs-xxl;
+  font-weight: 700;
+  margin-bottom: $spacing-lg;
+  color: $color-text-light;
+}
+
+// --- FORMULÁRIO E INPUTS ---
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.fieldGroup {
+    text-align: left;
+}
+
+.label {
+    // Mantido por acessibilidade (screen readers), mas escondido visualmente
+    display: none; 
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-md; // Padding maior para input alto
+  background-color: #3f3f3f; // Fundo do input (cor escura sólida)
+  border: none; // Sem borda para replicar o visual da imagem
+  color: $color-text-light;
+  border-radius: 4px;
+  font-size: $fs-base;
+  height: 50px; // Altura fixa do input
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px $color-primary; // Borda de foco vermelha
+  }
+  
+  &::placeholder {
+      color: #b0b0b0; // Cor do placeholder mais clara
+  }
+}
+
+// --- BOTÃO DE SUBMISSÃO ---
+.submitButton {
+  @include button-reset;
+  background-color: $color-primary; // Botão vermelho Yawara
+  color: $color-text-light;
+  padding: $spacing-sm $spacing-md;
+  border-radius: 4px;
+  font-size: $fs-large;
+  font-weight: bold;
+  height: 50px; // Altura do botão igual à altura do input
+  margin-top: $spacing-md; // Margem para separar do input
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken($color-primary, 10%);
+  }
+}
+
+// --- LINKS DE RODAPÉ ---
+.footerLinks {
+    margin-top: $spacing-lg;
+    font-size: 0.9em;
+    color: $color-text-light;
+    
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    
+    & > * { 
+        display: inline-block; 
+        margin: 5px 0; // Espaçamento vertical entre os links
+    }
+}
+
+.registerLink, .smallLink {
+    color: $color-text-light;
+    text-decoration: none; // Remove a sublinha inicial
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: $color-primary;
+        text-decoration: underline; // Adiciona sublinha no hover
+    }
+}
+
+.separator {
+    display: none; // Ocultamos o separador '|' para ter os links em linhas separadas (visual mais limpo)
+}

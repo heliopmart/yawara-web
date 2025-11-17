@@ -1,0 +1,13 @@
+{
+  "name": "yawara-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "test": "echo \"Use -w para especificar um workspace\" && exit 1"
+  }
+}
+  

@@ -1,0 +1,172 @@
+// apps/frontend/src/components/layout/Header/header.module.scss
+
+@import '@/styles/variables.scss'; 
+
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
+// --- VARIÁVEIS LOCAIS ---
+$header-height: 60px;
+
+.header {
+  min-height: $header-height;
+  background-color: #000000;
+  border-bottom: 2px solid #000000;
+  color: #ffffff;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.logoImage{
+  width: auto;
+  height: auto;
+  max-width: 124px;
+  max-height: 70px;
+  min-height: 40px;
+  min-width: 80px;
+  position: relative !important;
+  display: block;
+}
+
+.contentWrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoPlaceholder {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+// --- NAVEGAÇÃO DESKTOP (Padrão) ---
+.desktopNav {
+    display: none; // Oculta em mobile
+
+    @media (min-width: 1024px) {
+        display: block; 
+        flex-grow: 1; 
+        margin: 0 30px;
+    }
+}
+
+// --- NAVEGAÇÃO MOBILE (Slide-out) ---
+.mobileNav {
+    @include mobile {
+        position: fixed;
+        top: $header-height; // Abaixo do header
+        left: 0;
+        width: 100%;
+        height: calc(100vh - #{$header-height});
+        background-color: #000000;
+        transform: translateX(-100%); // Escondido por padrão
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+        overflow-y: auto;
+    }
+    
+    @media (min-width: 1024px) {
+        display: none;
+    }
+
+    // Estilo da lista de links dentro do menu mobile
+    .navList {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+        
+        .navItem {
+            width: 100%;
+            border-bottom: 1px solid #111111;
+        }
+        .navLink {
+            padding: 15px 0;
+            display: block;
+            font-size: 1.1em;
+        }
+    }
+}
+
+// Classe que abre o menu mobile
+.navListOpen {
+    transform: translateX(0); // Faz o menu deslizar para dentro da tela
+}
+
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 20px;
+}
+
+.navLink {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  padding: 10px 0;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #d32f2f; // Cor de destaque do Yawara
+  }
+}
+
+.loginButton {
+  background-color: #d32f2f; // Botão vermelho no canto direito
+  color: #ffffff;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken(#d32f2f, 10%);
+  }
+}
+
+.menuToggle {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5em;
+    cursor: pointer;
+    display: block; // Mostra em mobile
+    order: 3; // Garante que fique no final para não sobrepor o botão de login
+
+    @media (min-width: 1024px) {
+        display: none; // Oculta em desktop
+    }
+}
+
+.menuOverlay {
+    @include mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 998; // Abaixo do menu (999), mas acima do conteúdo
+    }
+    @media (min-width: 1024px) {
+        display: none;
+    }
+}

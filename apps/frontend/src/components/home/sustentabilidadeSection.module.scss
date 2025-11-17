@@ -1,0 +1,85 @@
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+
+$color-sustentabilidade-bg: #3F5940; 
+$color-inovacao-highlight: $color-primary; 
+
+.sustentabilidadeSection {
+  background-color: $color-sustentabilidade-bg; 
+  color: $color-text-light;
+  padding: $spacing-xl 0;
+}
+
+.contentWrapper {
+    // Reutilizando a classe de max-width global
+    max-width: $breakpoint-widescreen;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+}
+
+.title {
+  font-size: $fs-xxl;
+  font-weight: 700;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+}
+
+.paragraph {
+  max-width: 800px; // Limita a largura para melhor leitura
+  margin: $spacing-md auto;
+  font-size: $fs-large;
+  line-height: 1.6;
+
+  strong {
+      color: $color-text-light; // Texto branco em negrito
+  }
+}
+
+// --- BLOCO DE INOVAÇÃO (FINAL DA SEÇÃO) ---
+
+.inovacaoBlock {
+    margin-top: $spacing-xl;
+    padding-top: $spacing-lg;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); // Linha separadora
+    text-align: center;
+}
+
+.inovacaoTitle {
+    font-size: $fs-xl;
+    font-weight: 600;
+    margin-bottom: $spacing-md;
+}
+
+.inovacaoHighlight {
+    color: $color-inovacao-highlight; // Cor vermelha do Yawara
+    font-weight: 800;
+}
+
+.inovacaoGrid {
+    display: flex;
+    flex-wrap: wrap; // Permite quebrar linha no mobile
+    justify-content: center;
+    gap: $spacing-md;
+    margin-top: $spacing-lg;
+    
+    // Linha divisória horizontal (visível na imagem)
+    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: $spacing-md 0;
+}
+
+.inovacaoItem {
+    padding: 0 $spacing-md;
+    font-size: $fs-large;
+    font-weight: 500;
+    color: $color-text-light;
+    
+    // Divisores verticais (apenas em desktop)
+    &:not(:last-child) {
+        @include desktop {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    }
+}

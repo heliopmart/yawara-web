@@ -1,0 +1,98 @@
+// apps/frontend/src/components/processoSeletivo/SideNav/sideNav.module.scss
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+.sideNav {
+    width: 250px; 
+    min-width: 250px;
+    background-color: $color-secondary; 
+    border-right: 1px solid $color-dark-surface; 
+    padding-top: $spacing-md;
+    
+    @include mobile-only {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+        transform: translateX(-100%); // Escondido por padrão
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.sideNavOpen {
+    transform: translateX(0); // Slide-in
+}
+
+.closeButton {
+    @include button-reset;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2em;
+    color: $color-text-subtle;
+    
+    @include tablet {
+        display: none; // Esconde em desktop
+    }
+}
+
+.logoPlaceholder {
+    padding: $spacing-md;
+    border-bottom: 1px solid $color-dark-surface;
+    text-align: center;
+    margin-bottom: $spacing-md;
+}
+
+.logoText {
+    display: block;
+    font-size: $fs-large;
+    font-weight: bold;
+    color: $color-primary; // Yawara em vermelho
+}
+.logoSubtext {
+    display: block;
+    font-size: 0.8em;
+    color: $color-text-light;
+}
+
+.navMenu {
+    padding: 0;
+}
+
+.navList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navItem {
+    margin-bottom: $spacing-xs;
+}
+
+.navLink {
+    display: block;
+    padding: $spacing-sm $spacing-md;
+    color: $color-text-light;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.2s, color 0.2s;
+    
+    &:hover {
+        background-color: $color-dark-surface;
+    }
+    
+    &.active {
+        background-color: $color-dark-surface;
+        color: $color-primary; // Destaque vermelho para o item ativo
+        font-weight: bold;
+    }
+}
+
+.separator {
+    height: 1px;
+    background-color: $color-dark-surface;
+    margin: $spacing-md 0;
+}

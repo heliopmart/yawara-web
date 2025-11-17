@@ -1,0 +1,76 @@
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+.nucleosSection {
+  background-color: $color-secondary; 
+  padding: $spacing-lg 0;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-size: $fs-xxl;
+  font-weight: 700;
+  margin-bottom: $spacing-xl;
+  color: $color-text-light;
+}
+
+.gridContainer {
+  display: grid;
+  padding: $spacing-md;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: $spacing-md;
+
+  @include tablet {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr); 
+    gap: $spacing-lg;
+  }
+}
+
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block; // Garante que o link ocupe todo o espaço do card
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px); // Animação de elevação no hover (Framer Motion seria ideal aqui!)
+    }
+}
+
+.nucleoCard {
+  background-color: $color-dark-surface; // Fundo cinza escuro
+  padding: $spacing-md;
+  border-radius: 4px;
+  height: 100%; // Garante altura uniforme
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+}
+
+.iconPlaceholder {
+  width: 60px;
+  height: 60px;
+  background-color: $color-text-light; // Quadrado branco
+  margin-bottom: $spacing-sm;
+}
+
+.cardTitle {
+  font-size: $fs-large;
+  font-weight: 600;
+  color: $color-text-light;
+  margin-bottom: $spacing-xs;
+  text-transform: uppercase;
+}
+
+.cardDescription {
+  font-size: 0.85em;
+  color: $color-text-light;
+}

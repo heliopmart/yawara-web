@@ -1,0 +1,30 @@
+
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss';
+
+main{
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+
+    h2{
+        font-size: 1.5em;
+        color: $color-primary;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    p{
+        font-size: 1.1em;
+        color: $color-text-light;
+        
+    }
+}

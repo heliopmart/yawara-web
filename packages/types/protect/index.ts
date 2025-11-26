@@ -1,42 +1,42 @@
-// packages/types/src/index.ts (Simplified for Card Flow)
-
-/** Status possibilities for a recruitment step. */
-export type CandidateStatus = 'COMPLETED' | 'FAILED' | 'PENDING_ACTION' | 'UNDER_REVIEW' | 'FUTURE';
-
-/** Interface for a single step in the Selection Process. */
+import {EnumPsCardConfigState, ps_user_cards} from '../ps'
 export interface RecruitmentStep {
   id: number;
-  title: string; // Ex: 'Send Academic History'
+  title: string;
   description: string;
-  status: CandidateStatus;
-  estimatedDuration?: string; // Ex: '35 seconds'
-  deadline?: string; // Ex: '2028/02/28 at 11:00 AM'
+  state: EnumPsCardConfigState;
+  userState: EnumPsCardConfigState;
+  estimatedDuration?: string; 
+  deadline?: string; 
   actionButton?: {
-    text: string; // Ex: 'SEND HISTORY | PDF'
-    href: string; // The target route or API
+    text: string; 
+    href: string; 
   };
   helpLinks?: { 
-    text: string; // Ex: 'What is "A FORJA"?'
+    text: string; 
     href: string;
   }[];
 }
 
-/** Interface for the main Processo Seletivo data. */
-export interface ProcessoSeletivoData {
+export interface ps_data_display {
+  title: string;
   progressPercentage: number;
-  currentStepLabel: string; // Ex: 'YOU ARE IN THE __ STEP'
+  currentStepLabel: string;
   steps: RecruitmentStep[];
-  
-  // Blocks rendered below the flow
+
+  is_completed: boolean;
+  is_accepted: boolean;
+
   nucleusChoice?: {
-    isWaiting: boolean; // Yellow state
+    isWaiting: boolean; 
     firstOption: string;
     secondOption: string;
     showSelectionButton: boolean;
+    eligibleNuclei?: ps_user_cards['nuclei_eligible']
   };
   finalResult?: {
-    show: boolean; // Red state
+    show: boolean;
     message: string;
     evaluationPdfLink: string;
   };
 }
+

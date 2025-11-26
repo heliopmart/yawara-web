@@ -10,13 +10,13 @@ import styles from './authForm.module.scss';
 interface AuthFormProps {
   type: 'login' | 'register' | 'forgot';
   title: string;
-  fields: { name: string; label: string; type: string }[];
+  fields: { name: string; label: string; type: string, minLength?: number }[];
   buttonText: string;
-  // Ação que será chamada para o seu backend (auth-api)
+  error: { message: string } | null;
   onSubmit: (data: Record<string, string>) => void; 
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, onSubmit }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, error, onSubmit }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +33,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, on
       <div className={styles.authBox}>
         <h2 className={styles.title}>{title.toUpperCase()}</h2>
         
+        {error && <div className={styles.errorMessage}><span>{error.message}</span></div>}
+
         <form onSubmit={handleSubmit} className={styles.form}>
           {fields.map((field) => (
             <div key={field.name} className={styles.fieldGroup}>
@@ -47,7 +49,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, on
                 onChange={handleChange}
                 className={styles.input}
                 required
-                // Usando o label (E-MAIL, SENHA) como placeholder
+                minLength={field?.minLength || 0}
                 placeholder={field.label} 
               />
             </div>

@@ -1,15 +1,17 @@
 import { NextRequest } from 'next/server';
-import { setCookie } from '@/utils/cookie'
 import {handle_error} from '@/utils/error'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
-import { loginSchema } from '@/lib/validations/auth.validation'
+import { registreSchema } from '@/lib/validations/auth.validation'
 import { authService } from '@/lib/services/auth/auth.service'
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        if (loginSchema.safeParse(body).success === false) {
+        console.log("INFO: ")
+        console.log(body)
+
+        if (registreSchema.safeParse(body).success === false) {
             return errorResponse(
                 'Dados de entrada inválidos.',
                 'VALIDATION_ERROR',
@@ -17,10 +19,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const res_token = await authService.login(body);
+        const registre_user_reponse = await authService.register(body);
 
-        await setCookie('user-session', res_token, { maxAge: 60 * 60 });
-        const response = successResponse<boolean>(true, 200);
+        const response = successResponse<boolean>(registre_user_reponse, 200);
         return response;
 
     } catch (error) {

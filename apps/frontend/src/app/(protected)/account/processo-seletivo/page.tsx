@@ -1,10 +1,11 @@
-import React from 'react';
-import CardFlow from '@/components/selectionProcess/CardFlow'; 
+'use client'
+import React, { useState, useEffect } from 'react';
+import CardFlow from '@/components/selectionProcess/CardFlow';
 
 
 const ProcessSelectionPage: React.FC = () => {
   return (
-    <CardFlow /> 
+    <CardFlow />
   );
 };
 

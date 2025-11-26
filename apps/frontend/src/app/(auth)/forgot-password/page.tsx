@@ -22,6 +22,7 @@ const ForgotPasswordPage: React.FC = () => {
       fields={forgotPasswordFields}
       buttonText="ENTRAR"
       onSubmit={handleForgotPassword}
+      error={null}
     />
   );
 };

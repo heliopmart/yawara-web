@@ -1,4 +1,3 @@
-
 @import '@/styles/variables.scss';
 @import '@/styles/utils.scss';
 
@@ -7,7 +6,7 @@
   @include flex-center; // Mixin para centralizar (do utils.scss)
   width: 100%;
   padding: $spacing-xl 0;
-  min-height: calc(100vh - 60px - #{$spacing-xl}); 
+  min-height: calc(100vh - 60px - #{$spacing-xl});
 }
 
 .authBox {
@@ -35,12 +34,33 @@
 }
 
 .fieldGroup {
-    text-align: left;
+  text-align: left;
 }
 
 .label {
-    // Mantido por acessibilidade (screen readers), mas escondido visualmente
-    display: none; 
+  // Mantido por acessibilidade (screen readers), mas escondido visualmente
+  display: none;
+}
+
+.errorMessage {
+  width: 100%;
+  height: 50px;
+  background-color: #252525;
+  border: 1px solid $color-error;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 20px 0px;
+
+  span {
+    color: #FFFFFF;
+    font-weight: 400;
+    text-align: left;
+    font-size: .9em;
+  }
 }
 
 .input {
@@ -52,14 +72,14 @@
   border-radius: 4px;
   font-size: $fs-base;
   height: 50px; // Altura fixa do input
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 2px $color-primary; // Borda de foco vermelha
   }
-  
+
   &::placeholder {
-      color: #b0b0b0; // Cor do placeholder mais clara
+    color: #b0b0b0; // Cor do placeholder mais clara
   }
 }
 
@@ -75,7 +95,7 @@
   height: 50px; // Altura do botão igual à altura do input
   margin-top: $spacing-md; // Margem para separar do input
   transition: background-color 0.3s ease;
-  
+
   &:hover {
     background-color: darken($color-primary, 10%);
   }
@@ -83,31 +103,32 @@
 
 // --- LINKS DE RODAPÉ ---
 .footerLinks {
-    margin-top: $spacing-lg;
-    font-size: 0.9em;
-    color: $color-text-light;
-    
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    
-    & > * { 
-        display: inline-block; 
-        margin: 5px 0; // Espaçamento vertical entre os links
-    }
+  margin-top: $spacing-lg;
+  font-size: 0.9em;
+  color: $color-text-light;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &>* {
+    display: inline-block;
+    margin: 5px 0; // Espaçamento vertical entre os links
+  }
 }
 
-.registerLink, .smallLink {
-    color: $color-text-light;
-    text-decoration: none; // Remove a sublinha inicial
-    transition: color 0.3s ease;
+.registerLink,
+.smallLink {
+  color: $color-text-light;
+  text-decoration: none; // Remove a sublinha inicial
+  transition: color 0.3s ease;
 
-    &:hover {
-        color: $color-primary;
-        text-decoration: underline; // Adiciona sublinha no hover
-    }
+  &:hover {
+    color: $color-primary;
+    text-decoration: underline; // Adiciona sublinha no hover
+  }
 }
 
 .separator {
-    display: none; // Ocultamos o separador '|' para ter os links em linhas separadas (visual mais limpo)
+  display: none; // Ocultamos o separador '|' para ter os links em linhas separadas (visual mais limpo)
 }

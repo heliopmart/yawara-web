@@ -59,7 +59,7 @@ export async function getRows<T = any>({
         }
 
         if (error) throw (`SelectRowsError: ${error.message}`);
-        return data as any;
+        return data as T | null;
     } else {
         const { data, error } = await q;
 

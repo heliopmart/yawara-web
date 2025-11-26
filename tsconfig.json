@@ -7,8 +7,6 @@
   "files": [],
   "references": [
     { "path": "./packages/types" },
-    { "path": "./apps/frontend" },
-    { "path": "./apps/backend" },
-    
+    { "path": "./apps/frontend" }    
   ]
 }

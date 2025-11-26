@@ -23,7 +23,7 @@ export interface ps_editions {
     is_completed: boolean
 }
 
-export interface ps_card_configs{
+export interface ps_card_configs {
     id: string;
     edition_ps: string;
     card_id: number;
@@ -34,7 +34,7 @@ export interface ps_card_configs{
     state: EnumPsCardConfigState
 }
 
-export interface ps_user_cards{
+export interface ps_user_cards {
     id: string;
     user_id: Users['id'];
     edition_id: ps_editions['id'];
@@ -50,7 +50,7 @@ export interface ps_user_cards{
     updated_at: string;
 }
 
-export interface ps_full_data extends ps_editions { 
+export interface ps_full_data extends ps_editions {
     ps_card_configs: ps_card_configs[];
     ps_user_cards: ps_user_cards[];
 }
@@ -65,3 +65,12 @@ export interface ps_full_data extends ps_editions {
 
 // ============= PS REPOSITORY ==============
 
+export interface UserProgressContext {
+    id: ps_user_cards['id'];
+    cards_progress: ps_user_cards['cards_progress'];
+    edition: {
+        id: ps_editions['id'];
+        is_active: ps_editions['is_active'];
+        is_completed: ps_editions['is_completed'];
+    }
+}

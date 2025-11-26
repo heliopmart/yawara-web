@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import styles from './cardFlow.module.scss';
-import { RecruitmentStep, ps_data_display, EnumPsCardConfigState } from '@yawara/types';
-import { mapBackendDataToFrontend } from '@/utils/ps-data-mapper'
-// import { PS_MOCK_DATA } from '@/mocks/ps.mock';
+import { RecruitmentStep, EnumPsCardConfigState } from '@yawara/types';
 import {useCard} from '@/hooks/useCard';
+import { usePs } from '@/hooks/usePs';
 
 const getCardClassName = (status: EnumPsCardConfigState) => {
     switch (status) {
@@ -31,7 +30,6 @@ const StatusIcon: React.FC<{ status: EnumPsCardConfigState }> = ({ status }) => 
 
 const Card: React.FC<{ step: RecruitmentStep }> = ({ step }) => {
     const {
-        file,
         status,
         handleFileChange
     } = useCard(step)
@@ -81,45 +79,16 @@ const InteractionCard: React.FC<{ statusClass: string, content: React.ReactNode 
 };
 
 const CardFlow: React.FC = () => {
-    const [data, setData] = useState<ps_data_display | null>();
-    const [error, setError] = useState<{ message: string } | null>(null);
+    const {
+        nuclei_1,
+        nuclei_2,
+        handleChosenNuclei,
+        updateChosenNuclei,
 
-    const handlePs = async () => {
-        setError(null);
-        try {
-            const response = await fetch('/api/ps', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
+        data,
+        error,
+    } = usePs()
 
-            const apiResponse = await response.json();
-
-            if (apiResponse.success) {
-                try {
-                    const data = mapBackendDataToFrontend(apiResponse.data)
-                    console.log(data)
-                    setData(data)
-                } catch (e) {
-                    console.error(e)
-
-                    // o usuário pode não ter inscrição ativa, lidar com isso aqui
-                }
-            } else {
-                setError({ message: apiResponse.error.message });
-            }
-
-        } catch (error) {
-            console.error('Erro de rede ou parsing:', error);
-            setError({ message: "Ah não! estamos passando por instabilidades." });
-        }
-    };
-
-    useEffect(() => {
-        handlePs();
-        return
-    }, [])
 
     if (!data) {
         return (
@@ -171,7 +140,7 @@ const CardFlow: React.FC = () => {
                                             </div>
 
                                         ) : (
-                                            <select className={styles.selectInput} title='Primeira opção' defaultValue={data.nucleusChoice.firstOption}>
+                                            <select className={styles.selectInput} title='Primeira opção' defaultValue={data.nucleusChoice.firstOption} onChange={handleChosenNuclei} value={nuclei_1}>
                                                 {
                                                     data.nucleusChoice.eligibleNuclei?.map((nucleus) => (
                                                         <option key={nucleus} value={nucleus}>{`Núcleo de ${nucleus}`}</option>
@@ -191,7 +160,7 @@ const CardFlow: React.FC = () => {
                                             </div>
 
                                         ) : (
-                                            <select className={styles.selectInput} title='Segunda opção' defaultValue={data.nucleusChoice.secondOption}>
+                                            <select className={styles.selectInput} title='Segunda opção' defaultValue={data.nucleusChoice.secondOption} onChange={handleChosenNuclei} value={nuclei_2}>
                                                 {
                                                     data.nucleusChoice.eligibleNuclei?.map((nucleus) => (
                                                         <option key={nucleus} value={nucleus}>{`Núcleo de ${nucleus}`}</option>
@@ -203,7 +172,7 @@ const CardFlow: React.FC = () => {
                                 </div>
 
                                 {data.nucleusChoice.showSelectionButton && (
-                                    <button className={styles.selectionButton}>ENVIAR ESCOLHA</button>
+                                    <button onClick={() => updateChosenNuclei()} className={styles.selectionButton}>ENVIAR ESCOLHA</button>
                                 )}
                             </>
                         }

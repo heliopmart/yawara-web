@@ -66,6 +66,30 @@ export const error_list = {
     'PS_EDITION_NOT_FOUND': {
         message: 'Edição de PS não encontrada.',
         statusCode: 404,
+    },
+    'FILE_VALIDATION_ERROR': {
+        message: 'Erro na validação do arquivo enviado.',
+        statusCode: 400,
+    },
+    'FILE_UPLOAD_FAILED': {
+        message: 'Falha ao fazer upload do arquivo.',
+        statusCode: 500,
+    },
+    'PS_USER_CARD_UPDATE_FAILED': {
+        message: 'Falha ao atualizar o cartão do usuário no processo seletivo.',
+        statusCode: 500,
+    },
+    'PS_USER_CARDS_NOT_FOUND': {
+        message: 'Cartões do usuário no processo seletivo não encontrados.',
+        statusCode: 404,
+    },
+    'CARD_NOT_FOUND_IN_PROGRESS': {
+        message: 'Cartão não encontrado no progresso do usuário.',
+        statusCode: 404,
+    },
+    'INVALID_INPUT': {
+        message: 'Entrada inválida fornecida.',
+        statusCode: 400,
     }
 }
 

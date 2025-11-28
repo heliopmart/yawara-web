@@ -22,9 +22,9 @@ export const FOOTER_LINKS: NavItem[] = [
   { label: 'Transparência', href: '/transparency' }, //
   { label: 'Nossa Equipe', href: '/ourTeam' }, //
   { label: 'Cadastro', href: '/registre' }, //
-  { label: 'Validar documento', href: '/validate/doc' }, //
+  { label: 'Validar documento', href: '/docs/validate' }, //
   { label: 'Yawara na mídia', href: '/media' }, //
-  { label: 'Documento de vínculo UFGD', href: '/docs/ufgd-affiliation' }, //
+  { label: 'Documento Importantes', href: '/docs' }, //
   { label: 'UFGD', href: 'https://ufgd.edu.br', isExternal: true }, //
 ];
 
@@ -36,30 +36,36 @@ export const NUCLEOS_MOCK: NucleoItem[] = [
         titulo: 'Aero-Design', 
         slug: '/nuclei/aerodesign', //
         descricao: 'Aerodinâmica, estética e ergonomia da moto.',
+        image: '/icons/aerodesign.svg',
     },
     { 
         titulo: 'Combustão', 
         slug: '/nuclei/combustion', //
         descricao: 'Pesquisa e otimização do desempenho do motor.',
+        image: '/icons/combustion.svg',
     },
     { 
         titulo: 'Hidrogênio', 
         slug: '/nuclei/hidrogeny', //
         descricao: 'Desenvolvimento de tecnologia limpa e sustentável.',
+        image: '/icons/hydrogen.svg',
     },
     { 
         titulo: 'Sistemas Embarcados', 
         slug: '/nuclei/embedded-systems', //
         descricao: 'Pesquisa e desenvolvimento dos sistemas eletrônicos dos protótipos.',
+        image: '/icons/embedded-systems.svg',
     },
     { 
         titulo: 'Mecânica', 
         slug: '/nuclei/mechanics', //
         descricao: 'Estrutura, suspensão e desempenho das motocicletas.',
+        image: '/icons/mechanics.svg',
     },
     { 
-        titulo: 'Administração', 
+        titulo: 'Gestão', 
         slug: '/nuclei/management', //
         descricao: 'Gestão financeira, projetos, comunicação e parcerias.',
+        image: '/icons/management.svg',
     },
 ];

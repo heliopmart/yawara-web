@@ -1,9 +1,6 @@
-// apps/frontend/src/components/home/heroSection.module.scss
 
-// Importando variáveis globais
 @import '@/styles/variables.scss';
 
-// --- MIXIN PARA RESPONSIVIDADE ---
 @mixin desktop {
   @media (min-width: 1024px) {
     @content;
@@ -37,10 +34,9 @@
   }
 }
 
-// --- COLUNA DE TEXTO (ESQUERDA) ---
 .textContainer {
   flex: 1 1 50%;
-  padding-bottom: 30px; // Espaço antes da imagem no mobile
+  padding-bottom: 30px;
 
   @include desktop {
     padding-bottom: 0;
@@ -143,6 +139,8 @@
   flex: 1 1 50%;
   position: relative;
   height: 200px;
+  border-radius: 5px;
+  overflow: hidden;
   img {
     display: block;
     position: relative !important;
@@ -150,7 +148,7 @@
   }
 
   @include desktop {
-    width: 45%;
+    width: 50%;
     min-width: 400px;
     height: auto;
     min-height: 300px;

@@ -1,0 +1,112 @@
+$bg-color: rgba(20, 20, 20, 0.95); 
+$text-color: #f5f5f5;
+$accent-color: #d32f2f; 
+$border-color: #333;
+
+.bannerContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: $bg-color;
+    border-top: 1px solid $border-color;
+    color: $text-color;
+    padding: 1.5rem 2rem;
+    z-index: 9999;
+
+    // Animação de entrada (slide up)
+    animation: slideUp 0.5s ease-out forwards;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1rem;
+    }
+}
+
+.content {
+    flex: 1;
+
+    p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin: 0;
+        color: #ccc;
+
+        a {
+            color: $text-color;
+            text-decoration: underline;
+            transition: color 0.2s;
+
+            &:hover {
+                color: $accent-color;
+            }
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.acceptButton {
+    background-color: $accent-color;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &:hover {
+        background-color: lighten($accent-color, 5%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.closeButton {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 0.6rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+
+    &:hover {
+        border-color: #fff;
+        color: #fff;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

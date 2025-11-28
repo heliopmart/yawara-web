@@ -33,7 +33,7 @@ const HeroSection: React.FC = () => {
                 <div className={styles.contentWrapper}>
                     <div className={styles.imageContainer}>
                         <Image
-                            src="/images/moto-yawara-hero.png"
+                            src="/images/yawara_image_index_v3.png"
                             alt="Motocicleta da equipe Yawara"
                             layout="fill"
                             objectFit="cover"

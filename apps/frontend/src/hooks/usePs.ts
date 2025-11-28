@@ -9,6 +9,7 @@ export const usePs = () => {
     const [data, setData] = useState<ps_data_display | null>();
     const [rawData, setRawData] = useState<ps_full_data>();
     const [error, setError] = useState<{ message: string } | null>(null);
+    const [register_PS, setRegister_PS] = useState<boolean>(false);
 
     const handlePs = async () => {
         setError(null);
@@ -25,13 +26,19 @@ export const usePs = () => {
             if (apiResponse.success) {
                 try {
                     const data = mapBackendDataToFrontend(apiResponse.data)
-                    console.log(data)
                     setRawData(apiResponse.data)
                     setData(data)
-                } catch (e) {
-                    console.error(e)
+                } catch (e : any) {
+                    if (e.code == 'PS_EDITION_NOT_FOUND') {
+                        setRegister_PS(true)
+                    }
                 }
             } else {
+                if (apiResponse.code === 'PS_SIGNUP_FAILED') {
+                    setRegister_PS(true)
+                    setError({ message: apiResponse.error.message });   
+                }
+
                 setError({ message: apiResponse.error.message });
             }
 
@@ -151,6 +158,31 @@ export const usePs = () => {
         }
     }
 
+    const handle_sign_up_ps = async () => {
+        try {
+            const response = await fetch('/api/ps/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if (!response.ok) {
+                throw 'NETWORK_RESPONSE_NOT_OK'
+            }
+            const res = await response.json();
+
+            if (res.success) {
+                setRegister_PS(false)
+                handlePs()
+            } else {
+                throw res.error.message
+            }
+        } catch (e) {
+            console.error('Erro ao inscrever no processo seletivo:', e);
+            throw e
+        }
+    }
+
     useEffect(() => {
         handlePs();
         return
@@ -161,8 +193,10 @@ export const usePs = () => {
         nuclei_2,
         handleChosenNuclei,
         updateChosenNuclei,
+        handle_sign_up_ps,
 
         data,
-        error
+        error,
+        register_PS,
     }
 }

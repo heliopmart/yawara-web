@@ -1,6 +1,6 @@
-import { getRows, insertRow } from '@/utils/bd'
-import { supabaseAdmin } from '@/lib/db'
-import { AuthServiceLoginCredentials, AuthRespositoryUserDataByEmail, AuthRespositoryInsertData } from '@yawara/types';
+import { getRows, insertRow, updateRow } from '@/utils/bd'
+import { supabaseAdmin, create_rls_client } from '@/lib/db'
+import { AuthServiceLoginCredentials, AuthRespositoryUserDataByEmail, AuthRespositoryInsertData, TokenPayload } from '@yawara/types';
 
 export class AuthRepository {
     private static authTableName = 'auth';
@@ -19,7 +19,7 @@ export class AuthRepository {
             const bd = supabaseAdmin
             const res = await getRows({
                 table: this.authTableName,
-                columns: `password, role, id, secret, user_id`,
+                columns: `password, role, id, secret, user_id, is_active, disabled_at`,
                 bd: bd,
                 filters: [{ column: 'email', op: 'eq', value: email }],
                 single: true
@@ -35,6 +35,83 @@ export class AuthRepository {
             throw 'INTERNAL_SERVER_ERROR';
         }
     }
+
+    static async getAuthDataById(auth: TokenPayload): Promise<AuthRespositoryUserDataByEmail | null> {
+        try {
+            const bd = create_rls_client(auth.supabaseToken ?? null);
+            const res = await getRows({
+                table: this.authTableName,
+                columns: `email, role`,
+                bd: bd,
+                filters: [{ column: 'user_id', op: 'eq', value: auth.user_id }],
+                single: true
+            })
+
+            if (res) {
+                return res;
+            }
+
+            return null
+        } catch (error) {
+            console.error('AuthRepository.getAuthDataById error:', error);
+            throw 'INTERNAL_SERVER_ERROR';
+        }
+    }
+
+    // ----------------------------------------------
+    // -------------- UPDATE METHODS ----------------
+    // ----------------------------------------------
+
+    /**
+     * Disable user account
+     * @param user_id String
+     * @return boolean
+     * @throws 'INTERNAL_SERVER_ERROR' | 'DISABLE_USER_ERROR'
+     */
+    static async disableAccount(user_id: string): Promise<boolean> {
+        try {
+            const bd = supabaseAdmin
+            const res = await updateRow({
+                table: this.authTableName,
+                data: { is_active: false, disabled_at: new Date().toISOString() },
+                where: [{ column: 'user_id', op: 'eq', value: user_id }],
+                authBd:bd,
+            })
+            if (!res.success) {
+                throw 'DISABLE_USER_ERROR';
+            }
+            return res.success;
+        } catch (error) {
+            console.error('UserRepository.disableAccount error:', error);
+            throw 'INTERNAL_SERVER_ERROR';
+        }
+    }
+
+    /**
+     *  Recover user account
+     * @param auth_id String
+     * @return boolean
+     * @throws 'INTERNAL_SERVER_ERROR' | 'RECOVER_USER_ERROR'
+     */
+    static async recoverAccount(auth_id: string): Promise<boolean> {
+        try {
+            const bd = supabaseAdmin
+            const res = await updateRow({
+                table: this.authTableName,
+                data: { is_active: true, disabled_at: null },
+                where: [{ column: 'id', op: 'eq', value: auth_id }],
+                authBd:bd,
+            })
+            if (!res.success) {
+                throw 'RECOVER_USER_ERROR';
+            }
+            return res.success;
+        } catch (error) {
+            console.error('AuthRepository.recoverAccount error:', error);
+            throw 'INTERNAL_SERVER_ERROR';
+        }
+    }
+
 
     // ----------------------------------------------
     // --------------- INSERT METHODS ---------------

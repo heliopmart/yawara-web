@@ -14,8 +14,10 @@ export interface Auth {
     secret: string;
     user_id: Users['id'];
     permission: number;
+    is_active: boolean;
     createdAt: string;
     updatedAt: string;
+    disabled_at: string | null;
 }
 
 
@@ -45,6 +47,8 @@ export interface AuthRespositoryUserDataByEmail {
     id: Auth['id'];
     secret: Auth['secret'];
     user_id: Auth['user_id'];
+    is_active: Auth['is_active'];
+    disabled_at: Auth['disabled_at'];
 }
 
 export interface AuthRespositoryInsertData {

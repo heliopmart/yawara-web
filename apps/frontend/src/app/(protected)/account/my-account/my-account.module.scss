@@ -1,0 +1,252 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
+// MyAccount.module.scss
+$bg-dark: #121212;
+$bg-card: #1e1e1e;
+$accent: #d32f2f; // Vermelho Yawara
+$text-main: #f5f5f5;
+$text-muted: #a0a0a0;
+$border: #333;
+
+.container {
+  min-height: 100vh;
+  background-color: $bg-dark;
+  color: $text-main;
+  padding: 3rem 1.5rem;
+}
+
+.wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+// SEÇÃO 1: CABEÇALHO E DADOS
+.profileSection {
+  background-color: $bg-card;
+  border-radius: 12px;
+  border: 1px solid $border;
+  padding: 2rem;
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid $border;
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, $accent, darken($accent, 20%));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .info {
+      h1 { margin: 0; font-size: 1.8rem; }
+      .nucleusBadge {
+        display: inline-block;
+        margin-top: 0.5rem;
+        background: rgba($accent, 0.2);
+        color: lighten($accent, 20%);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid rgba($accent, 0.5);
+      }
+    }
+  }
+
+  .formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      label {
+        font-size: 0.85rem;
+        color: $text-muted;
+        font-weight: 500;
+      }
+
+      input {
+        background-color: darken($bg-dark, 2%);
+        border: 1px solid $border;
+        padding: 0.8rem;
+        border-radius: 6px;
+        color: $text-main;
+        font-size: 1rem;
+        transition: border 0.3s;
+
+        &:focus {
+          outline: none;
+          border-color: $accent;
+        }
+
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          border-color: transparent;
+        }
+      }
+    }
+  }
+
+  .editBtn {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1px solid $text-muted;
+    color: $text-main;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    
+    &:hover { border-color: #fff; }
+  }
+}
+
+// SEÇÃO 2: TRABALHANDO EM (CARDS)
+.workSection {
+  h2 { font-size: 1.4rem; margin-bottom: 1.5rem; border-left: 4px solid $accent; padding-left: 1rem; }
+
+  .cardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .workCard {
+    background: linear-gradient(180deg, lighten($bg-card, 5%), $bg-card);
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background-color: $accent;
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+      border-color: #555;
+    }
+
+    .cardHeader {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      
+      .type { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: $text-muted; }
+      .status { font-size: 0.75rem; color: #4caf50; font-weight: bold; }
+    }
+
+    h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+    p { font-size: 0.9rem; color: $text-muted; margin: 0; }
+    
+    .cardFooter {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      
+      button {
+        background: transparent;
+        border: none;
+        color: $accent;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        &:hover { text-decoration: underline; }
+      }
+    }
+  }
+}
+
+// SEÇÃO 3: CONFIGURAÇÕES E DANGER ZONE
+.settingsSection {
+  h2 { font-size: 1.4rem; margin-bottom: 1.5rem; }
+
+  .actionsList {
+    background-color: $bg-card;
+    border-radius: 12px;
+    border: 1px solid $border;
+    overflow: hidden;
+  }
+
+  .actionRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid #333;
+    transition: background 0.2s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background-color: rgba(255,255,255,0.02); }
+
+    .actionInfo {
+      h4 { margin: 0 0 0.3rem 0; }
+      p { margin: 0; font-size: 0.85rem; color: $text-muted; }
+    }
+
+    button {
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: transparent;
+      color: $text-main;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover { border-color: #fff; }
+
+      &.danger {
+        color: #ef5350;
+        border-color: rgba(239, 83, 80, 0.3);
+        
+        &:hover {
+          background-color: rgba(239, 83, 80, 0.1);
+          border-color: #ef5350;
+        }
+      }
+    }
+  }
+}

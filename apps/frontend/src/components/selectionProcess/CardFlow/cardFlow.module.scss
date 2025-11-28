@@ -1,16 +1,16 @@
 // apps/frontend/src/components/processoSeletivo/CardFlow/cardFlow.module.scss
 
 @import '@/styles/variables.scss';
-@import '@/styles/utils.scss'; 
+@import '@/styles/utils.scss';
 
 // --- CONTAINER GERAL E TÍTULOS ---
 .cardFlowContainer {
-    padding: $spacing-lg; 
+    padding: $spacing-lg;
 }
 
 .pageTitle {
     font-size: $fs-xxl;
-    margin-bottom: $spacing-xl; 
+    margin-bottom: $spacing-xl;
 }
 
 .progressLabel {
@@ -18,6 +18,47 @@
     font-size: 0.8em;
     color: $color-text-light;
     margin-bottom: $spacing-xs;
+}
+
+.containerError {
+    background-color: #272727;
+    color: $color-error;
+    padding: $spacing-md;
+    margin-bottom: $spacing-lg;
+    border: 1px solid $color-error;
+    font-size: 1.1em;
+
+    position: relative;
+    background-color: #272727;
+    border-radius: 10px;
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+
+.registerButton {
+    display: block;
+    background-color: $color-primary;
+    color: $color-text-light;
+    border-radius: 10px;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: 0;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    margin-top: $spacing-md;
+    cursor: pointer;
+    border: none;
+    height: 50px;
+    border-radius: 5px;
+
+    &:hover {
+        background-color: darken($color-primary, 10%);
+    }
 }
 
 .progressBar {
@@ -30,13 +71,13 @@
 
 .progressFill {
     height: 100%;
-    background-color: $color-primary; 
+    background-color: $color-primary;
     transition: width 0.5s ease-out;
 }
 
 .currentStepHeader {
     font-size: $fs-large;
-    margin-bottom: $spacing-lg; 
+    margin-bottom: $spacing-lg;
     text-transform: uppercase;
 }
 
@@ -47,7 +88,7 @@
     gap: $spacing-md;
 
     @include desktop {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: $spacing-md;
         align-items: flex-start; // CRÍTICO: Evita o esticamento vertical desnecessário
     }
@@ -60,11 +101,11 @@
     border-radius: 10px;
     min-height: 220px;
     text-align: left;
-    border: 1px solid transparent; 
-    
+    border: 1px solid transparent;
+
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
+    justify-content: space-between;
     height: 100%;
 }
 
@@ -73,7 +114,7 @@
 .cardHeader {
     display: flex;
     align-items: center;
-    margin-bottom: $spacing-xs; 
+    margin-bottom: $spacing-xs;
 }
 
 .statusIcon {
@@ -84,7 +125,7 @@
     font-size: 0.8em;
     text-align: center;
     font-weight: bold;
-    color: $color-text-light; 
+    color: $color-text-light;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,9 +134,17 @@
     right: -15px;
 }
 
-.iconCompleted { background-color: $color-success; }
-.iconFailed { background-color: $color-error; }
-.iconDefault { background-color: $color-text-subtle; }
+.iconCompleted {
+    background-color: $color-success;
+}
+
+.iconFailed {
+    background-color: $color-error;
+}
+
+.iconDefault {
+    background-color: $color-text-subtle;
+}
 
 
 .cardTitle {
@@ -105,24 +154,25 @@
 
 .cardDescription {
     font-size: 0.9em;
-    color: $color-text-light; 
+    color: $color-text-light;
     margin-bottom: $spacing-md;
-    flex-grow: 1; 
+    flex-grow: 1;
 }
 
 .actionButton {
     display: block;
-    background-color: $color-primary; 
+    background-color: $color-primary;
     color: $color-text-light;
     border-radius: 10px;
     padding: $spacing-sm $spacing-md;
-    border-radius: 0; 
+    border-radius: 0;
     text-align: center;
     font-weight: bold;
     text-decoration: none;
     transition: background-color 0.3s;
-    margin-top: $spacing-md; 
+    margin-top: $spacing-md;
     cursor: pointer;
+    border: none;
 
     &:hover {
         background-color: darken($color-primary, 10%);
@@ -138,6 +188,7 @@
     flex-direction: column;
     margin-top: $spacing-md;
 }
+
 .helpLink {
     font-size: 0.8em;
     color: $color-text-light;
@@ -150,20 +201,21 @@
     grid-template-columns: 1fr;
     gap: $spacing-lg;
     margin-top: $spacing-xl;
-    
+
     @include tablet {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-.nucleusChoice, .finalResult {
+.nucleusChoice,
+.finalResult {
     // Estes agora usam o estilo base .stepCard
-    text-align: left; 
+    text-align: left;
 }
 
 
 .blockTitle {
-    font-size: $fs-base; 
+    font-size: $fs-base;
     font-weight: 500;
     margin-bottom: $spacing-md;
     text-transform: uppercase;
@@ -176,25 +228,25 @@
 .selectInput {
     width: 100%;
     padding: $spacing-sm;
-    background-color: #3f3f3f; 
+    background-color: #3f3f3f;
     color: $color-text-light;
-    
-    border: none; 
-    border-radius: 0; 
-    height: 40px; 
+
+    border: none;
+    border-radius: 0;
+    height: 40px;
 
     &:focus {
-        outline: 1px solid $color-text-light; 
+        outline: 1px solid $color-text-light;
         box-shadow: none;
     }
 }
 
 .selectionButton {
     @include button-reset;
-    background-color: $color-primary; 
+    background-color: $color-primary;
     color: $color-text-light;
     padding: $spacing-sm $spacing-md;
-    border-radius: 0; 
+    border-radius: 0;
     font-weight: bold;
     margin-top: $spacing-md;
 }
@@ -202,7 +254,7 @@
 .downloadLink {
     color: $color-primary;
     text-decoration: underline;
-    display: block; 
+    display: block;
     margin-top: $spacing-md;
     font-size: 0.9em;
 }

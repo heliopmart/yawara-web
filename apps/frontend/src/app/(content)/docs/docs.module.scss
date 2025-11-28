@@ -1,0 +1,163 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
+// LegalDocs.module.scss
+
+$bg-dark: #121212;
+$bg-card: #1e1e1e;
+$accent: #d32f2f; // Vermelho Yawara
+$text-main: #f5f5f5;
+$text-muted: #a0a0a0;
+
+.container {
+  background-color: $bg-dark;
+  min-height: 100vh;
+  color: $text-main;
+  padding: 4rem 2rem;
+  margin-top: 5vh;
+
+  @include mobile {
+    padding: 2rem 1rem;
+  }
+}
+
+.pageHeader {
+  margin-bottom: 3rem;
+  text-align: center;
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #fff, #999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p { color: $text-muted; }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Sidebar
+.sidebar {
+  nav ul {
+    list-style: none;
+    padding: 0;
+    position: sticky;
+    top: 2rem; // Mantém o menu visível ao rolar
+  }
+
+  li { margin-bottom: 0.5rem; }
+
+  button {
+    background: transparent;
+    border: none;
+    border-left: 2px solid #333;
+    color: $text-muted;
+    padding: 0.8rem 1rem;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+
+    &:hover {
+      color: #fff;
+      background: rgba(255,255,255, 0.03);
+    }
+
+    &.active {
+      border-left-color: $accent;
+      color: $accent;
+      font-weight: 600;
+      background: linear-gradient(90deg, rgba($accent, 0.1), transparent);
+    }
+  }
+}
+
+.mobileToggle {
+  display: none; 
+  @include mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: $bg-card;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+}
+
+// Content Area
+.contentArea {
+  background: $bg-card;
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.docHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h2 { margin: 0; font-size: 1.8rem; }
+  .date { display: block; color: $text-muted; font-size: 0.9rem; margin-top: 0.5rem; }
+}
+
+.pdfButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  border: 1px solid $accent;
+  color: $accent;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+
+  &:hover {
+    background-color: $accent;
+    color: #fff;
+  }
+}
+
+.textBody {
+  line-height: 1.8;
+  color: #ddd;
+
+  h2, h3 { color: #fff; margin-top: 2rem; margin-bottom: 1rem; }
+  p { margin-bottom: 1rem; }
+  ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+}

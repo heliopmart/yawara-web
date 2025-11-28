@@ -1,5 +1,3 @@
-// apps/frontend/src/components/home/NucleosSection.tsx
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,6 +15,14 @@ const NucleosSection: React.FC<NucleosSectionProps> = ({ nucleos }) => {
         <Link href={nucleo.slug} className={styles.cardLink}>
             <div className={styles.nucleoCard}>
                 <div className={styles.iconPlaceholder}>
+                    <Image
+                        src={nucleo.image || ''}
+                        alt={nucleo.titulo}
+                        width={60}
+                        height={60}
+                        className={styles.nucleoImage}
+                        objectFit='cover'
+                    />
                 </div>
 
                 <h3 className={styles.cardTitle}>{nucleo.titulo}</h3>

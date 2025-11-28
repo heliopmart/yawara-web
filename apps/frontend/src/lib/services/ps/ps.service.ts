@@ -91,6 +91,44 @@ export class PsService {
         =========================================================
     */
 
+    async signup(): Promise<boolean> {
+        try{
+            const cards_progress: cards_progress[] = [
+                {
+                    card_id: 1,
+                    state: 'NOT_AVAILABLE',
+                    file_id: null
+                },
+                {
+                    card_id: 2,
+                    state: 'NOT_AVAILABLE',
+                    file_id: null
+                },
+                {
+                    card_id: 3,
+                    state: 'NOT_AVAILABLE',
+                    file_id: null
+                },
+                {
+                    card_id: 4,
+                    state: 'NOT_AVAILABLE',
+                    file_id: null
+                },
+                {
+                    card_id: 5,
+                    state: 'NOT_AVAILABLE',
+                    file_id: null
+                }
+            ];
+
+            const response = await this.psRepository.signupToPsEdition(cards_progress);
+            return response;
+        }catch(error){
+            console.error('PsService.signup error:', error);
+            throw error;
+        }
+    }
+
     /*
         =========================================================
         ======================== PS FILE =========================

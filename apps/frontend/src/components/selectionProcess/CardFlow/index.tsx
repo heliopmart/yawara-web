@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import styles from './cardFlow.module.scss';
 import { RecruitmentStep, EnumPsCardConfigState } from '@yawara/types';
-import {useCard} from '@/hooks/useCard';
+import { useCard } from '@/hooks/useCard';
 import { usePs } from '@/hooks/usePs';
 
 const getCardClassName = (status: EnumPsCardConfigState) => {
@@ -50,9 +50,9 @@ const Card: React.FC<{ step: RecruitmentStep }> = ({ step }) => {
 
             {step.actionButton && (
                 <label>
-                    <input type="file" accept={'.pdf'} multiple={false} onChange={handleFileChange} title='Upload file'  style={{ display: 'none' }} />
+                    <input type="file" accept={'.pdf'} multiple={false} onChange={handleFileChange} title='Upload file' style={{ display: 'none' }} />
                     <div role='button' className={`${styles.actionButton} ${isSubmissionButton ? styles.actionButtonSuccess : ''}`}>
-                        { status != 'COMPLETED' ? step.actionButton.text : 'Enviar outro arquivo (.pdf)'}
+                        {status != 'COMPLETED' ? step.actionButton.text : 'Enviar outro arquivo (.pdf)'}
                     </div>
                 </label>
             )}
@@ -84,25 +84,53 @@ const CardFlow: React.FC = () => {
         nuclei_2,
         handleChosenNuclei,
         updateChosenNuclei,
-
+        handle_sign_up_ps,
         data,
         error,
+        register_PS,
     } = usePs()
 
+    if (register_PS) {
+        return (
+            <div className={styles.cardFlowContainer}>
+                <h2 className={styles.pageTitle}>PROCESSO SELETIVO</h2>
+
+                {error && (
+                    <div className={styles.containerError}>
+                        <span>{error?.message || 'error'}</span>
+                    </div>
+                )}
+
+                <p>Você ainda não está inscrito no processo seletivo atual.</p>
+                <button onClick={() => handle_sign_up_ps()} className={styles.registerButton}>Inscrever-se</button>
+            </div>
+        )
+    }
 
     if (!data) {
         return (
             <div className={styles.cardFlowContainer}>
                 <h2 className={styles.pageTitle}>PROCESSO SELETIVO</h2>
+                {error && (
+                    <div className={styles.containerError}>
+                        <span>{error?.message || 'error'}</span>
+                    </div>
+                )}
+
                 <p>Carregando dados do processo seletivo...</p>
             </div>
         );
     }
 
-
     return (
         <div className={styles.cardFlowContainer}>
             <h2 className={styles.pageTitle}>PROCESSO SELETIVO</h2>
+
+            {error && (
+                <div className={styles.containerError}>
+                    <span>{error?.message || 'error'}</span>
+                </div>
+            )}
 
             <div className={styles.progressHeader}>
                 <p className={styles.progressLabel}>MEU PROGRESSO - {data.title}</p>

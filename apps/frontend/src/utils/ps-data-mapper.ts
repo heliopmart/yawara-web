@@ -51,7 +51,10 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
     const userApplication = rawBackendData.ps_user_cards[0];
 
     if (!userApplication) {
-        throw new Error("PS_APPLICATION_NOT_FOUND: Usuário não possui inscrição ativa.");
+        throw {
+            code: "PS_EDITION_NOT_FOUND",
+            message: "Nenhuma inscrição ativa encontrada para o usuário no processo seletivo atual."
+        }
     }
 
     const editionConfig = rawBackendData.ps_card_configs;

@@ -8,12 +8,12 @@ import { PS_MOCK_DATA } from '@/mocks/ps.mock';
 type DashboardStatus = 'ACTION_NEEDED' | 'REVIEW_IN_PROGRESS' | 'WELCOME';
 
 const getDashboardStatus = (data: typeof PS_MOCK_DATA): DashboardStatus => {
-    const requiresAction = data.steps.some(step => step.status === 'PENDING_ACTION');
+    const requiresAction = data.steps.some(step => step.userState === 'PENDING_ACTION');
     
     if (requiresAction || data.nucleusChoice?.isWaiting) {
         return 'ACTION_NEEDED';
     }
-    const allCompleted = data.steps.every(step => step.status === 'COMPLETED' || step.status === 'FAILED');
+    const allCompleted = data.steps.every(step => step.userState === 'COMPLETED' || step.userState === 'FAILED');
 
     if (allCompleted && !data.finalResult) {
         return 'REVIEW_IN_PROGRESS';
@@ -38,7 +38,7 @@ const AccountDashboard: React.FC = () => {
     };
 
     if (status === 'ACTION_NEEDED') {
-        const nextStep = userData.steps.find(step => step.status === 'PENDING_ACTION');
+        const nextStep = userData.steps.find(step => step.userState === 'PENDING_ACTION');
         
         cardProps.title = "ATENÇÃO: AÇÃO NECESSÁRIA";
         cardProps.message = nextStep 

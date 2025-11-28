@@ -120,4 +120,32 @@ export class PsRepository {
             throw error;
         }
     }
+
+     /*
+        =========================================================
+        ======================= PS CREATE =======================
+        =========================================================
+    */
+
+    async signupToPsEdition(cards_progress : cards_progress[]): Promise<boolean> {
+        try {
+            const response = await callRpc({
+                functionName: "signup_to_ps_edition",
+                params: {
+                    p_user_id: this.auth.user_id,
+                    p_cards_progress: cards_progress
+                },
+                bd: this.bd
+            })
+
+            if(!response.status){
+                throw 'PS_SIGNUP_FAILED';
+            }
+
+            return response.status;
+        } catch (error) {
+            console.error('PsRepository.signupToPsEdition error:', error);
+            throw error;
+        }
+    }
 }

@@ -1,0 +1,138 @@
+
+$bg-card: #1e1e1e;
+$skeleton-base: #252525;
+$skeleton-highlight: #333333; 
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 3rem 1.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    $skeleton-base 0%,
+    $skeleton-highlight 50%,
+    $skeleton-base 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+.profileCard {
+  background-color: $bg-card;
+  border-radius: 12px;
+  border: 1px solid #333;
+  padding: 2rem;
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #333;
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      
+      .name { width: 200px; height: 24px; }
+      .badge { width: 120px; height: 16px; border-radius: 20px; }
+    }
+  }
+
+  .inputsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    .inputGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .label { width: 100px; height: 12px; }
+      .field { width: 100%; height: 45px; } // Altura do input real
+    }
+  }
+
+  .button { width: 140px; height: 40px; margin-top: 1rem; }
+}
+
+.workSection {
+  .title { width: 180px; height: 24px; margin-bottom: 1.5rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    background-color: $bg-card;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: 180px; // Altura aproximada do card real
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .topRow {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      div { width: 60px; height: 10px; }
+    }
+
+    .midRow {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      .main { width: 80%; height: 18px; }
+      .sub { width: 50%; height: 12px; }
+    }
+
+    .botRow {
+      align-self: flex-end;
+      width: 90px; height: 14px;
+    }
+  }
+}
+
+.settingsSection {
+  .title { width: 220px; height: 24px; margin-bottom: 1.5rem; }
+  
+  .row {
+    height: 70px;
+    background-color: $bg-card;
+    border: 1px solid #333;
+    border-radius: 8px; // Simulando a lista
+    margin-bottom: 1rem;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

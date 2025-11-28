@@ -90,6 +90,30 @@ export const error_list = {
     'INVALID_INPUT': {
         message: 'Entrada inválida fornecida.',
         statusCode: 400,
+    },
+    'USER_NOT_FOUND_ERROR': {
+        message: 'Usuário não encontrado.',
+        statusCode: 404,
+    },
+    'UPDATE_USER_ERROR': {
+        message: 'Erro ao atualizar os dados do usuário.',
+        statusCode: 500,
+    },
+    'DISABLE_USER_ERROR': {
+        message: 'Erro ao desativar a conta do usuário.',
+        statusCode: 500,
+    },
+    'USER_DISABLED_PERMANENTLY': {
+        message: 'Conta do usuário desativada permanentemente.',
+        statusCode: 403,
+    },
+    'RECOVER_USER_ERROR': {
+        message: 'Erro ao recuperar a conta do usuário.',
+        statusCode: 500,
+    },
+    'PS_SIGNUP_FAILED': {
+        message: 'Falha ao inscrever-se no processo seletivo.',
+        statusCode: 500,
     }
 }
 

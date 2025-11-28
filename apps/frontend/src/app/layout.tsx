@@ -4,33 +4,33 @@ import { Inter } from 'next/font/google';
 
 import '@/styles/globals.scss';
 
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import CookieBanner from '@/components/cookieBanner'
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Equipe Yawara | UFGD',
     description: 'Projeto de extensão e pesquisa da equipe Yawara Motostudent focado em engenharia de alta performance e sustentabilidade.',
+    icons: {
+        icon: '/favicon.ico',
+        shortcut: '/favicon.ico', 
+        apple: '/favicon.ico',
+       
+    },
 };
 
-
-interface RootLayoutProps {
-    children: React.ReactNode;
-}
-
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
-return (
-    <html
-        suppressHydrationWarning={true}
-    >
-        <body>
+    return (
+        <html
+            suppressHydrationWarning={true}
+        >
+            <body>
 
-            {children}
-
-        </body>
-    </html>
-);
+                {children}
+                <CookieBanner />
+            </body>
+        </html>
+    );
 };
 
 export default RootLayout;

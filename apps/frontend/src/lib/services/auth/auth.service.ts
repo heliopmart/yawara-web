@@ -1,11 +1,19 @@
 import { AuthRepository } from '@/lib/repository/auth/auth.repository'
-import {UserRepository} from '@/lib/repository/user/user.repository'
+import { UserRepository } from '@/lib/repository/user/user.repository'
 import { SessionService } from '@/lib/services/session/session.service'
-import {hashCreateSecretAuth} from '@/utils/hash'
+import { hashCreateSecretAuth } from '@/utils/hash'
 import { verifyPasswordString, hashPasswordString } from '@/utils/hash'
 import { AuthServiceLoginCredentials, AuthServiceRegistreCredentials, TokenPayload } from '@yawara/types'
-
+import { handle_verify_date } from '@/utils/handle_verify_date'
 export class authService {
+
+    /*
+       =========================================================
+       ========================= GET ===========================
+       =========================================================
+    */
+
+
     /**
      * Login user
      * @param credentials AuthServiceLoginCredentials
@@ -17,7 +25,7 @@ export class authService {
         try {
             const userData = await AuthRepository.getUserByEmail(email);
 
-            if(!userData){
+            if (!userData) {
                 throw 'USER_NOT_FOUND'
             }
 
@@ -25,9 +33,17 @@ export class authService {
                 throw 'INVALID_CREDENTIALS'
             }
 
+            if (userData.is_active === false) {
+                if (handle_verify_date(userData.disabled_at, 30 * 24 * 60 * 60 * 1000)) {
+                    throw 'USER_DISABLED_PERMANENTLY'
+                } else {
+                    await AuthRepository.recoverAccount(userData.id);
+                }
+            }
+
             const response_session_token = await SessionService.createSession(userData)
 
-            if(!response_session_token){
+            if (!response_session_token) {
                 throw 'INVALID_CREDENTIALS'
             }
 
@@ -38,6 +54,13 @@ export class authService {
         }
     }
 
+
+    /*
+      =========================================================
+      ======================== INSERT =========================
+      =========================================================
+    */
+
     /**
      * Registre user
      * @param credentials AuthServiceRegistreCredentials
@@ -47,7 +70,7 @@ export class authService {
     static async register(credentials: AuthServiceRegistreCredentials): Promise<boolean> {
         try {
             const user_exist = await AuthRepository.getUserByEmail(credentials.email);
-            if(user_exist){
+            if (user_exist) {
                 throw 'USER_ALREADY_EXISTS'
             }
 
@@ -56,7 +79,7 @@ export class authService {
                 course: credentials.course,
             });
 
-            if(!user_create_response){
+            if (!user_create_response) {
                 throw 'USER_ID_NOT_RETURNED'
             }
 
@@ -69,7 +92,7 @@ export class authService {
                 permission: 0
             });
 
-            if(!auth_create_response){
+            if (!auth_create_response) {
                 throw 'CREATE_USER_AUTH_ERROR'
             }
 
@@ -79,6 +102,13 @@ export class authService {
             throw error;
         }
     }
+
+
+    /*
+      =========================================================
+      ====================== SESSION ==========================
+      =========================================================
+    */
 
     /**
      * Verify session token
@@ -124,6 +154,49 @@ export class authService {
             return response;
         } catch (error) {
             console.error('authService.logout error:', error);
+            throw error;
+        }
+    }
+
+    /*
+       =========================================================
+       ======================= UPDATE ==========================
+       =========================================================
+    */
+
+    /**
+     * Disable user account
+     * @param user_id String
+     * @param token Session token
+     * @return boolean
+     * @throws 'INTERNAL_SERVER_ERROR' | 'DISABLE_USER_ERROR'
+     */
+    static async disableAccount(user_id: string, token: string): Promise<boolean> {
+        try {
+            const disable_response = await AuthRepository.disableAccount(user_id);
+            if (!disable_response) {
+                throw 'DISABLE_USER_ERROR';
+            }
+
+            await this.logout(token);
+
+            return true;
+        } catch (error) {
+            console.error('authService.disableAccount error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Recover user account
+     * @param auth_id String
+     * @throws 'INTERNAL_SERVER_ERROR' | 'RECOVER_USER_ERROR'
+     */
+    static async recoverAccount(auth_id: string) {
+        try {
+            await AuthRepository.recoverAccount(auth_id);
+        } catch (error) {
+            console.error('authService.recoverAccount error:', error);
             throw error;
         }
     }

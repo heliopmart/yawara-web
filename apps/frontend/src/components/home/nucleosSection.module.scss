@@ -34,19 +34,19 @@
 .cardLink {
     text-decoration: none;
     color: inherit;
-    display: block; // Garante que o link ocupe todo o espaço do card
+    display: block; 
     transition: transform 0.3s ease;
 
     &:hover {
-        transform: translateY(-5px); // Animação de elevação no hover (Framer Motion seria ideal aqui!)
+        transform: translateY(-5px); 
     }
 }
 
 .nucleoCard {
-  background-color: $color-dark-surface; // Fundo cinza escuro
+  background-color: $color-dark-surface; 
   padding: $spacing-md;
   border-radius: 4px;
-  height: 100%; // Garante altura uniforme
+  height: 100%;
   
   display: flex;
   flex-direction: column;
@@ -58,8 +58,12 @@
 .iconPlaceholder {
   width: 60px;
   height: 60px;
-  background-color: $color-text-light; // Quadrado branco
+  position: relative;
   margin-bottom: $spacing-sm;
+
+  img{
+    filter: invert(30%) sepia(57%) saturate(6406%) hue-rotate(348deg) brightness(88%) contrast(86%)
+  }
 }
 
 .cardTitle {

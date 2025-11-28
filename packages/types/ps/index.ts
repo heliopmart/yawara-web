@@ -8,7 +8,7 @@ export type EnumPsCardConfigState = 'COMPLETED' | 'FAILED' | 'PENDING_ACTION' | 
 export type cards_progress = {
     card_id: number;
     state: EnumPsCardConfigState;
-    file_id?: string
+    file_id?: string | null
 }
 
 export interface ps_editions {

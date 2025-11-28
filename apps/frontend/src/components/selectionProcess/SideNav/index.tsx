@@ -1,5 +1,3 @@
-// apps/frontend/src/components/selectionProcess/SideNav/index.tsx (CLIENT COMPONENT)
-
 'use client'; 
 
 import React from 'react';
@@ -29,7 +27,7 @@ const SideNav: React.FC<SideNavProps> = ({ links, isOpen, onClose }) => {
       </button>
 
       <div className={styles.logoPlaceholder}>
-        <span className={styles.logoText}>TEAM YAWARA</span>
+        <Link href='/'><span className={styles.logoText}>TEAM YAWARA</span></Link>
         <span className={styles.logoSubtext}>MOTOSTUDENT</span>
       </div>
       

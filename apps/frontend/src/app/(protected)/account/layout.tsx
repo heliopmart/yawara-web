@@ -4,20 +4,18 @@ import { Inter } from 'next/font/google';
 
 import '@/styles/globals.scss';
 
-
 import React, { useState } from 'react';
 import styles from './processoSeletivoLayout.module.scss';
 import SideNav from '@/components/selectionProcess/SideNav';
-import { usePathname } from 'next/navigation'; // Para gerenciar o fechamento do menu ao navegar
+import { usePathname } from 'next/navigation'; 
 
-// Links de navegação lateral (Mock de Rotas)
 const navLinks = [
     { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
     { label: 'MINHA EQUIPE', href: '/account/my-team' },
-    { label: 'NÚCLEOS', href: '/account/nucleu' },
+    { label: 'NÚCLEOS', href: '/account/nuclei' },
     { label: 'FERRAMENTAS E RECURSOS', href: '/account/ferramentas' },
     { label: 'REQUISIÇÕES', href: '/account/requests' },
-    { label: 'DOCUMENTOS', href: '/account/documents' },
+    { label: 'DOCUMENTOS', href: '/account/docs' },
     { label: 'MINHA CONTA', href: '/account/my-account' },
 ];
 
@@ -27,9 +25,8 @@ interface PSLayoutProps {
 
 const PSLayout: React.FC<PSLayoutProps> = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const pathname = usePathname(); // Usamos o hook do Next.js
+    const pathname = usePathname();
 
-    // Fechar o menu automaticamente ao navegar para uma nova rota
     React.useEffect(() => {
         setIsMenuOpen(false);
     }, [pathname]);
@@ -59,7 +56,6 @@ const PSLayout: React.FC<PSLayoutProps> = ({ children }) => {
                         {children}
                     </div>
 
-                    {/* Fundo escuro (overlay) quando o menu está aberto no mobile */}
                     {isMenuOpen && <div className={styles.overlay} onClick={() => setIsMenuOpen(false)} />}
                 </div>
             </body>

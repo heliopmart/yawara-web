@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import styles from './CookieBanner.module.scss';
+import styles from './cookieBanner.module.scss';
 import Link from 'next/link';
 
 import {getCookie, setCookie} from '@/utils/frontCookie'

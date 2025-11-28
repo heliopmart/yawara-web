@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     page: {
         backgroundColor: '#FFFFFF',
         padding: 30,
-        // fontFamily: 'Roboto',
         fontFamily: 'Helvetica',
         flexDirection: 'column',
     },
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
     },
     uuidValue: {
         fontSize: 8,
-        fontFamily: 'Roboto',
+        fontFamily: 'Helvetica',
         fontWeight: 700,
         color: '#000',
         letterSpacing: 0.5,

@@ -3,8 +3,12 @@ import { UserRepository } from '@/lib/repository/user/user.repository'
 import { SessionService } from '@/lib/services/session/session.service'
 import { hashCreateSecretAuth } from '@/utils/hash'
 import { verifyPasswordString, hashPasswordString } from '@/utils/hash'
-import { AuthServiceLoginCredentials, AuthServiceRegistreCredentials, TokenPayload } from '@yawara/types'
+import { AuthServiceLoginCredentials, AuthServiceRegistreCredentials, TokenPayload, AuthLoginResponse } from '@yawara/types'
 import { handle_verify_date } from '@/utils/handle_verify_date'
+
+
+
+
 export class authService {
 
     /*
@@ -19,7 +23,7 @@ export class authService {
      * @param credentials AuthServiceLoginCredentials
      * @return Token String
      */
-    static async login(credentials: AuthServiceLoginCredentials): Promise<string> {
+    static async login(credentials: AuthServiceLoginCredentials): Promise<AuthLoginResponse> {
         const { email, password } = credentials;
 
         try {
@@ -47,7 +51,10 @@ export class authService {
                 throw 'INVALID_CREDENTIALS'
             }
 
-            return response_session_token
+            return {
+                token: response_session_token,
+                role: userData.role
+            }
         } catch (error) {
             console.error('authService.login error:', error);
             throw error;
@@ -86,7 +93,7 @@ export class authService {
             const auth_create_response = await AuthRepository.insertAuthUser({
                 email: credentials.email,
                 password: await hashPasswordString(credentials.password),
-                role: 'user',
+                role: 'USER',
                 user_id: user_create_response,
                 secret: await hashCreateSecretAuth(),
                 permission: 0

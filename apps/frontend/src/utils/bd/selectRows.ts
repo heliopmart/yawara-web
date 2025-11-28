@@ -63,7 +63,7 @@ export async function getRows<T = any>({
     } else {
         const { data, error } = await q;
 
-        if(error.code === 'PGRST116'){
+        if(error?.code === 'PGRST116'){
             return null as any
         }
 

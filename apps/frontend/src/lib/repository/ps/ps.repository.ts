@@ -33,6 +33,7 @@ export class PsRepository {
                 bd: this.bd,
             })
 
+
             if (!response) {
                 throw 'PS_EDITION_NOT_FOUND'
             }

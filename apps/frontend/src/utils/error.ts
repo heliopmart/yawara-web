@@ -114,6 +114,34 @@ export const error_list = {
     'PS_SIGNUP_FAILED': {
         message: 'Falha ao inscrever-se no processo seletivo.',
         statusCode: 500,
+    },
+    'CERTIFICATE_CODE_MISSING': {
+        message: 'Código do certificado ausente.',
+        statusCode: 400,
+    },
+    'CERTIFICATE_NOT_FOUND': {
+        message: 'Certificado não encontrado.',
+        statusCode: 404,
+    },
+    'CERTIFICATES_NOT_FOUND': {
+        message: 'Nenhum certificado encontrado para o CPF fornecido.',
+        statusCode: 404,
+    },
+    'USER_DONT_HAVE_CERTIFICATES': {
+        message: 'O usuário não possui certificados.',
+        statusCode: 404,
+    },
+    'CPF_REQUIRED': {
+        message: 'CPF é obrigatório.',
+        statusCode: 400,
+    },
+    'CPF_INVALID': {
+        message: 'CPF inválido.',
+        statusCode: 400,
+    },
+    'MISSING_CERTIFICATE_ID': {
+        message: 'ID do certificado ausente.',
+        statusCode: 400,
     }
 }
 

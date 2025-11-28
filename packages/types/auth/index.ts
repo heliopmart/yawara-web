@@ -4,7 +4,7 @@ import {Users} from '../user'
 // ------------ AUTH INTERFACES --------------
 // --------------------------------------------
 
-export type AuthRole = 'user' | 'admin' | 'leader' | 'nucleiLeader' | 'developer';
+export type AuthRole =  'GUEST' | 'MEMBER' | 'LEADER' | 'ADMIN' | 'DEVELOPER' | 'USER' | 'MODERATOR';
 
 export interface Auth {
     id: string;
@@ -38,6 +38,11 @@ export interface AuthServiceRegistreCredentials {
     course: Users['course'];
     password: Auth['password'];
 }   
+
+export interface AuthLoginResponse{
+    token: string;
+    role: Auth['role'];
+}
 
 // ============== AUTH REPOSITORY =============
 

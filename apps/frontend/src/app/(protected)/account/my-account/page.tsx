@@ -56,7 +56,7 @@ export default function MyAccountPage() {
               <input
                 type="email"
                 name="email"
-                value={user.auth.email}
+                value={user?.auth?.email}
                 disabled
                 title="E-mail não pode ser alterado"
               />

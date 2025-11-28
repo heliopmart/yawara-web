@@ -22,9 +22,9 @@ export const FOOTER_LINKS: NavItem[] = [
   { label: 'Transparência', href: '/transparency' }, //
   { label: 'Nossa Equipe', href: '/ourTeam' }, //
   { label: 'Cadastro', href: '/registre' }, //
-  { label: 'Validar documento', href: '/docs/validate' }, //
+  { label: 'Certificados', href: '/docs/certificate' }, //
   { label: 'Yawara na mídia', href: '/media' }, //
-  { label: 'Documento Importantes', href: '/docs' }, //
+  { label: 'Documento', href: '/docs' }, //
   { label: 'UFGD', href: 'https://ufgd.edu.br', isExternal: true }, //
 ];
 

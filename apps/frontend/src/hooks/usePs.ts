@@ -26,6 +26,7 @@ export const usePs = () => {
             if (apiResponse.success) {
                 try {
                     const data = mapBackendDataToFrontend(apiResponse.data)
+
                     setRawData(apiResponse.data)
                     setData(data)
                 } catch (e : any) {
@@ -34,6 +35,7 @@ export const usePs = () => {
                     }
                 }
             } else {
+
                 if (apiResponse.code === 'PS_SIGNUP_FAILED') {
                     setRegister_PS(true)
                     setError({ message: apiResponse.error.message });   

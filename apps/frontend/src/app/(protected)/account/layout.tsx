@@ -1,31 +1,29 @@
 'use client';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
 import '@/styles/globals.scss';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './processoSeletivoLayout.module.scss';
 import SideNav from '@/components/selectionProcess/SideNav';
+import { AuthRole } from '@yawara/types';
 import { usePathname } from 'next/navigation'; 
 
-const navLinks = [
-    { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
-    { label: 'MINHA EQUIPE', href: '/account/my-team' },
-    { label: 'NÚCLEOS', href: '/account/nuclei' },
-    { label: 'FERRAMENTAS E RECURSOS', href: '/account/ferramentas' },
-    { label: 'REQUISIÇÕES', href: '/account/requests' },
-    { label: 'DOCUMENTOS', href: '/account/docs' },
-    { label: 'MINHA CONTA', href: '/account/my-account' },
-];
+import { getLinksByRole } from '@/config/navigation';
+import { useUserRole } from '@/hooks/useUserRole';
 
-interface PSLayoutProps {
+interface AccountLayoutProps {
     children: React.ReactNode;
 }
 
-const PSLayout: React.FC<PSLayoutProps> = ({ children }) => {
+const AccountLayout: React.FC<AccountLayoutProps> = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
+
+    const { role, isLoading } = useUserRole();
+
+    const navLinks = useMemo(() => {
+        if (isLoading) return [];
+        return getLinksByRole(role as AuthRole);
+    }, [role, isLoading]);
 
     React.useEffect(() => {
         setIsMenuOpen(false);
@@ -63,4 +61,4 @@ const PSLayout: React.FC<PSLayoutProps> = ({ children }) => {
     );
 };
 
-export default PSLayout;
+export default AccountLayout;

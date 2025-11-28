@@ -3,6 +3,11 @@ import { handle_error } from '@/utils/error'
 import { errorResponse } from '@/lib/helpers/response';
 import { CertificateService } from '@/lib/services/certificate/certificate.service';
 
+function removeAccents(str: string) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+
 export async function GET(request: NextRequest) {
     try {
         const params = request.nextUrl.searchParams;
@@ -15,12 +20,13 @@ export async function GET(request: NextRequest) {
         const { stream, filename } = await new CertificateService().generateCertificate(id);
 
         const headers = new Headers();
+        const asciiFilename = removeAccents(filename).replace(/[^\x20-\x7E]/g, "");
+
         const encodedFilename = encodeURIComponent(filename);
-        
         headers.set('Content-Type', 'application/pdf');
         headers.set(
             'Content-Disposition',
-            `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`
+            `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`
         );
 
         return new NextResponse(stream as any, {

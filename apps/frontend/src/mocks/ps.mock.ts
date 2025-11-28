@@ -45,17 +45,19 @@ export const PS_MOCK_DATA: ps_data_display = {
       ],
     },
   ],
-  
+
   nucleusChoice: {
     isWaiting: true,
     firstOption: 'Management Nucleus',
     secondOption: 'Combustion Nucleus',
     showSelectionButton: true,
   },
-  
+
   finalResult: {
     show: true,
     message: 'Parabéns! Você foi selecionado para fazer parte do Yawara Motorsports no semestre 2026/1. Seu núcleo será o de Combustão. Estamos ansiosos para trabalhar com você!',
     evaluationPdfLink: '#',
   },
+  is_completed: false,
+  is_accepted: false
 };

@@ -34,8 +34,6 @@ export const updateRow = async <T, ReturnType = never>(
       query = applyWhere(query, params.where);
     }
 
-    // Para obter contagem confiável, usamos select(). 
-    // Se o caller não pediu campos, selecionamos apenas 'id' para pesar menos.
     const selectClause = select ?? 'id';
     const { data: rows, error } = await query
       .select(selectClause)
@@ -44,6 +42,7 @@ export const updateRow = async <T, ReturnType = never>(
     if (error) {
       return {
         success: false,
+        status: 1,
         error: { code: 'DB_UPDATE_ERROR', message: error.message },
         timestamp: new Date().toISOString(),
       };
@@ -54,21 +53,22 @@ export const updateRow = async <T, ReturnType = never>(
     if (updated === 0) {
       return {
         success: false,
+        status: 1,
         error: { code: 'DB_UPDATE_NOT_FOUND', message: 'Nenhuma linha atualizada.' },
         timestamp: new Date().toISOString(),
       };
     }
 
-    // Se o caller não pediu campos customizados, e o select padrão foi 'id',
-    // ainda retornamos as rows (com id), o que é útil para testes/asserções.
     return {
       success: true,
+      status: 1,
       data: { updated, rows: rows ?? [] },
       timestamp: new Date().toISOString(),
     };
   } catch (e: any) {
     return {
       success: false,
+      status: 1,
       error: { code: 'DB_UPDATE_EXCEPTION', message: e?.message ?? 'Unknown error' },
       timestamp: new Date().toISOString(),
     };

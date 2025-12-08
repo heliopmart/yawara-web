@@ -1,5 +1,6 @@
 # Variáveis de ambiente (Pydantic)
 
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -13,6 +14,9 @@ class Settings(BaseSettings):
 
     # Configuração da IA
     CURRENT_PHASE: str = "PHASE_1_DETERMINISTIC" # ou "PHASE_2_STOCHASTIC"
+
+    # Configurações do modelo de linguagem
+    GOOGLE_API_KEY: Optional[str] = None
 
     class Config:
         env_file = ".env"

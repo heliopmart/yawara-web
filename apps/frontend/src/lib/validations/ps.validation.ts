@@ -30,4 +30,48 @@ export const updateNucleiChosenSchema = zod.object({
   })
 })
 
+export const updatePsEditionSchema = zod.object({
+  is_active: zod.boolean().optional(),
+  start_date: zod.string().datetime().optional(),
+  finish_date: zod.string().datetime().optional(),
+  final_result_doc: zod.string().optional(),
+  is_completed: zod.boolean().optional()
+})
+
+export const updateCardUserSchema = zod.object({
+  user_id: zod.string().uuid(),
+
+  is_eligible: zod.boolean().optional(),
+  is_waiting_result: zod.boolean().optional(),
+  show_final_result: zod.boolean().optional(),
+  nuclei_eligible: zod.array(zod.string()).optional(),
+  is_accepted: zod.boolean().optional(),
+  final_result_doc: zod.string().optional()
+})
+
+export const postPsEditionSchema = zod.object({
+  name: zod.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  start_date: zod.string(),
+  finish_date: zod.string(),
+  registration_closing: zod.string(),
+  cards_config: zod.array(zod.object({
+    card_id: zod.number(),
+    limit_date: zod.string().optional(),
+    event_date: zod.string().optional(),
+    event_times: zod.array(zod.string()).optional(),
+    event_location: zod.string().optional(),
+    state: zod.enum(['COMPLETED', 'FAILED', 'PENDING_ACTION', 'UNDER_REVIEW', 'NOT_AVAILABLE']).optional()
+  })).min(1, "Deve haver ao menos uma configuração de card.")
+})
+
+export const putUserPresenceSchema = zod.object({
+  updates: zod.array(
+    zod.object({
+      user_card_id: zod.string().uuid(),
+      card_id: zod.number(),
+      is_presence: zod.boolean()
+    })
+  )
+});
+
 export const uidSchema = zod.string().uuid()

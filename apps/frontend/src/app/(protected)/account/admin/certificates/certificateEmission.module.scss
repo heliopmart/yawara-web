@@ -1,0 +1,160 @@
+// --- Variáveis ---
+$bg-color: #0a0a0a;
+$card-bg: #141414;
+$text-primary: #ffffff;
+$text-secondary: #a1a1a1;
+$accent-color: #D32F2F;
+$border-color: #333;
+$mobile-breakpoint: 768px; 
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  color: $text-primary;
+  padding: 2rem;
+
+  @media (max-width: $mobile-breakpoint) {
+    padding: 1rem;
+    justify-content: flex-start;
+    padding-top: 2rem;
+  }
+}
+
+.header {
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+  max-width: 600px;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    
+    span {
+      color: $accent-color;
+    }
+
+    // Ajuste Mobile: Fonte um pouco menor para não quebrar feio
+    @media (max-width: $mobile-breakpoint) {
+      font-size: 1.75rem;
+    }
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.9rem;
+    
+    @media (max-width: $mobile-breakpoint) {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.formCard {
+  background-color: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 2.5rem; // Padding generoso no Desktop
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  // Ajuste Mobile: Card ocupa a largura quase total e tem menos padding interno
+  @media (max-width: $mobile-breakpoint) {
+    padding: 1.5rem;
+    border: none; // Opcional: em mobile muito pequeno, as vezes removemos a borda para parecer nativo
+    background-color: transparent; // Ou mantém a cor, dependendo do gosto. Aqui vou manter transparente pra limpar o visual
+    box-shadow: none;
+  }
+
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: $text-secondary;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      background-color: darken($bg-color, 2%);
+      border: 1px solid $border-color;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      color: $text-primary;
+      font-size: 1rem; // IMPORTANTE: 16px evita que o iOS dê zoom automático ao focar
+      transition: all 0.2s ease;
+      width: 100%; // Garante largura total
+
+      &:focus {
+        outline: none;
+        border-color: $accent-color;
+        box-shadow: 0 0 0 2px rgba($accent-color, 0.2);
+      }
+
+      &::placeholder {
+        color: #444;
+      }
+    }
+  }
+
+  .submitButton {
+    width: 100%;
+    padding: 1rem;
+    background-color: $accent-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+    
+    // Ajuste Mobile: Área de toque maior e feedback visual de toque
+    @media (max-width: $mobile-breakpoint) {
+      padding: 1.2rem; // Mais fácil de acertar com o dedo
+    }
+
+    &:hover:not(:disabled) {
+      background-color: lighten($accent-color, 5%);
+    }
+
+    &:disabled {
+      background-color: desaturate($accent-color, 40%);
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.feedback {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  &.success {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+  }
+
+  &.error {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+}

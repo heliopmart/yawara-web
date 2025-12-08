@@ -142,6 +142,34 @@ export const error_list = {
     'MISSING_CERTIFICATE_ID': {
         message: 'ID do certificado ausente.',
         statusCode: 400,
+    },
+    'PS_EDITION_CREATION_FAILED': {
+        message: 'Falha ao criar a edição do processo seletivo.',
+        statusCode: 500,
+    },
+    'PS_USER_PRESENCE_UPDATE_FAILED': {
+        message: 'Falha ao atualizar a presença do usuário no processo seletivo.',
+        statusCode: 500,
+    },
+    'PS_USER_PRESENCE_NOT_FOUND': {
+        message: 'Presença do usuário no processo seletivo não encontrada.',
+        statusCode: 404,
+    },
+    'CERTIFICATE_NOT_CREATED': {
+        message: 'Falha ao emitir o certificado.',
+        statusCode: 500,
+    },
+    'RLS_UNAUTHENTICATED_ERROR': {
+        message: 'Operação não autorizada. Autenticação necessária falhou.',
+        statusCode: 401,
+    },
+    'CHALLENGE_DATA_NOT_FOUND': {
+        message: 'Dados do desafio não encontrados.',
+        statusCode: 404,
+    },
+    'NUCLEI_CONFIG_UPDATE_FAILED': {
+        message: 'Falha ao atualizar a configuração do núcleo.',
+        statusCode: 500,
     }
 }
 

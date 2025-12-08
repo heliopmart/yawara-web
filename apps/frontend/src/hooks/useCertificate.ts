@@ -231,9 +231,17 @@ export const useCertificate = () => {
         const code = match[1];
 
 
-        setInputValue(decodedText);
+        setInputValue(code);
         setMode('input');
-        await CertificateService.validateCode(code);
+        try{
+            const response = await CertificateService.validateCode(code);
+            if(!response.success){
+                throw response.error.message || 'Erro ao processar a solicitação.';
+            }
+            setResult(response.data || null);
+        }catch(err){
+            setError(err instanceof Error ? err.message : String(err));
+        }
     };
 
     useEffect(() => {

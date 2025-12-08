@@ -11,3 +11,28 @@ export interface CertificateData {
   hours: number;
   cpf: string;
 }
+
+// --------------------------------------------
+// --------- CERTIFICATE BACKEND --------------
+// --------------------------------------------
+
+// ---------------- REPOSITORY ----------------
+
+export interface CreateCerticatePayload {
+  student_name: CertificateData['student_name'];
+  course_name: CertificateData['course_name'];
+  hours: CertificateData['hours'];
+  cpf: CertificateData['cpf'];
+}
+
+// --------------------------------------------
+// --------- CERTIFICATE FRONTEND -------------
+// --------------------------------------------
+
+
+export type CertificateFormFields = {
+  cpf: CertificateData['cpf'];
+  student_name: CertificateData['student_name'];
+  course_name: CertificateData['course_name'];
+  hours: string;
+};

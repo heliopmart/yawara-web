@@ -33,11 +33,13 @@ export async function middleware(req: NextRequest) {
     if (roleCookie) {
         try {
             const { payload } = await jwtVerify(roleCookie, new TextEncoder().encode(SECRET)) as { payload: { role?: string } };
-            userRole = payload as string;
+            userRole = payload.role as string;
         } catch (e) {
             userRole = 'GUEST';
         }
     }
+
+    console.log(userRole)
 
     // --- REGRA 1: Proteção de Líder/Admin ---
     if (ROLE_ROUTES.ADMIN_ROUTES.some(route => path.startsWith(route))) {

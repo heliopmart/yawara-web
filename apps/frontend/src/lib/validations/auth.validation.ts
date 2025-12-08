@@ -11,3 +11,5 @@ export const registreSchema = zod.object({
     course: zod.string().min(2),
     password: zod.string().min(6),
 })
+
+export const ALLOWED_ROLES = ['ADMIN', 'LEADER', 'MODERATOR'];

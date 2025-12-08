@@ -1,0 +1,1 @@
+# Fase 2: Estocástica (TensorFlow)

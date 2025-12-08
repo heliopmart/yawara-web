@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { setCookie } from '@/utils/cookie'
+import { setCookie, getCookie} from '@/utils/cookie'
 import {handle_error} from '@/utils/error'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { loginSchema } from '@/lib/validations/auth.validation'
@@ -10,6 +10,13 @@ const SECRET = process.env.JWT_SECRET_USER_ROLE || ''
 
 export async function POST(request: NextRequest) {
     try {
+        const token = await getCookie('user-session')
+        const isValidSession = await authService.auto_login_verify(token);
+
+        if(isValidSession){
+            return successResponse<boolean>(true, 200);
+        }
+
         const body = await request.json();
 
         if (loginSchema.safeParse(body).success === false) {

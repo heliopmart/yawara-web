@@ -10,7 +10,7 @@ const COMMON_LINKS: NavLink[] = [
 ];
 
 export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
-    GUEST: [], // Ou links de login/registro
+    GUEST: [],
     
     USER: [
         { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
@@ -27,21 +27,23 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
     ],
     
     LEADER: [
-        // Líder vê tudo que membro vê...
         { label: 'MINHA EQUIPE', href: '/account/my-team' },
         { label: 'NÚCLEOS', href: '/account/nuclei' },
         { label: 'FERRAMENTAS', href: '/account/ferramentas' },
         { label: 'REQUISIÇÕES', href: '/account/requests' },
-        // ...mais itens administrativos
         { label: 'GESTÃO DE ALOCAÇÃO', href: '/account/admin/allocation' },
         { label: 'EMISSÃO DE CERTIFICADOS', href: '/account/admin/certificates' },
+
+        { label: 'GERENCIAR NÚCLEO', href: '/account/admin/nucleusManager' },
+        
+        { label: 'PROCESSO SELETIVO', href: '/account/admin/ps/presence' },
         ...COMMON_LINKS
     ],
 
     ADMIN: [
-        // Admin vê tudo
+        { label: 'CRIAR PROCESSO SELETIVO', href: '/account/admin/ps-config' },
+        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/account/admin/ps/presence' },
         { label: 'DASHBOARD GERAL', href: '/account/admin/dashboard' },
-        // ... resto dos links
         ...COMMON_LINKS
     ],
 
@@ -50,7 +52,8 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'NÚCLEOS', href: '/account/nuclei' },
         { label: 'FERRAMENTAS E RECURSOS', href: '/account/ferramentas' },
         { label: 'REQUISIÇÕES', href: '/account/requests' },
-        { label: 'DOCUMENTOS', href: '/account/docs' },
+        { label: 'DOCUMENTOS', href: '/account/admin/docs' },
+        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/account/admin/ps/presence' },
         { label: 'EVENTOS', href: '/account/events' },
         ...COMMON_LINKS
     ],

@@ -137,7 +137,7 @@ function CertificateContent() {
                                 <div key={cert.id} className={styles.certificateItem}>
                                     <div className={styles.certInfo}>
                                         <b>{cert.course_name}</b>
-                                        <span>{cert.issue_date}</span>
+                                        <span>{new Date(cert.issue_date).toLocaleDateString()}</span>
                                     </div>
                                     <button className={styles.downloadBtn} onClick={() => handle_download_certificate(cert.id)} title="Baixar PDF">
                                         <FaFilePdf size={20} />

@@ -1,17 +1,18 @@
 import QRCode from 'qrcode';
-import { CertificateData, TokenPayload } from '@yawara/types'
+import { CertificateData, TokenPayload, CreateCerticatePayload } from '@yawara/types'
 import { CertificateRepository } from '@/lib/repository/certificate/certificate.repository'
 import { renderToStream } from '@react-pdf/renderer';
 import { CertificateDocument } from '@/components/certificates/CertificateDocument';
 
 const BASE_VALIDATION_URL = process.env.BASE_VALIDATION_URL || 'https://yawara.com/docs/certificate';
+
 export class CertificateService {
     private certificateRepository: CertificateRepository;
     private auth: TokenPayload | undefined;
 
     constructor(auth?: TokenPayload) {
-        this.certificateRepository = new CertificateRepository(this.auth);
         this.auth = auth;
+        this.certificateRepository = new CertificateRepository(auth);
     }
 
     /*
@@ -22,8 +23,7 @@ export class CertificateService {
 
     async getCertificateByCode(code: string): Promise<CertificateData> {
         try {
-            const certificate = await this.certificateRepository.getCertificateByCode(code);
-            return certificate;
+            return await this.certificateRepository.getCertificateByCode(code);
         } catch (error) {
             console.error('CertificateService.getCertificateByCode error:', error);
             throw error;
@@ -32,8 +32,7 @@ export class CertificateService {
 
     async getCertificatesByCpf(cpf: string): Promise<CertificateData[]> {
         try {
-            const certificates = await this.certificateRepository.getCertificatesByCpf(cpf);
-            return certificates;
+            return await this.certificateRepository.getCertificatesByCpf(cpf);
         } catch (error) {
             console.error('CertificateService.getCertificatesByCpf error:', error);
             throw error;
@@ -41,13 +40,14 @@ export class CertificateService {
     }
 
     async generateCertificate(code: string) {
-        const data = await this.certificateRepository.getCertificateByCode(code);
+        const data = await this.getCertificateByCode(code); 
 
         if (!data) {
             throw 'CERTIFICATE_NOT_FOUND';
         }
 
         const validationFullUrl = `${BASE_VALIDATION_URL}?code=${data.id}`;
+        
         const qrCodeDataUrl = await QRCode.toDataURL(validationFullUrl, {
             margin: 1,
             color: { dark: '#8a1212', light: '#ffffff' }
@@ -61,6 +61,20 @@ export class CertificateService {
         };
     }
 
+    /*
+        =========================================================
+        ======================== CREATE =========================
+        =========================================================
+    */
+
+    async createCertificate(data: CreateCerticatePayload): Promise<boolean> {
+        try {
+            return await this.certificateRepository.createCertificate(data);
+        } catch (error) {
+            console.error('CertificateService.createCertificate error:', error);
+            throw error;
+        }
+    }
 
     /*
         =========================================================
@@ -73,6 +87,4 @@ export class CertificateService {
             <CertificateDocument {...data} qrCodeUrl={qrCodeUrl} />
         );
     }
-
-
 }

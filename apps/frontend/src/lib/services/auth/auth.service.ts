@@ -23,9 +23,8 @@ export class authService {
      * @param credentials AuthServiceLoginCredentials
      * @return Token String
      */
-    static async login(credentials: AuthServiceLoginCredentials): Promise<AuthLoginResponse> {
+    static async login(credentials: AuthServiceLoginCredentials, token?: string): Promise<AuthLoginResponse> {
         const { email, password } = credentials;
-
         try {
             const userData = await AuthRepository.getUserByEmail(email);
 
@@ -205,6 +204,32 @@ export class authService {
         } catch (error) {
             console.error('authService.recoverAccount error:', error);
             throw error;
+        }
+    }
+
+
+    /*
+      =========================================================
+      ======================== HANDLE =========================
+      =========================================================
+    */
+
+    /**
+     * Auto login verify
+     * @param token Session token
+     * @return boolean
+     */
+    static async auto_login_verify(token: string | null): Promise<boolean> {
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const isValid = await authService.verifySession(token);
+            return isValid;
+        } catch (error) {
+            console.error('authService.auto_login_verify error:', error);
+            return false;
         }
     }
 }

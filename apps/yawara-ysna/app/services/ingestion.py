@@ -3,10 +3,17 @@ from typing import Optional, List
 from datetime import datetime
 
 from app.services.subject_resolver import CanonicalSubjectResolver
+from app.services.neural_resolver import get_resolver
 from app.schemas.historic import SubjectRecord, AcademicRecord, academic_exclude_status
 from app.utils.pdf import extract_text_from_pdf
 
-_resolver = CanonicalSubjectResolver()
+def _get_ai_resolver():
+    try:
+        # Certifique-se que o arquivo existe no container/ambiente
+        return get_resolver() 
+    except Exception:
+        # Fallback se não houver pesos (para não quebrar ambiente de dev sem GPU/Pesos)
+        return None
 
 # ? <CODIGO> - <NOME_DISCIPLINA> <FALTAS> <CH> <NOTA_OU_STATUS> <STATUS> <TIPO>
 DISCIPLINE_LINE_REGEX = re.compile(
@@ -75,6 +82,15 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
 
     status = m.group("status").strip()  
     dtype = m.group("dtype").strip()
+
+
+    # --- INTEGRAÇÃO NEURAL ---
+    _resolver = _get_ai_resolver()
+    if _resolver:
+        subject_canonical = _resolver.resolve(name_raw, code)
+    else:
+        subject_canonical = "AI_UNAVAILABLE" 
+    # -------------------------
 
     # subject_canonical provisório, depois entra a sub-rede aqui
     subject_canonical = _resolver.resolve(name_raw)

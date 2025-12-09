@@ -4,7 +4,7 @@ import os
 from app.services.neural_resolver import NeuralCanonicalResolver
 
 # Mock ou Path real dos pesos (Para teste, idealmente ter um peso dummy ou mockar)
-WEIGHTS_PATH = "app/resources/yawara_encoder_weights_v1.h5"
+WEIGHTS_PATH = "app/resources/models/yawara_encoder_v1.weights.h5"
 
 @pytest.mark.skipif(not os.path.exists(WEIGHTS_PATH), reason="Arquivo de pesos não encontrado")
 def test_neural_resolution_logic():

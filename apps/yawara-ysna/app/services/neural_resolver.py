@@ -63,6 +63,8 @@ class NeuralCanonicalResolver:
         # 3. Melhor Match
         best_idx = np.argmax(scores)
         best_score = scores[best_idx]
+
+        print(f"[IA] Resolvendo '{raw_name}' -> '{CANONICAL_KNOWLEDGE_BASE[best_idx]}' (score: {best_score:.3f})")
         
         if best_score >= threshold:
             return CANONICAL_KNOWLEDGE_BASE[best_idx]

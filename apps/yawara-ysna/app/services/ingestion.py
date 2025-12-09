@@ -2,17 +2,16 @@ import re
 from typing import Optional, List
 from datetime import datetime
 
-from app.services.subject_resolver import CanonicalSubjectResolver
+# Ajuste os imports conforme sua estrutura real
 from app.services.neural_resolver import get_resolver
 from app.schemas.historic import SubjectRecord, AcademicRecord, academic_exclude_status
 from app.utils.pdf import extract_text_from_pdf
 
 def _get_ai_resolver():
     try:
-        # Certifique-se que o arquivo existe no container/ambiente
         return get_resolver() 
-    except Exception:
-        # Fallback se não houver pesos (para não quebrar ambiente de dev sem GPU/Pesos)
+    except Exception as e:
+        print(f"[Y-SNA] Aviso: Resolver Neural indisponível ({e}). Usando fallback.")
         return None
 
 # ? <CODIGO> - <NOME_DISCIPLINA> <FALTAS> <CH> <NOTA_OU_STATUS> <STATUS> <TIPO>
@@ -42,11 +41,6 @@ DISCIPLINE_LINE_REGEX = re.compile(
 # ? <PERIODO> - formato AAAA.N (ex: 2024.2)
 PERIOD_LINE_REGEX = re.compile(r"^\s*(\d{4}\.\d)\s*$")
 
-# =============================================
-# ============== INTERN HANDLE ================
-# =============================================
-
-
 def _try_parse_float(value: Optional[str]) -> Optional[float]:
     if value is None:
         return None
@@ -56,12 +50,6 @@ def _try_parse_float(value: Optional[str]) -> Optional[float]:
     except ValueError:
         return None
 
-
-# =============================================
-# ================= HANDLE ====================
-# =============================================
-
-
 def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     """
     Converte uma linha bruta do histórico em SubjectRecord.
@@ -69,7 +57,6 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     """
     m = DISCIPLINE_LINE_REGEX.match(line)
     if not m:
-        # linha não bate com o padrão de disciplina
         return None
 
     code = m.group("code").strip()
@@ -77,34 +64,47 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     absences = int(m.group("absences"))
     workload = int(m.group("workload"))
 
-    grade_raw = m.group("grade")      # pode ser '7.80' ou None
+    grade_raw = m.group("grade")
     grade = _try_parse_float(grade_raw)
 
     status = m.group("status").strip()  
     dtype = m.group("dtype").strip()
 
-
-    # --- INTEGRAÇÃO NEURAL ---
+    # --- INTEGRAÇÃO NEURAL V2 ---
+    # Aqui a mágica acontece. O resolver agora é o "porteiro" semântico.
     _resolver = _get_ai_resolver()
+    
+    # Valor padrão caso a rede esteja offline
+    subject_canonical_name = "AI_UNAVAILABLE"
+    
     if _resolver:
-        subject_canonical = _resolver.resolve(name_raw, code)
-    else:
-        subject_canonical = "AI_UNAVAILABLE" 
+        try:
+            # O resolve retorna um dict: {'canonical': '...', 'confidence': ...}
+            # Nós só precisamos do nome canônico para o SubjectRecord por enquanto.
+            resolution_result = _resolver.resolve(name_raw)
+            subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")
+            confidence = resolution_result.get("confidence", 0.0)
+            
+            # TODO: Se o SubjectRecord tiver campo para 'metadata' ou 'confidence',
+            # seria ótimo salvar resolution_result['confidence'] lá para auditoria.
+            
+        except Exception as e:
+            print(f"[Y-SNA] Erro na resolução de '{name_raw}': {e}")
+            subject_canonical_name = "ERROR_RESOLVING"
+            
     # -------------------------
-
-    # subject_canonical provisório, depois entra a sub-rede aqui
-    subject_canonical = _resolver.resolve(name_raw)
 
     return SubjectRecord(
         period=period,
         code=code,
         name_raw=name_raw,
-        subject_canonical=subject_canonical,
+        subject_canonical=subject_canonical_name, # Agora passamos a string limpa
         grade=grade,
         status=status,
         workload_hours=workload,
         absences=absences,
         type=dtype,
+        confidence=confidence if _resolver else None,
     )
 
 def parse_academic_history(
@@ -113,35 +113,25 @@ def parse_academic_history(
     cycle_id: str,
     source: str = "UFGD_HISTORICO_OFICIAL",
 ) -> AcademicRecord:
-    """
-    Percorre TODO o texto do histórico,
-    detecta períodos e monta um AcademicRecord completo.
-    """
     current_period = "UNKNOWN"
     subjects: List[SubjectRecord] = []
 
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line:
-            continue  # ignora linhas vazias
+            continue 
 
-        # 1) Detectar mudança de período
         m_period = PERIOD_LINE_REGEX.match(line)
         if m_period:
             current_period = m_period.group(1)
             continue
 
-        # 2) Tentar parsear como disciplina
         subj = parse_subject_line(raw_line, current_period)
         if subj is not None:
-            # regra explícita: ignorar disciplinas em andamento (MA, MT, etc.)
             if subj.status in academic_exclude_status:
                 continue
-
             subjects.append(subj)
             continue
-
-        # 3) Caso contrário, é lixo para o parser (cabeçalho, rodapé etc.) → ignora
 
     return AcademicRecord(
         candidate_id=candidate_id,
@@ -157,15 +147,10 @@ def ingest_academic_record_from_pdf(
     cycle_id: str,
     source: str = "UFGD_HISTORICO_OFICIAL",
 ) -> AcademicRecord:
-    """
-    Pipeline completo de ingestão:
-    PDF bruto -> texto -> AcademicRecord estruturado.
-    """
     text = extract_text_from_pdf(pdf_bytes)
-    record = parse_academic_history(
+    return parse_academic_history(
         text=text,
         candidate_id=candidate_id,
         cycle_id=cycle_id,
         source=source,
     )
-    return record

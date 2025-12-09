@@ -7,14 +7,16 @@ import os
 from app.ml.canonical_subject_nn import CanonicalSubjectNN
 
 # ==============================================================================
-# 1. CORPUS DE NORMALIZAÇÃO (Sinônimos Estritos)
+# 1. CORPUS DE NORMALIZAÇÃO (Expandido com dados reais da UFGD)
 # ==============================================================================
 TRAINING_SEEDS = [
+    # --- MATEMÁTICA PURA ---
     {
         "canonical": "CALCULO_DIFERENCIAL_INTEGRAL_1",
         "vars": [
             "CALCULO DIFERENCIAL E INTEGRAL I", "CALCULO 1", "CALCULO I", 
-            "CALC. DIF. E INT. I", "MATEMATICA A", "C.D.I. 1", "CALCULO A"
+            "CALC. DIF. E INT. I", "MATEMATICA A", "C.D.I. 1", 
+            "CALCULO DIFERENCIAL E INTEGRAL" 
         ]
     },
     {
@@ -25,24 +27,117 @@ TRAINING_SEEDS = [
         ]
     },
     {
-        "canonical": "FISICA_MECANICA",
+        "canonical": "CALCULO_DIFERENCIAL_INTEGRAL_3",
         "vars": [
-            "FISICA I", "FISICA 1", "FISICA GERAL I", "FISICA GERAL 1", 
-            "MECANICA CLASSICA", "FISICA TEORICA A", "MECANICA NEWTONIANA"
+            "CALCULO DIFERENCIAL E INTEGRAL III", "CALCULO 3", "CALCULO III", 
+            "CALC. DIF. E INT. III", "MATEMATICA C"
         ]
     },
+    {
+        "canonical": "GEOMETRIA_ANALITICA",
+        "vars": [
+            "GEOMETRIA ANALITICA", "G.A.", "ALGEBRA VETORIAL E GEOMETRIA ANALITICA",
+            "VETORES E GEOMETRIA", "GEOMETRIA ANALITICA E ALGEBRA LINEAR"
+        ]
+    },
+    {
+        "canonical": "ALGEBRA_LINEAR",
+        "vars": [
+            "ALGEBRA LINEAR", "ALGEBRA LINEAR I", "INTRODUCAO A ALGEBRA LINEAR",
+            "MATRIZES E VETORES"
+        ]
+    },
+    {
+        "canonical": "PROBABILIDADE_ESTATISTICA",
+        "vars": [
+            "PROBABILIDADE E ESTATISTICA", "ESTATISTICA BASICA", "ESTATISTICA",
+            "INTRODUCAO A PROBABILIDADE", "METODOS ESTATISTICOS"
+        ]
+    },
+
+    # --- FÍSICA ---
+    {
+        "canonical": "FISICA_MECANICA", # Física 1
+        "vars": [
+            "FISICA I", "FISICA 1", "FISICA GERAL I", "FISICA GERAL 1", 
+            "MECANICA CLASSICA", "MECANICA NEWTONIANA", "FISICA A"
+        ]
+    },
+    {
+        "canonical": "FISICA_ELETROMAGNETISMO", # Física 3 (Geralmente)
+        "vars": [
+            "FISICA III", "FISICA 3", "FISICA GERAL III", "ELETROMAGNETISMO",
+            "ELETRICIDADE E MAGNETISMO", "FISICA C"
+        ]
+    },
+    {
+        "canonical": "FISICA_ONDULATORIA_TERMODINAMICA", # Física 2
+        "vars": [
+            "FISICA II", "FISICA 2", "FISICA GERAL II", "TERMODINAMICA E ONDAS",
+            "FISICA B", "OSCILACOES E ONDAS"
+        ]
+    },
+    {
+        "canonical": "FISICA_EXPERIMENTAL",
+        "vars": [
+            "LABORATORIO DE FISICA I", "LABORATORIO DE FISICA II", 
+            "FISICA EXPERIMENTAL", "LAB FISICA"
+        ]
+    },
+
+    # --- COMPUTAÇÃO ---
     {
         "canonical": "ALGORITMOS_PROGRAMACAO",
         "vars": [
             "ALGORITMOS E PROGRAMACAO", "INTRODUCAO A COMPUTACAO", "LOGICA DE PROGRAMACAO",
-            "ALGORITMOS 1", "PROGRAMACAO DE COMPUTADORES", "FUNDAMENTOS DE PROGRAMACAO"
+            "ALGORITMOS 1", "PROGRAMACAO DE COMPUTADORES", "PROGRAMACAO APLICADA A ENGENHARIA"
         ]
     },
+    {
+        "canonical": "METODOS_NUMERICOS",
+        "vars": [
+            "METODOS NUMERICOS PARA ENGENHARIA", "CALCULO NUMERICO", 
+            "ANALISE NUMERICA", "COMPUTACAO NUMERICA"
+        ]
+    },
+
+    # --- ENGENHARIA GERAL ---
     {
         "canonical": "DESENHO_TECNICO",
         "vars": [
             "DESENHO TECNICO", "EXPRESSAO GRAFICA", "DESENHO MECANICO", 
-            "GEOMETRIA DESCRITIVA", "DESENHO ARQUITETONICO"
+            "GEOMETRIA DESCRITIVA", "DESENHO ARQUITETONICO", 
+            "DESENHO TECNICO DE MAQUINAS E MECANISMOS"
+        ]
+    },
+    {
+        "canonical": "INTRODUCAO_ENGENHARIA",
+        "vars": [
+            "INTRODUCAO A ENGENHARIA", "INTRODUCAO A ENGENHARIA DE COMPUTACAO",
+            "INTRODUCAO A TECNOLOGIA"
+        ]
+    },
+    {
+        "canonical": "CIRCUITOS_ELETRICOS",
+        "vars": [
+            "CIRCUITOS ELETRICOS", "CIRCUITOS ELETRICOS I", "TEORIA DE CIRCUITOS",
+            "ANALISE DE CIRCUITOS", "CIRCUITOS DIGITAIS", "ELETROTECNICA"
+        ]
+    },
+    {
+        "canonical": "QUIMICA_GERAL",
+        "vars": [
+            "QUIMICA GERAL", "QUIMICA GERAL I", "QUIMICA TECNOLOGICA",
+            "PRINCIPIOS DE QUIMICA"
+        ]
+    },
+    
+    # --- HUMANAS / OBRIGATÓRIAS GERAIS ---
+    {
+        "canonical": "HUMANIDADES_SOCIAIS",
+        "vars": [
+            "EDUCACAO SOCIEDADE E CIDADANIA", "SOCIOLOGIA", "FILOSOFIA",
+            "ETICA E CIDADANIA", "ANTROPOLOGIA CULTURAL"
         ]
     }
 ]
@@ -129,7 +224,7 @@ def info_nce_loss(query, key, temperature=0.07):
 def train():
     # Configurações
     BATCH_SIZE = 64
-    EPOCHS = 15
+    EPOCHS = 30
     LR = 0.001
 
     print("[TREINO] Inicializando Normalizador de Entidades...")

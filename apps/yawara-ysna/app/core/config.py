@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     # Configurações do modelo de linguagem
     GOOGLE_API_KEY: Optional[str] = None
 
+    # NN MODEL
+    NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
+
     class Config:
         env_file = ".env"
         case_sensitive = True

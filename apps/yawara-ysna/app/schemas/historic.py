@@ -17,6 +17,7 @@ class SubjectRecord(BaseModel):
     workload_hours: int         # carga horária (CH)
     absences: int               # faltas
     type: str                   # OBR, OPT, ELT...
+    confidence: Optional[float]  # confiança da resolução neural (0.0-1.0)
 
 
 class AcademicRecord(BaseModel):

@@ -1,93 +1,133 @@
 import pytest
+from unittest.mock import MagicMock, patch
 from app.services.ingestion import parse_subject_line, parse_academic_history
+from app.schemas.historic import SubjectRecord
 
-# @pytest.mark.
-def test_parse_subject_line_with_grade():
-    line = "06110003704 - CÁLCULO DIFERENCIAL E INTEGRAL II 4 72 7.80 AP OBR"
-    period = "2024.2"
-
-    subj = parse_subject_line(line, period)
-
-    assert subj is not None
+class TestIngestionLogic:
+    """Suíte de testes para a lógica de parsing de texto (Regex e Regras de Negócio).
     
-    # print(subj.model_dump_json(indent=2))
+    Testa a extração de linhas de disciplinas, detecção de semestres e
+    integração simulada (Mock) com o resolvedor neural.
+    """
 
-    assert subj.period == "2024.2"
-    assert subj.code == "06110003704"
-    assert subj.name_raw.startswith("CÁLCULO DIFERENCIAL")
-    assert subj.grade == 7.8
-    assert subj.status == "AP"
-    assert subj.workload_hours == 72
-    assert subj.absences == 4
-    assert subj.type == "OBR"
+    @pytest.fixture
+    def mock_resolver(self):
+        """Fixture que cria um mock do DynamicNeuralResolver."""
+        with patch("app.services.ingestion._get_ai_resolver") as mock_get:
+            resolver_instance = MagicMock()
+            # Configura o comportamento padrão do mock: retorna o próprio nome inputado
+            resolver_instance.resolve.return_value = {
+                "canonical": "MOCKED_CANONICAL",
+                "confidence": 0.95,
+                "source": "MOCK"
+            }
+            mock_get.return_value = resolver_instance
+            yield resolver_instance
 
-# @pytest.mark
-def test_parse_subject_line_without_grade_numeric():
-    line = "06110003879 - ÁLGEBRA LINEAR E GEOMETRIA ANALÍTICA 0 72 DS OBR"
-    period = "2024.2"
+    def test_parse_subject_line_valid_with_grade(self, mock_resolver):
+        """
+        GIVEN: Uma linha de texto padrão da UFGD contendo uma disciplina com nota.
+        WHEN: O parser processa a linha.
+        THEN: Todos os campos (código, nome, nota, faltas) devem ser extraídos corretamente.
+        """
+        # Arrange
+        line = "12030540 - CALCULO DIFERENCIAL E INTEGRAL I 0 102 7,80 AP OBR"
+        mock_resolver.resolve.return_value = {"canonical": "CALCULO_1", "confidence": 1.0}
 
-    subj = parse_subject_line(line, period)
+        # Act
+        result = parse_subject_line(line, period="2022.1")
 
-    assert subj is not None
+        # Assert
+        assert result is not None
+        assert result.code == "12030540"
+        assert result.name_raw == "CALCULO DIFERENCIAL E INTEGRAL I"
+        assert result.grade == 7.80 # Testando conversão de vírgula para float
+        assert result.absences == 0
+        assert result.workload_hours == 102
+        assert result.status == "AP"
+        assert result.subject_canonical == "CALCULO_1"
 
-    # print(subj.model_dump_json(indent=2))
+    def test_parse_subject_line_valid_no_grade(self, mock_resolver):
+        """
+        GIVEN: Uma linha de disciplina "Matriculado" (MT) ou em curso, sem nota.
+        WHEN: O parser processa a linha.
+        THEN: O campo 'grade' deve ser None, mas o registro deve ser válido.
+        """
+        # Arrange
+        line = "12030545 - FISICA GERAL I 0 68 MT OBR"
+        
+        # Act
+        result = parse_subject_line(line, period="2023.2")
 
-    assert subj.grade is None          # não conseguiu converter pois a nota não existe
-    assert subj.status == "DS"
-    assert subj.workload_hours == 72
-    assert subj.absences == 0
-    assert subj.type == "OBR"
+        # Assert
+        assert result is not None
+        assert result.grade is None
+        assert result.status == "MT"
+        assert result.name_raw == "FISICA GERAL I"
 
+    def test_parse_subject_line_invalid_garbage(self, mock_resolver):
+        """
+        GIVEN: Uma linha de lixo (cabeçalho, rodapé, traço).
+        WHEN: O parser processa a linha.
+        THEN: Deve retornar None (ignorar silenciosamente).
+        """
+        lines = [
+            "--------------------------------------------------",
+            "Histórico Escolar - UFGD",
+            "Página 1 de 2"
+        ]
+        for line in lines:
+            assert parse_subject_line(line, "2023.1") is None
 
+    def test_parse_full_history_context_switch(self, mock_resolver):
+        """
+        GIVEN: Um texto completo simulando dois semestres diferentes.
+        WHEN: A função `parse_academic_history` é chamada.
+        THEN: As disciplinas devem ser agrupadas com os períodos corretos (Context State).
+        """
+        # Arrange
+        full_text = """
+        2022.1
+        10000101 - MATEMATICA A 0 60 9,0 AP OBR
+        10000102 - FISICA A 4 60 8,5 AP OBR
+        
+        2022.2
+        10000103 - MATEMATICA B 0 60 7,0 AP OBR
+        """
+        
+        # Act
+        history = parse_academic_history(full_text, "cand_1", "cycle_1")
 
-def test_parse_academic_history_basic():
-    text = """
-    2024.2
-    06110003704 - CÁLCULO DIFERENCIAL E INTEGRAL II 4 72 7.80 AP OBR
-    06110003879 - ÁLGEBRA LINEAR E GEOMETRIA ANALÍTICA 0 72 DS OBR
+        # Assert
+        assert len(history.subjects) == 3
+        
+        # Verifica se o contexto "2022.1" foi aplicado às duas primeiras
+        assert history.subjects[0].period == "2022.1"
+        assert history.subjects[0].name_raw == "MATEMATICA A"
+        assert history.subjects[1].period == "2022.1"
+        
+        # Verifica se o contexto mudou para "2022.2" na terceira
+        assert history.subjects[2].period == "2022.2"
+        assert history.subjects[2].name_raw == "MATEMATICA B"
 
-    2025.1
-    06110001234 - FÍSICA III 3 72 6.20 AP OBR
-    """.strip()
-
-    candidate_id = "cand-xyz"
-    cycle_id = "cycle-2025"
-
-    record = parse_academic_history(
-        text=text,
-        candidate_id=candidate_id,
-        cycle_id=cycle_id,
-    )
-
-    # sanity checks
-    assert record.candidate_id == candidate_id
-    assert record.cycle_id == cycle_id
-    assert len(record.subjects) == 3
-
-    # print(record.subjects[0].model_dump_json(indent=2))
-    # print(record.subjects[1].model_dump_json(indent=2))
-    # print(record.subjects[2].model_dump_json(indent=2))
-
-    # primeira disciplina
-    s0 = record.subjects[0]
-    assert s0.period == "2024.2"
-    assert s0.code == "06110003704"
-    assert s0.subject_canonical == "CALCULO_DIFERENCIAL_E_INTEGRAL_II"
-    assert s0.grade == 7.8
-    assert s0.status == "AP"
-
-    # segunda disciplina
-    s1 = record.subjects[1]
-    assert s1.period == "2024.2"
-    assert s1.code == "06110003879"
-    assert s1.subject_canonical == "ALGEBRA_LINEAR_E_GEOMETRIA_ANALITICA"
-    assert s1.grade is None
-    assert s1.status == "DS"
-
-    # terceira disciplina, outro período
-    s2 = record.subjects[2]
-    assert s2.period == "2025.1"
-    assert s2.code == "06110001234"
-    assert s2.subject_canonical == "FISICA_III"  # se você tiver normalizado assim
-    assert s2.grade == 6.2
-    assert s2.status == "AP"
+    def test_neural_resolver_failure_fallback(self):
+        """
+        GIVEN: O Resolvedor Neural lança uma exceção (timeout, erro de memória).
+        WHEN: Processamos uma disciplina.
+        THEN: O sistema NÃO deve quebrar. Deve usar um fallback (ex: "ERROR_RESOLVING").
+        """
+        # Arrange
+        with patch("app.services.ingestion._get_ai_resolver") as mock_get:
+            # Simula um resolvedor que explode
+            bad_resolver = MagicMock()
+            bad_resolver.resolve.side_effect = Exception("Boom! GPU pegou fogo.")
+            mock_get.return_value = bad_resolver
+            
+            line = "12345678 - CALCULO 1 0 60 5,0 AP OBR"
+            
+            # Act
+            result = parse_subject_line(line, "2023.1")
+            
+            # Assert
+            assert result is not None
+            assert result.subject_canonical == "ERROR_RESOLVING" # O valor de fallback definido no código

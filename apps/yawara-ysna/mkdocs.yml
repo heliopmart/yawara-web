@@ -1,0 +1,46 @@
+site_name: Yawara Y-SNA Documentation
+site_description: Documentação oficial do Yawara Y-SNA, um sistema avançado de análise e resolução neural.
+site_author: Team Yawara
+theme:
+  name: material
+  palette:
+    primary: dark red
+    accent: teal
+  features:
+    - navigation.sections
+    - content.code.copy
+
+extra:
+  favicon: assets/favicon.ico
+  
+extra_css:
+  - assets/style.css
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["."] # Aponta para a pasta do seu código fonte
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Home: index.md
+  - Arquitetura: ARCHITECTURE.md
+  - Referência da API:
+      - Ingestão & Parsing: reference/ingestion.md
+      - Resolvedor (Service): reference/neural_resolver.md
+      - Motor Vetorial (Engine): reference/canonical_subject_engine.md
+      - Arquitetura Neural: reference/encoder.md
+      - Calibração: reference/calibration.md
+      - Utilitários: reference/utils.md
+  - Testes da API:
+    - Testes & QA: tests/tests.md

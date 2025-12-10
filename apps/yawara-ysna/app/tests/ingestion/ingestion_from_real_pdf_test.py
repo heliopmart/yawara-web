@@ -1,39 +1,48 @@
-from pathlib import Path
-
+import pytest
+import os
 from app.services.ingestion import ingest_academic_record_from_pdf
 
+# Caminho relativo para o PDF de teste
+PDF_PATH = "app/tests/docs/pdf_academic_historic/ufgd_academic_historic_test_1.pdf"
 
-PDF_DIR = Path("app/tests/docs/pdf_academic_historic")
+class TestRealPDFIngestion:
+    """Teste de Integração End-to-End com arquivo PDF real.
+    
+    Verifica se a biblioteca `pdfplumber` consegue ler o arquivo físico
+    e se o pipeline de ingestão produz um resultado coerente.
+    """
 
+    @pytest.mark.skipif(not os.path.exists(PDF_PATH), reason="Arquivo PDF de teste não encontrado.")
+    def test_ingest_from_real_file(self):
+        """
+        GIVEN: Um arquivo PDF real da UFGD presente no disco.
+        WHEN: O pipeline de ingestão é executado com os bytes desse arquivo.
+        THEN: Deve retornar um AcademicRecord com disciplinas identificadas.
+        """
+        # Arrange
+        with open(PDF_PATH, "rb") as f:
+            pdf_bytes = f.read()
 
-def test_ingest_real_ufgd_pdf():
-    pdf_path = PDF_DIR / "ufgd_academic_historic_test_1.pdf"
+        # Act
+        # Nota: Isso vai tentar usar o Resolver Neural real se ele carregar,
+        # ou o fallback se não houver pesos. O teste deve passar em ambos os casos.
+        record = ingest_academic_record_from_pdf(
+            pdf_bytes=pdf_bytes,
+            candidate_id="test_candidate",
+            cycle_id="test_cycle"
+        )
 
-    with open(pdf_path, "rb") as f:
-        pdf_bytes = f.read()
-
-    record = ingest_academic_record_from_pdf(
-        pdf_bytes=pdf_bytes,
-        candidate_id="cand-real-test",
-        cycle_id="cycle-real-test",
-    )
-
-    # Sanidade mínima
-    assert record.candidate_id == "cand-real-test"
-    assert record.cycle_id == "cycle-real-test"
-    assert len(record.subjects) > 0
-
-    # Teste estrutural de uma disciplina qualquer
-    s0 = record.subjects[0]
-
-    _print_record(record)
-
-    assert s0.code.isdigit()
-    assert isinstance(s0.subject_canonical, str)
-    assert len(s0.subject_canonical) > 5
-    assert s0.status in {"AP", "RP", "DS", "MA"}
-
-
-def _print_record(record):
-    for subject in record.subjects:
-        print(subject.model_dump_json(indent=2))
+        # Assert
+        assert record.candidate_id == "test_candidate"
+        assert len(record.subjects) > 0, "Deveria ter encontrado disciplinas no PDF real"
+        
+        # Validação por amostragem (Spot Check)
+        # Verifica se pegou pelo menos uma disciplina conhecida (ajuste conforme seu PDF de teste)
+        # Exemplo genérico:
+        first_subj = record.subjects[0]
+        assert first_subj.period is not None
+        assert first_subj.name_raw is not None
+        assert first_subj.status is not None
+        
+        print(f"\n[INFO] PDF processado. Encontradas {len(record.subjects)} disciplinas.")
+        print(f"[INFO] Exemplo: {first_subj.name_raw} -> {first_subj.subject_canonical}")

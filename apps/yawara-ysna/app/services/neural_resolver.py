@@ -1,97 +1,85 @@
-import numpy as np
 import json
-import os
 import re
 import google.generativeai as genai
-from typing import List, Dict, Tuple, Optional, Any
-from app.ml.canonical_subject_nn import CanonicalSubjectNN
-from app.core.config import settings
-from app.training.train_encoder_ml import TRAINING_SEEDS
+from typing import Dict, List, Tuple, Any, Optional
 
-# Caminho para persistência da memória vetorial (volume persistente no Docker)
-MEMORY_FILE_PATH =settings.NN_MODEL_MEMORY_FILE_PATH
+# CONFIGS IMPORT ---------------------------------------
+from app.core.config import settings
+
+# ML ENGINE IMPORT -------------------------------------
+from app.ml.canonical_subject_engine import CanonicalSubjectEngine
 
 class DynamicNeuralResolver:
+    """Orquestrador de resolução de entidades semânticas (Híbrido Neuro-Simbólico).
+
+    Esta classe atua como a camada de serviço que coordena a inteligência do Y-CSNN ( CANONICAL SUBJECT ENGINE ).
+    Ela não realiza cálculos vetoriais diretamente (delegados ao `CanonicalSubjectEngine`),
+    mas decide *qual* estratégia usar para resolver uma disciplina desconhecida.
+
+    Estratégia de Resolução:
+        1. **Fast Path (Memória Neural):** Consulta o motor vetorial. Se a confiança for
+           alta (acima do threshold), retorna imediatamente (latência < 50ms).
+        2. **Slow Path (Consultor LLM):** Se houver ambiguidade, constrói um prompt
+           com os candidatos próximos e consulta o Gemini 2.5 Flash para raciocínio.
+        3. **Auto-Learning (Loop de Feedback):** Se a LLM identificar um sinônimo,
+           o Resolver instrui o Engine a memorizar o novo vetor, tornando a próxima
+           consulta rápida.
+
+    Attributes:
+        engine (CanonicalSubjectEngine): O motor de inferência vetorial e persistência.
+        llm (GenerativeModel): A instância do cliente Gemini para tarefas generativas.
+    """
+
     _instance = None
 
     def __init__(self, weights_path: str):
-        print(f"[Y-SNA] Inicializando Resolvedor Dinâmico com Persistência...")
+        """Inicializa os serviços de inteligência.
+
+        Args:
+            weights_path (str): Caminho para os pesos do modelo neural (.h5).
+        """
+        print(f"[Y-CSNN] Inicializando Serviço de Resolução Híbrida...")
         
+        # 1. Inicializa o Motor Neural (Cuida de Vetores e Memória)
+        self.engine = CanonicalSubjectEngine(weights_path)
+        
+        # 2. Inicializa o Consultor LLM (Cuida da Ambiguidade)
         genai.configure(api_key=settings.GOOGLE_API_KEY)
         self.llm = genai.GenerativeModel('gemini-2.5-flash')
-        
-        self.nn = CanonicalSubjectNN(vocab="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", encoder_dim=128)
-        try:
-            self.nn.model.build((None, 64)) 
-            self.nn.model.load_weights(weights_path)
-            print("[Y-SNA] Pesos neurais carregados com sucesso.")
-        except Exception as e:
-            print(f"[FATAL] Erro ao carregar pesos: {e}")
-            raise e
 
-        # Memória Vetorial: Dicionário { "NOME_CANONICO": np.array([...]) }
-        self.memory_bank: Dict[str, np.ndarray] = {}
-        self._load_memory() # Tenta carregar do disco, senão seada
+    def resolve(self, raw_input: str, threshold: float = 0.70) -> Dict[str, Any]:
+        """Resolve o nome de uma disciplina para sua forma canônica oficial.
 
-    def _seed_memory(self):
-        """Injeta conceitos fundamentais se a memória estiver vazia."""
-        print("[Y-SNA] Semeando memória inicial...")
-        initial_concepts = [item["canonical"] for item in TRAINING_SEEDS]
-        vectors = self.nn.embed_batch(initial_concepts)
-        for name, vec in zip(initial_concepts, vectors):
-            self.memory_bank[name] = vec
-        self._save_memory()
+        Args:
+            raw_input (str): O texto "sujo" extraído do PDF (ex: "Calc. Diferencial I").
+            threshold (float, optional): O limiar de confiança (0.0 a 1.0) para aceitar
+                a resposta da memória neural sem consultar a LLM. Defaults to 0.70.
 
-    def _load_memory(self):
-        """Carrega a memória vetorial do disco."""
-        if os.path.exists(MEMORY_FILE_PATH):
-            try:
-                data = np.load(MEMORY_FILE_PATH, allow_pickle=True)
-                # O formato .npz armazena arrays. Vamos reconstruir o dict.
-                keys = data['keys']
-                vectors = data['vectors']
-                
-                self.memory_bank = {k: v for k, v in zip(keys, vectors)}
-                print(f"[Y-SNA] Memória restaurada: {len(self.memory_bank)} conceitos.")
-            except Exception as e:
-                print(f"[Y-SNA] Erro ao ler memória ({e}). Reiniciando seed.")
-                self._seed_memory()
-        else:
-            self._seed_memory()
-
-    def _save_memory(self):
-        """Persiste a memória atual no disco."""
-        try:
-            keys = list(self.memory_bank.keys())
-            vectors = np.array(list(self.memory_bank.values()))
-            
-            # Cria diretório se não existir
-            os.makedirs(os.path.dirname(MEMORY_FILE_PATH), exist_ok=True)
-            
-            np.savez_compressed(MEMORY_FILE_PATH, keys=keys, vectors=vectors)
-            # print("[Y-SNA] Memória persistida no disco.") # Verbose demais para cada save
-        except Exception as e:
-            print(f"[Y-SNA] ERRO CRÍTICO ao salvar memória: {e}")
-
-    def resolve(self, raw_input: str, threshold: float = 0.70) -> Dict:
+        Returns:
+            Dict[str, Any]: Objeto de resposta contendo:
+                - canonical (str): Nome oficial padronizado (ex: "CALCULO_1").
+                - confidence (float): Grau de certeza da resposta.
+                - source (str): Origem da decisão ("NEURAL_MEMORY" ou "LLM_GENERATION").
+                - new_concept (bool): Flag indicando se é uma disciplina inédita no sistema.
         """
-        Fluxo principal: Neural -> Se score baixo -> LLM -> Auto-Aprendizado
-        """
-        # Normalização básica de entrada
-        raw_input = raw_input.strip().upper()
+        # 1. Vetorização (O Engine cuida da limpeza básica e embedding)
+        try:
+            input_vec = self.engine.vectorise(raw_input)
+        except Exception as e:
+            # Fallback de segurança se o TensorFlow falhar na inferência
+            print(f"[Y-CSNN] Erro de inferência neural: {e}")
+            return self._fallback_response(raw_input, "NEURAL_ENGINE_FAILURE")
+
+        # 2. Busca na Memória (O Engine devolve os candidatos)
+        top_candidates = self.engine.search_nearest(input_vec, top_k=5)
         
-        # 1. Vetoriza
-        input_vec = self.nn.embed_single(raw_input)
-        
-        # 2. Busca na memória (Top-K)
-        top_candidates = self._search_memory(input_vec, top_k=5)
-        
+        # Cenário A: Memória Vazia (Cold Start) -> Chama LLM direto
         if not top_candidates:
             return self._ask_gemini_for_concept(raw_input, input_vec, [])
 
         best_match_name, best_match_score = top_candidates[0]
         
-        # 3. Decisão (Fast Path)
+        # Cenário B: Confiança Alta -> Retorna memória (Fast Path)
         if best_match_score >= threshold:
             return {
                 "canonical": best_match_name,
@@ -99,30 +87,21 @@ class DynamicNeuralResolver:
                 "source": "NEURAL_MEMORY",
                 "new_concept": False
             }
-        else:
-            # Caminho Lento: LLM decide
-            print(f"[Y-SNA] '{raw_input}' ambíguo (Top-1: {best_match_score:.2f}). Consultando Gemini...")
-            return self._ask_gemini_for_concept(raw_input, input_vec, top_candidates)
+        
+        # Cenário C: Ambiguidade -> Chama LLM (Slow Path)
+        print(f"[Y-CSNN] '{raw_input}' ambíguo (Top-1: {best_match_score:.2f}). Consultando Gemini...")
+        return self._ask_gemini_for_concept(raw_input, input_vec, top_candidates)
 
-    def _search_memory(self, vector: np.ndarray, top_k: int = 5) -> List[Tuple[str, float]]:
-        if not self.memory_bank:
-            return []
-            
-        keys = list(self.memory_bank.keys())
-        matrix = np.stack([self.memory_bank[k] for k in keys])
-        
-        scores = np.dot(vector, matrix.T)
-        
-        k = min(top_k, len(keys))
-        top_indices = np.argsort(scores)[-k:][::-1]
-        
-        results = []
-        for idx in top_indices:
-            results.append((keys[idx], float(scores[idx])))
-            
-        return results
+    def _ask_gemini_for_concept(self, raw_input: str, vector: Any, candidates: List[Tuple[str, float]]) -> Dict[str, Any]:
+        """Consulta a LLM para desambiguação semântica e aciona o aprendizado.
 
-    def _ask_gemini_for_concept(self, raw_input: str, vector: np.ndarray, candidates: List[Tuple[str, float]]) -> Dict:
+        Constrói um prompt contendo o input do usuário e os candidatos mais próximos
+        encontrados pela rede neural. A LLM atua como 'Juiz' para decidir se é
+        um sinônimo ou um conceito novo.
+
+        Se a LLM confirmar um sinônimo, este método invoca `engine.memorize()` para
+        persistir o aprendizado.
+        """
         candidates_text = "\n".join([
             f"- {name} (Similaridade: {score:.1%})" 
             for name, score in candidates
@@ -148,38 +127,38 @@ class DynamicNeuralResolver:
         """
 
         try:
-            raise Exception("LLM MOCK - desabilitado para testes locais")
+            if settings.ENVIRONMENT == "development_local_mock": 
+                raise Exception("LLM MOCK - desabilitado para testes locais")
 
             response = self.llm.generate_content(
                 prompt,
                 generation_config={"response_mime_type": "application/json"}
             )
             
-            # Limpeza robusta do JSON (remove ```json ... ``` se houver)
             text_response = response.text
+
+            # Limpeza robusta de markdown json (caso a LLM seja verbosa)
             text_response = re.sub(r"^```json\s*", "", text_response)
             text_response = re.sub(r"\s*```$", "", text_response)
             
             decision = json.loads(text_response)
             
-            # Validação básica de chaves
             if "canonical" not in decision:
                 raise ValueError("LLM não retornou chave 'canonical'")
 
             final_canonical = decision["canonical"].upper().replace(" ", "_")
             is_new = decision.get("is_new", False)
             
-            # --- AUTO-APRENDIZADO (PERSISTENTE) ---
-            # Se a LLM diz que 'Calc I' == 'CALCULO_1', nós associamos o vetor de 'Calc I' 
-            # ao conceito 'CALCULO_1'. Isso reforça a região semântica desse conceito.
-            self.memory_bank[final_canonical] = vector
-            self._save_memory() # Salva no disco!
+            # --- AUTO-APRENDIZADO ---
+            # O Serviço decide que deve aprender, e manda o Engine memorizar.
+            # Isso fecha o ciclo de feedback.
+            self.engine.memorize(final_canonical, vector)
             
-            print(f"[Y-SNA] Aprendizado: '{raw_input}' -> '{final_canonical}' (Novo: {is_new})")
+            print(f"[Y-CSNN] Aprendizado: '{raw_input}' -> '{final_canonical}' (Novo: {is_new})")
 
             return {
                 "canonical": final_canonical,
-                "confidence": 1.0, # Confiança arbitrária pois foi humano/LLM que decidiu
+                "confidence": 1.0, 
                 "source": "LLM_GENERATION",
                 "new_concept": is_new,
                 "reasoning": decision.get("reasoning")
@@ -187,15 +166,24 @@ class DynamicNeuralResolver:
 
         except Exception as e:
             print(f"[ERRO-LLM] Falha ao chamar Gemini: {e}")
-            fallback = candidates[0][0] if candidates else "UNKNOWN_ERROR"
-            return {
-                "canonical": fallback,
-                "confidence": 0.0,
-                "source": "ERROR_FALLBACK",
-                "new_concept": False
-            }
+            return self._fallback_response(raw_input, "LLM_ERROR_FALLBACK", candidates)
 
-def get_resolver(weights_path="app/resources/models/yawara_encoder_v1.weights.h5"):
+    def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:
+        """Gera uma resposta segura quando todos os sistemas inteligentes falham.
+
+        Garante que o pipeline de ingestão nunca trave, retornando o melhor palpite
+        disponível (Top-1 da memória) ou o próprio input normalizado.
+        """
+        fallback_name = candidates[0][0] if candidates else raw_input.upper().replace(" ", "_")
+        return {
+            "canonical": fallback_name,
+            "confidence": 0.0,
+            "source": source,
+            "new_concept": False
+        }
+
+def get_resolver(weights_path="app/resources/models/yawara_canonical_subject_model_v1.weights.h5") -> DynamicNeuralResolver:
+    """Singleton Factory para obter a instância única do Resolvedor."""
     if DynamicNeuralResolver._instance is None:
         DynamicNeuralResolver._instance = DynamicNeuralResolver(weights_path)
     return DynamicNeuralResolver._instance

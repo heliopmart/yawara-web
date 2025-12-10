@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     # NN MODEL
     NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
 
+    # ENVIRONMENT
+
+    # (DEVELOPMENT | PRODUCTION | TESTING) | (development_local_mock)
+    ENVIRONMENT: str = "development" 
     class Config:
         env_file = ".env"
         case_sensitive = True

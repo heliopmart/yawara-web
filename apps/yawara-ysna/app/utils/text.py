@@ -1,6 +1,6 @@
 import unicodedata
+from typing import Optional
 import re
-
 
 def normalize_text_strict(text: str) -> str:
     """
@@ -26,3 +26,26 @@ def normalize_text_strict(text: str) -> str:
     text = text.upper().replace(" ", "_")
 
     return text
+
+def try_parse_float(value: Optional[str]) -> Optional[float]:
+    """
+        Converte uma string numérica (formato BR ou US) para float de forma segura.
+
+        Realiza a normalização de separadores decimais (troca vírgula por ponto) e
+        trata erros de conversão. Útil para processar notas extraídas de PDFs que
+        podem conter formatação brasileira (ex: "7,5") ou valores inválidos.
+
+        Args:
+            value (Optional[str]): A string contendo o número (ex: "8,50" ou "8.50").
+
+        Returns:
+            Optional[float]: O valor numérico convertido, ou None se a entrada for
+            nula ou não for um número válido.
+    """
+    if value is None:
+        return None
+    value = value.replace(',', '.')
+    try:
+        return float(value)
+    except ValueError:
+        return None

@@ -2,103 +2,167 @@ import re
 from typing import Optional, List
 from datetime import datetime
 
-# Ajuste os imports conforme sua estrutura real
-from app.services.neural_resolver import get_resolver
+# HANDLES IMPORT ----------------------------------------------
+from app.utils.text import try_parse_float
+
+# SERVICE IMPORT ----------------------------------------------
+from app.services.neural_resolver import get_resolver, DynamicNeuralResolver
 from app.schemas.historic import SubjectRecord, AcademicRecord, academic_exclude_status
 from app.utils.pdf import extract_text_from_pdf
 
-def _get_ai_resolver():
+# AUXILIARY FUNCTIONS ---------------------------------------------
+
+def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
+    """
+        Função Auxiliar. Recupera a instância do resolvedor neural com tratamento de falhas.
+
+        Atua como um wrapper de segurança para o singleton `get_resolver`. Se o modelo
+        neural falhar ao carregar (ex: arquivo de pesos ausente ou erro do TensorFlow),
+        esta função captura a exceção e retorna `None`, permitindo que o fluxo de
+        ingestão continue em modo de fallback (sem inteligência semântica).
+
+        Returns:
+            Optional[DynamicNeuralResolver]: A instância do resolvedor se carregada com sucesso,
+            ou None em caso de erro crítico.
+
+        Errors: 
+            [Y-CSNN] Error: Resolver Neural indisponível (...). Usando fallback.
+    """
     try:
         return get_resolver() 
     except Exception as e:
-        print(f"[Y-SNA] Aviso: Resolver Neural indisponível ({e}). Usando fallback.")
+        print(f"[Y-CSNN] Error: Resolver Neural indisponível ({e}). Usando fallback.")
         return None
 
-# ? <CODIGO> - <NOME_DISCIPLINA> <FALTAS> <CH> <NOTA_OU_STATUS> <STATUS> <TIPO>
+# REGEX TYPING ----------------------------------------------------
+
+# Regex compilada para extração de dados de linhas de disciplina.
+# Utiliza flag re.VERBOSE para permitir comentários inline e quebras de linha.
+#
+# Formato esperado da linha no PDF (UFGD):
+# "CODIGO - NOME DA MATERIA   FALTAS   CH   [NOTA]   STATUS   TIPO"
+#
+# Exemplo com nota:
+# "12345678 - CALCULO 1       0        68   7,5      AP       OBR"
+#
+# Exemplo sem nota (aprovado sem nota ou matriculado):
+# "12345678 - ESTAGIO SUP     0        100           MT       OBR"
+# 
+# Observação: ?P<code> são grupos nomeados para fácil acesso.
 DISCIPLINE_LINE_REGEX = re.compile(
     r"""
-    ^\s*
-    (?P<code>\d{8,11})          # código numérico (8 a 11 dígitos)
-    \s*-\s*
-    (?P<name>.+?)               # nome da disciplina (lazy)
+    ^\s*                        # Início da linha (ignora espaços iniciais) 
+    (?P<code>\d{8,11})          # Grupo 1: Código da disciplina (8 a 11 dígitos)
+    \s*-\s*                     # Separador (hífen com espaços opcionais)
+    (?P<name>.+?)               # Grupo 2: Nome da disciplina (match preguiçoso/lazy)
+    \s+                         # Espaço obrigatório antes das métricas
+    (?P<absences>\d+)           # Grupo 3: Número de faltas (inteiro)
     \s+
-    (?P<absences>\d+)           # faltas
-    \s+
-    (?P<workload>\d+)           # carga horária
+    (?P<workload>\d+)           # Grupo 4: Carga horária (inteiro)
 
-    # --- AQUI ESTÁ O PULO DO GATO ---
-    # opcionalmente, pode vir uma nota numérica antes do status
+    # Bloco da Nota (Opcional)
+    # Explicação: Tenta casar um número decimal (7.5 ou 7,5).
+    # Se não existir nota (ex: disciplina em curso 'MT' ou 'MA'), este grupo retorna None.
     \s+
-    (?:(?P<grade>\d+(?:[.,]\d+)?)\s+)?   # grade opcional: 7.80 ou 7,80
+    (?:(?P<grade>\d+(?:[.,]\d+)?)\s+)?   
 
-    (?P<status>\S+)              # AP, RP, DS, MA, etc.
+    (?P<status>\S+)             # Grupo 6: Status (AP, RP, MA, MT, etc.)
     \s+
-    (?P<dtype>\S+)               # OBR, OPT, ELT, etc.
-    \s*$
+    (?P<dtype>\S+)              # Grupo 7: Tipo (OBR, OPT, ELT)
+    \s*$                        # Fim da linha
     """,
     re.VERBOSE | re.UNICODE,
 )
-# ? <PERIODO> - formato AAAA.N (ex: 2024.2)
-PERIOD_LINE_REGEX = re.compile(r"^\s*(\d{4}\.\d)\s*$")
 
-def _try_parse_float(value: Optional[str]) -> Optional[float]:
-    if value is None:
-        return None
-    value = value.replace(',', '.')
-    try:
-        return float(value)
-    except ValueError:
-        return None
+# Regex para identificar cabeçalhos de período letivo.
+# Captura o formato "AAAA.S" (Ano.Semestre).
+#
+# Exemplo: "2024.1" ou "2023.2"
+PERIOD_LINE_REGEX = re.compile(
+    r"""
+    ^\s*            # Início da linha
+    (\d{4}\.\d)     # Grupo 1: Ano (4 dígitos) + Ponto + Semestre (1 dígito)
+    \s*$            # Fim da linha (garante que a linha só tem isso)
+    """,
+    re.VERBOSE
+)
 
 def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     """
-    Converte uma linha bruta do histórico em SubjectRecord.
-    Retorna None se a linha NÃO for uma disciplina válida.
+        Processa uma linha de texto crua e a converte em um registro de disciplina estruturado.
+
+        Esta função atua como a ponte entre o OCR (texto bruto) e o modelo de dados.
+        Ela utiliza expressões regulares para extrair campos e, crucialmente, integra-se
+        ao **Resolvedor Neural (Y-CSNN)** para normalizar semanticamente o nome da disciplina.
+
+        Se a linha não corresponder ao padrão de uma disciplina (ex: cabeçalho, rodapé, lixo),
+        retorna `None`.
+
+        Args:
+            line (str): A linha de texto extraída do PDF.
+            period (str): O período letivo atual (contexto) ex: "2023.1".
+
+        Returns:
+            Optional[SubjectRecord]: O objeto da disciplina preenchido e normalizado,
+            ou None se a linha for inválida.
+
+        Flow:
+            1. Match Regex -> Extrai dados brutos.
+            2. Type Conversion -> Str para Int/Float.
+            3. **Neural Resolution** -> Consulta IA para obter `subject_canonical`.
+            4. Object Creation -> Retorna SubjectRecord.
     """
+
+    # Extração via Regex 
     m = DISCIPLINE_LINE_REGEX.match(line)
+    
+    # Linha inválida (não corresponde ao formato esperado)
     if not m:
         return None
 
+    # Extração dos campos ( group(<code>) do regex )
     code = m.group("code").strip()
     name_raw = m.group("name").strip()
     absences = int(m.group("absences"))
     workload = int(m.group("workload"))
-
     grade_raw = m.group("grade")
-    grade = _try_parse_float(grade_raw)
+    
+    # Conversão segura da nota
+    grade = try_parse_float(grade_raw)
 
     status = m.group("status").strip()  
     dtype = m.group("dtype").strip()
 
     # --- INTEGRAÇÃO NEURAL V2 ---
-    # Aqui a mágica acontece. O resolver agora é o "porteiro" semântico.
+    
+    # Chama o interruptor da rede neural (se disponível)
     _resolver = _get_ai_resolver()
     
     # Valor padrão caso a rede esteja offline
     subject_canonical_name = "AI_UNAVAILABLE"
+
+    # Valor padrão para não gerar errors
+    confidence = None
     
     if _resolver:
         try:
-            # O resolve retorna um dict: {'canonical': '...', 'confidence': ...}
-            # Nós só precisamos do nome canônico para o SubjectRecord por enquanto.
+            # Chama o resolvedor neural para obter o nome canônico. Return { "canonical", "confidence", ... }
             resolution_result = _resolver.resolve(name_raw)
+
+            # Extrai os campos do resultado
             subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")
-            confidence = resolution_result.get("confidence", 0.0)
-            
-            # TODO: Se o SubjectRecord tiver campo para 'metadata' ou 'confidence',
-            # seria ótimo salvar resolution_result['confidence'] lá para auditoria.
-            
+            confidence = resolution_result.get("confidence", 0.0)       
+
         except Exception as e:
-            print(f"[Y-SNA] Erro na resolução de '{name_raw}': {e}")
+            print(f"[Y-CSNN] Erro na resolução de '{name_raw}': {e}")
             subject_canonical_name = "ERROR_RESOLVING"
             
-    # -------------------------
-
+    # Return o objeto estruturado
     return SubjectRecord(
         period=period,
         code=code,
         name_raw=name_raw,
-        subject_canonical=subject_canonical_name, # Agora passamos a string limpa
+        subject_canonical=subject_canonical_name,
         grade=grade,
         status=status,
         workload_hours=workload,
@@ -107,32 +171,59 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
         confidence=confidence if _resolver else None,
     )
 
-def parse_academic_history(
-    text: str,
-    candidate_id: str,
-    cycle_id: str,
-    source: str = "UFGD_HISTORICO_OFICIAL",
-) -> AcademicRecord:
+def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+    """
+        Orquestra o parsing completo do texto de um histórico escolar.
+
+        Esta função itera sobre todas as linhas do texto extraído, gerenciando o estado
+        do contexto temporal (período letivo atual) e agregando as disciplinas válidas.
+
+        Lógica de Processamento:
+        1. Detecta cabeçalhos de período (ex: "2023.1") e atualiza o contexto `current_period`.
+        2. Delega cada linha para `parse_subject_line` tentar extrair uma disciplina.
+        3. Filtra disciplinas com status irrelevantes (definidos em `academic_exclude_status`,
+        ex: Trancamento, Dispensa sem nota).
+        4. Compila tudo em um objeto `AcademicRecord`.
+
+        Args:
+            text (str): O texto bruto completo extraído do PDF.
+            candidate_id (str): ID do candidato no sistema.
+            cycle_id (str): ID do ciclo do processo seletivo.
+            source (str, optional): Origem do documento. Defaults to "UFGD_HISTORICO_OFICIAL".
+
+        Returns:
+            AcademicRecord: O registro acadêmico estruturado contendo a lista de disciplinas.
+    """    
+    
     current_period = "UNKNOWN"
     subjects: List[SubjectRecord] = []
 
+    # Itera sobre cada linha do texto
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line:
             continue 
 
+        # Verifica se a linha é um cabeçalho de período
         m_period = PERIOD_LINE_REGEX.match(line)
         if m_period:
+            # Extrai o período atual
             current_period = m_period.group(1)
             continue
 
+        # Tenta parsear a linha como disciplina
         subj = parse_subject_line(raw_line, current_period)
+        
+        # Filtra disciplinas com status irrelevantes
         if subj is not None:
+            # Ignora disciplinas com status de exclusão
             if subj.status in academic_exclude_status:
                 continue
+            # Adiciona a disciplina válida à lista
             subjects.append(subj)
             continue
 
+    # Retorna o registro acadêmico completo
     return AcademicRecord(
         candidate_id=candidate_id,
         cycle_id=cycle_id,
@@ -141,13 +232,28 @@ def parse_academic_history(
         subjects=subjects,
     )
 
-def ingest_academic_record_from_pdf(
-    pdf_bytes: bytes,
-    candidate_id: str,
-    cycle_id: str,
-    source: str = "UFGD_HISTORICO_OFICIAL",
-) -> AcademicRecord:
+def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+    """
+        Ponto de entrada principal para a ingestão de históricos escolares em PDF.
+
+        Esta função atua como uma fachada (Facade) que converte o arquivo binário em
+        um objeto de domínio utilizável. Ela abstrai a complexidade da extração de texto
+        (OCR/PyPDF) e delega o processamento lógico para o parser.
+
+        Args:
+            pdf_bytes (bytes): O conteúdo binário do arquivo PDF enviado pelo usuário.
+            candidate_id (str): ID único do candidato proprietário do documento.
+            cycle_id (str): ID do ciclo seletivo ao qual o documento se aplica.
+            source (str, optional): Identificador da fonte do documento. Defaults to "UFGD_HISTORICO_OFICIAL".
+
+        Returns:
+            AcademicRecord: O registro acadêmico completo, normalizado e validado, pronto para persistência.
+    """
+
+    # Extração de texto do PDF
     text = extract_text_from_pdf(pdf_bytes)
+    
+    # Delegação para o parser principal
     return parse_academic_history(
         text=text,
         candidate_id=candidate_id,

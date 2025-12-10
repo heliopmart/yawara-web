@@ -19,3 +19,8 @@ google-generativeai>=0.8.5
 spacy>=3.8.11
 
 pytest>=9.0.2
+
+# Dependências adicionais
+mkdocs>=1.6.1
+mkdocs-material>=9.7.0
+mkdocstrings>=1.0.0

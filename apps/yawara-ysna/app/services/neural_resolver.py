@@ -1,13 +1,16 @@
-import json
-import re
-import google.generativeai as genai
-from typing import Dict, List, Tuple, Any, Optional
+import logging
+from typing import Dict, List, Any
 
 # CONFIGS IMPORT ---------------------------------------
 from app.core.config import settings
 
 # ML ENGINE IMPORT -------------------------------------
 from app.ml.canonical_subject_engine import CanonicalSubjectEngine
+
+# SERVICES ---------------------------------------------
+from app.utils.llm_client import GeminiClient
+
+logger = logging.getLogger("yawara.services.resolver")
 
 class DynamicNeuralResolver:
     """Orquestrador de resolução de entidades semânticas (Híbrido Neuro-Simbólico).
@@ -32,20 +35,21 @@ class DynamicNeuralResolver:
 
     _instance = None
 
+    # 2.0s = 30 RPM (Requisições por Minuto) - Seguro para evitar erros 429.
+    MIN_REQUEST_INTERVAL = 2.0
+
     def __init__(self, weights_path: str):
         """Inicializa os serviços de inteligência.
 
         Args:
             weights_path (str): Caminho para os pesos do modelo neural (.h5).
         """
-        print(f"[Y-CSNN] Inicializando Serviço de Resolução Híbrida...")
+        logger.info("[Y-CSNN] Inicializando Resolver Híbrido...")
         
         # 1. Inicializa o Motor Neural (Cuida de Vetores e Memória)
         self.engine = CanonicalSubjectEngine(weights_path)
-        
-        # 2. Inicializa o Consultor LLM (Cuida da Ambiguidade)
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.llm = genai.GenerativeModel('gemini-2.5-flash')
+
+        self.llm_client = GeminiClient()
 
     def resolve(self, raw_input: str, threshold: float = 0.70) -> Dict[str, Any]:
         """Resolve o nome de uma disciplina para sua forma canônica oficial.
@@ -67,7 +71,7 @@ class DynamicNeuralResolver:
             input_vec = self.engine.vectorise(raw_input)
         except Exception as e:
             # Fallback de segurança se o TensorFlow falhar na inferência
-            print(f"[Y-CSNN] Erro de inferência neural: {e}")
+            logger.error(f"Erro Neural: {e}")
             return self._fallback_response(raw_input, "NEURAL_ENGINE_FAILURE")
 
         # 2. Busca na Memória (O Engine devolve os candidatos)
@@ -89,84 +93,32 @@ class DynamicNeuralResolver:
             }
         
         # Cenário C: Ambiguidade -> Chama LLM (Slow Path)
-        print(f"[Y-CSNN] '{raw_input}' ambíguo (Top-1: {best_match_score:.2f}). Consultando Gemini...")
-        return self._ask_gemini_for_concept(raw_input, input_vec, top_candidates)
+        logger.info(f"Ambiguidade detectada em '{raw_input}' ({best_match_score:.2f}). Acionando LLM.")
+        return self._resolve_via_llm(raw_input, input_vec, top_candidates)
 
-    def _ask_gemini_for_concept(self, raw_input: str, vector: Any, candidates: List[Tuple[str, float]]) -> Dict[str, Any]:
-        """Consulta a LLM para desambiguação semântica e aciona o aprendizado.
-
-        Constrói um prompt contendo o input do usuário e os candidatos mais próximos
-        encontrados pela rede neural. A LLM atua como 'Juiz' para decidir se é
-        um sinônimo ou um conceito novo.
-
-        Se a LLM confirmar um sinônimo, este método invoca `engine.memorize()` para
-        persistir o aprendizado.
-        """
-        candidates_text = "\n".join([
-            f"- {name} (Similaridade: {score:.1%})" 
-            for name, score in candidates
-        ])
-
-        prompt = f"""
-        Você é o Kernel Semântico do Yawara.
-        INPUT: "{raw_input}"
-        
-        MEMÓRIA NEURAL (Candidatos próximos):
-        {candidates_text}
-        
-        TAREFA:
-        O input é semanticamente IGUAL a algum candidato (sinônimo, abreviação)?
-        Ou é um conceito NOVO (disciplina distinta)?
-        
-        RESPOSTA JSON APENAS:
-        {{
-            "canonical": "NOME_EXISTENTE_OU_NOVO_PADRONIZADO",
-            "is_new": boolean,
-            "reasoning": "curta explicação"
-        }}
-        """
-
+    def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:
+        """Ponte entre a decisão de chamar a IA e a ação de aprender."""
         try:
-            if settings.ENVIRONMENT == "development_local_mock": 
-                raise Exception("LLM MOCK - desabilitado para testes locais")
-
-            response = self.llm.generate_content(
-                prompt,
-                generation_config={"response_mime_type": "application/json"}
-            )
+            # 1. Delega a pergunta para o especialista (GeminiClient)
+            decision = self.llm_client.check_concept_ambiguity(raw_input, candidates)
             
-            text_response = response.text
-
-            # Limpeza robusta de markdown json (caso a LLM seja verbosa)
-            text_response = re.sub(r"^```json\s*", "", text_response)
-            text_response = re.sub(r"\s*```$", "", text_response)
-            
-            decision = json.loads(text_response)
-            
-            if "canonical" not in decision:
-                raise ValueError("LLM não retornou chave 'canonical'")
-
-            final_canonical = decision["canonical"].upper().replace(" ", "_")
+            canonical = decision["canonical"].upper().replace(" ", "_")
             is_new = decision.get("is_new", False)
-            
-            # --- AUTO-APRENDIZADO ---
-            # O Serviço decide que deve aprender, e manda o Engine memorizar.
-            # Isso fecha o ciclo de feedback.
-            self.engine.memorize(final_canonical, vector)
-            
-            print(f"[Y-CSNN] Aprendizado: '{raw_input}' -> '{final_canonical}' (Novo: {is_new})")
+
+            # 2. Ciclo de Aprendizado (O Resolver manda o Engine memorizar)
+            self.engine.memorize(canonical, vector)
+            logger.info(f"Aprendizado: '{raw_input}' -> '{canonical}'")
 
             return {
-                "canonical": final_canonical,
-                "confidence": 1.0, 
+                "canonical": canonical,
+                "confidence": 1.0,
                 "source": "LLM_GENERATION",
                 "new_concept": is_new,
                 "reasoning": decision.get("reasoning")
             }
-
         except Exception as e:
-            print(f"[ERRO-LLM] Falha ao chamar Gemini: {e}")
-            return self._fallback_response(raw_input, "LLM_ERROR_FALLBACK", candidates)
+            # Se a LLM falhar, fallback para o melhor candidato neural
+            return self._fallback_response(raw_input, "LLM_ERROR", candidates)
 
     def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:
         """Gera uma resposta segura quando todos os sistemas inteligentes falham.

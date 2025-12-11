@@ -68,7 +68,7 @@ class SelectionDataService:
 
             # Monta o dicionário {materia: peso}
             weights_map = {}
-
+            
             for w in weights:
                 # 1. Tenta pegar a coluna oficial do futuro ("canonical_name") 
                 # ou a atual ("subject_canonical") se existir.
@@ -113,7 +113,7 @@ class SelectionDataService:
 
         queue = []
         for row in user_cards:
-            if row.get("nuclei_eligible") or len(row.get("nuclei_eligible")) > 0: 
+            if row.get("nuclei_eligible") or (len(row.get("nuclei_eligible")) > 0 if row.get("nuclei_eligible") else False): 
                 continue
 
             cards = row.get("cards_progress", [])

@@ -22,6 +22,9 @@ import asyncio
 from typing import Optional
 import json
 
+# ML Logger
+from app.utils.ml_logger import ml_logger
+
 # Serviços
 from app.services.selection_data import data_service
 from app.services.storage import storage_service
@@ -76,7 +79,7 @@ class SelectionProcessOrchestrator:
         if not nuclei_rules:
             logger.error("Abortando: Nenhuma configuração de núcleo encontrada.")
             return
-        
+
         # 2. Busca TODA a fila de trabalho
         work_queue = data_service.get_pending_candidates_queue(ps_edition_id)
         total_candidates = len(work_queue)
@@ -168,6 +171,15 @@ class SelectionProcessOrchestrator:
             eligibility_results = y_tse.process_candidate_eligibility(
                 candidate_history=candidate_history.subjects,
                 nuclei_contexts=nuclei_rules
+            )
+
+            # Envia os dados para ml_logger para treino futuro da engine v2.
+            ml_logger.log_decision_batch(
+                candidate_id=user_id,
+                ps_edition_id=ps_edition_id,
+                history=candidate_history.subjects,
+                results=eligibility_results,
+                nuclei_configs=nuclei_rules
             )
 
             # DEBUG LOGGING

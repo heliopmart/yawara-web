@@ -1,7 +1,7 @@
 # Variáveis de ambiente (Pydantic)
 
 from typing import Optional
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Yawara System Neural Architecture (Y-SNA)"
@@ -32,8 +32,11 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
     CLOUDINARY_DOCS_FOLDER_NAME: str = "yawara-docs"
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        extra="ignore"
+    )
 
 settings = Settings()

@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.selection_process import selection_orchestrator
+from app.services.engine_v1_service import engine_v1_service
 
 @pytest.mark.asyncio
 async def test_process_integration_engine_1():
@@ -13,7 +13,7 @@ async def test_process_integration_engine_1():
     
     """ 
     # Executa o processo seletivo (modo assíncrono)
-    result = await selection_orchestrator.run_batch_screening()
+    result = await engine_v1_service.run_batch()
 
     print(result)
 

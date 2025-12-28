@@ -108,7 +108,7 @@ class SelectionDataService:
         user_cards = db_select(
             table="ps_user_cards",
             filters={"edition_id": ps_edition_id},
-            columns="id, user_id, cards_progress, nuclei_eligible"
+            columns="id, user_id, cards_progress, nuclei_eligible, user: user_id ( course, semester )"
         )
 
         queue = []
@@ -117,7 +117,6 @@ class SelectionDataService:
                 continue
 
             cards = row.get("cards_progress", [])
-            # Lógica para achar o PDF do histórico (Card ID 1 + COMPLETED)
             target_card = next(
                 (c for c in cards if c.get("card_id") == 1 and c.get("state") == "COMPLETED"), 
                 None
@@ -126,7 +125,11 @@ class SelectionDataService:
             if target_card and target_card.get("file_id"):
                 queue.append({
                     "user_id": row["user_id"],
-                    "file_id": target_card["file_id"]
+                    "file_id": target_card["file_id"],
+                    "data": {
+                        "course": row["user"].get("course"),
+                        "semester": row["user"].get("semester")
+                    }
                 })
         
         return queue

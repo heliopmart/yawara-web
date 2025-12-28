@@ -12,7 +12,8 @@ class Subject(BaseModel):
 
 class CandidateInput(BaseModel):
     name: str = "Candidato Desconhecido"
+    course: str = Field(..., description="Nome do curso (Ex: ENGENHARIA_COMPUTACAO)")
     semester: int = 1
-    subjects: List[Subject]
+    subjects: List[Subject] = Field(default_factory=list)
     
 # ... (restante dos schemas Config e Output mantidos igual)

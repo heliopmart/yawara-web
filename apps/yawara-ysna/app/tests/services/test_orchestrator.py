@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from app.services.selection_process import SelectionProcessOrchestrator
+from app.services.engine_v1_service import engine_v1_service
 from app.schemas.engine_v1 import NucleusEligibilityResult
 
 @pytest.mark.asyncio
@@ -44,7 +44,7 @@ async def test_orchestrator_full_flow():
         ]
 
         # --- Execução ---
-        orchestrator = SelectionProcessOrchestrator()
+        orchestrator = engine_v1_service
         result = await orchestrator.run_batch_screening(edition_id_test)
 
         # --- Asserções ---

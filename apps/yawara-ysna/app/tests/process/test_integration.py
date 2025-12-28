@@ -1,4 +1,5 @@
 import pytest
+import json
 import os
 from unittest.mock import patch, MagicMock
 from app.services.ingestion import ingest_academic_record_from_pdf
@@ -8,7 +9,7 @@ from app.schemas.historic import AcademicRecord
 # O teste roda a partir da raiz ou da pasta do teste, então usamos path absoluto relativo ao arquivo
 REAL_PDF_PATH = os.path.join(
     os.path.dirname(__file__), 
-    "../docs/pdf_academic_historic/ufgd_academic_historic_test_1.pdf"
+    "../docs/pdf_academic_historic/ufgd_academic_historic_test_2.pdf"
 )
 
 class TestEndToEndPipeline:
@@ -68,6 +69,12 @@ class TestEndToEndPipeline:
             candidate_id, 
             cycle_id
         )
+
+        # try:
+        #     result_dict = result.model_dump() 
+        # except AttributeError:
+        #     result_dict = result.dict()
+        # print(json.dumps(result_dict, indent=4, default=str, ensure_ascii=False))
 
         # Assert (Validação Macro)
         assert isinstance(result, AcademicRecord)

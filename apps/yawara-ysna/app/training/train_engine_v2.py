@@ -12,10 +12,12 @@ from app.ml.architectures.nucleus_recommender_nn import build_deep_set_architect
 MAX_SUBJECTS = 100
 HASH_BINS_SUBJ = 5000
 HASH_BINS_COURSE = 100
+EPOCHS = 30
+SYNTHETIC_PATH = "app/resources/data/synthetic_dataset_large.json"
 MODEL_PATH = "app/resources/models/engine_v2_synthetic.keras"
 LABELS_PATH = "app/resources/models/engine_v2_labels.json"
 
-# NÚCLEOS DISPONÍVEIS (Nosso Universo)
+# ESSES NUCLEOS DEVEM SER PEGOS POR BANCO DE DADOS DEPOIS
 ALL_NUCLEI = ["NÚCLEO DE HIDROGÊNIO", "NÚCLEO DE COMBUSTÃO", 'NÚCLEO DE SISTEMAS EMBARCADOS', 'NÚCLEO DE AERODINÂMICA']
 
 def get_synthetic_data():
@@ -99,7 +101,8 @@ def calculate_training_target(outcomes: List[Dict], all_nuclei: List[str]) -> np
     target_vector = np.zeros(len(all_nuclei), dtype=float)
     
     for outcome in outcomes:
-        nuc_name = outcome['nucleus']
+        raw_name = outcome['nucleus']
+        nuc_name = raw_name.upper().strip()
         if nuc_name not in all_nuclei: continue
         
         idx = all_nuclei.index(nuc_name)
@@ -108,8 +111,6 @@ def calculate_training_target(outcomes: List[Dict], all_nuclei: List[str]) -> np
         if outcome['status'] == 0:
             score = 0.0 # Reprovado pela realidade
         else:
-            # Simplificação da normalização para o exemplo sintético
-            # Assumindo notas 0-10 e entregas max 10
             social_avg = np.mean(list(outcome['social'].values())) if outcome['social'] else 0
             tech_vol = sum(outcome['tech'].values())
             
@@ -123,11 +124,10 @@ def calculate_training_target(outcomes: List[Dict], all_nuclei: List[str]) -> np
     return target_vector
 
 
-def train_engine(): # Renomeei de train_synthetic para train_engine
+def train_engine():
     print("--- INICIANDO TREINAMENTO REAL DA ENGINE 2 ---")
     
     try:
-        # 1. Carregar Dados via Interface do Banco
         raw_data = fetch_training_dataset() 
     except NotImplementedError:
         print("Conexão com Banco não implementada. Usando dados sintéticos de fallback...")
@@ -136,7 +136,6 @@ def train_engine(): # Renomeei de train_synthetic para train_engine
 
     print(f"Dados carregados: {len(raw_data)} exemplos.")
 
-    # 2. Preparar Tensores (X e Y)
     X_names = np.full((len(raw_data), MAX_SUBJECTS), "", dtype=object)
     X_meta = np.zeros((len(raw_data), MAX_SUBJECTS, 2), dtype=float)
     X_sem = np.zeros((len(raw_data), 1), dtype=float)
@@ -145,23 +144,20 @@ def train_engine(): # Renomeei de train_synthetic para train_engine
     Y = np.zeros((len(raw_data), len(ALL_NUCLEI)), dtype=float)
 
     for i, row in enumerate(raw_data):
-        # Prepara X (Input)
         hist = row['academic_history']
         for j, subj in enumerate(hist):
             if j >= MAX_SUBJECTS: break
             X_names[i, j] = subj['name']
-            X_meta[i, j, 0] = subj['grade'] / 10.0      # Norm Nota
-            X_meta[i, j, 1] = subj['workload'] / 100.0  # Norm Carga
+            X_meta[i, j, 0] = subj['grade'] / 10.0      
+            X_meta[i, j, 1] = subj['workload'] / 100.0  
             
         X_sem[i, 0] = row['semester_at_entry'] / 10.0
         X_course[i, 0] = row['course']
 
-        # Prepara Y (Target - Transformando realidade em número)
         Y[i] = calculate_training_target(row['outcomes'], ALL_NUCLEI)
 
     print("Tensores montados. Exemplo de Target:", Y[0])
 
-    # 3. Construir e Treinar
     model = build_deep_set_architecture(
         max_subjects=MAX_SUBJECTS,
         hashing_bins_subjects=HASH_BINS_SUBJ,
@@ -176,7 +172,7 @@ def train_engine(): # Renomeei de train_synthetic para train_engine
     model.fit(
         x=[X_names_tensor, X_meta, X_sem, X_course_tensor],
         y=Y,
-        epochs=10,
+        epochs=EPOCHS,
         verbose=1
     )
 
@@ -193,9 +189,19 @@ def train_engine(): # Renomeei de train_synthetic para train_engine
 
 def train_synthetic():
     print("--- INICIANDO TREINAMENTO SINTÉTICO DA ENGINE 2 ---")
+        
+    raw_data = []
+    if os.path.exists(SYNTHETIC_PATH):
+        print(f"📂 Carregando dataset sintético do Sandbox: {SYNTHETIC_PATH}")
+        with open(SYNTHETIC_PATH, "r", encoding="utf-8") as f:
+            raw_data = json.load(f)
+    else:
+        try:
+            raw_data = fetch_training_dataset()
+        except:
+            raw_data = get_synthetic_data() 
+
     
-    # 1. Carregar Dados
-    raw_data = get_synthetic_data()
     print(f"Dados carregados: {len(raw_data)} exemplos.")
 
     # 2. Preparar Tensores (X e Y)
@@ -212,13 +218,12 @@ def train_synthetic():
         for j, subj in enumerate(hist):
             if j >= MAX_SUBJECTS: break
             X_names[i, j] = subj['name']
-            X_meta[i, j, 0] = subj['grade'] / 10.0      # Norm Nota
-            X_meta[i, j, 1] = subj['workload'] / 100.0  # Norm Carga
+            X_meta[i, j, 0] = subj['grade'] / 10.0    
+            X_meta[i, j, 1] = subj['workload'] / 100.0  
             
         X_sem[i, 0] = row['semester_at_entry'] / 10.0
         X_course[i, 0] = row['course']
 
-        # Prepara Y (Target - Transformando realidade em número)
         Y[i] = calculate_training_target(row['outcomes'], ALL_NUCLEI)
 
     print("Tensores montados. Exemplo de Target:", Y[0])
@@ -235,10 +240,16 @@ def train_synthetic():
     X_names_tensor = tf.constant(X_names, dtype=tf.string)
     X_course_tensor = tf.constant(X_course, dtype=tf.string)
 
+    # print("\n--- DEBUG DOS DADOS ---")
+    # print(f"Exemplo de Input (Nomes): {X_names[0]}")
+    # print(f"Exemplo de Input (Notas): {X_meta[0, :3]}") # Mostra só as 3 primeiras matérias
+    # print(f"Exemplo de TARGET (O que a rede deve aprender): {Y[0]}")
+    # print("-----------------------\n")
+
     model.fit(
         x=[X_names_tensor, X_meta, X_sem, X_course_tensor],
         y=Y,
-        epochs=10,
+        epochs=EPOCHS,
         verbose=1
     )
 
@@ -253,4 +264,5 @@ def train_synthetic():
     print(f"Labels salvos em {LABELS_PATH}")
 
 if __name__ == "__main__":
-    train_engine()
+    # ! train_engine() <---- ORIGINAL
+    train_synthetic()

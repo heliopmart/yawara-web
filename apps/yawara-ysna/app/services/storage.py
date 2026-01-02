@@ -71,7 +71,7 @@ class StorageService:
             return None
 
     @staticmethod
-    def upload_model(local_path: str, remote_name: str) -> str:
+    def upload_file(local_path: str, remote_name: str) -> str:
         """
         Sobe um arquivo local para o Cloudinary como 'raw'.
         Args:
@@ -95,7 +95,7 @@ class StorageService:
             return None
 
     @staticmethod
-    def download_model(remote_name: str, local_dest: str) -> bool:
+    def download_file(remote_name: str, local_dest: str) -> bool:
         """
         Baixa o arquivo 'raw' do Cloudinary para o disco local.
         Necessário porque o TensorFlow precisa ler o arquivo do disco.

@@ -40,10 +40,19 @@ class Settings(BaseSettings):
     ML_LOCAL_TMP_DIR: str = "/tmp"
     
     # Nomes no Cloudinary
-    ML_CLOUD_MODEL_NAME: str = "yawara_v2_production" # O Modelo final (Keras)
-    ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint" # Os Pesos (Weights)
-    ML_CLOUD_LABELS_NAME: str = "yawara_v2_labels.json" # O mapa de Núcleos
+    ML_CLOUD_MODEL_NAME: str = "yawara_v2_production" 
+    ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint" 
+    ML_CLOUD_LABELS_NAME: str = "yawara_v2_labels.json"
     ML_CLOUD_STATE_NAME: str = "yawara_v2_training_state.json"
+
+    SYNTHETIC_DATA_PATH: str = "app/resources/data/synthetic_dataset_v2.json"
+    SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
+
+    ML_DB_CHUNK_SIZE: int = 256
+    ML_TRAIN_TIME_BUDGET_MIN: int = 20         
+    ML_GUARDIAN_STOP_AT_RATIO: float = 0.92   
+    ML_MAX_EPOCHS_PER_RUN: int = 3              
+    ML_TARGET_TOTAL_EPOCHS: int = 30            
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

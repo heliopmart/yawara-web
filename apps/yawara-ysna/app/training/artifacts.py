@@ -89,7 +89,7 @@ class ArtifactStore:
         # No seu projeto isso está como StorageService.upload_model(...)
         # Aqui eu chamo via storage_service se você tiver método instanciado,
         # ou você adapta conforme seu StorageService real.
-        self.storage.upload_model(local_path, remote_id)
+        self.storage.upload_file(local_path, remote_id)
 
     # ------------- state helpers -------------
     def save_state_local(self, state: TrainingState, local_path: str) -> None:

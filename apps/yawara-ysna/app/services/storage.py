@@ -2,6 +2,7 @@ import logging
 import requests
 import cloudinary
 import cloudinary.utils
+import os
 from typing import Optional
 from app.core.config import settings
 
@@ -87,7 +88,8 @@ class StorageService:
                 resource_type = "raw",
                 public_id = remote_name,
                 overwrite = True,
-                unique_filename = False
+                unique_filename = False,
+                access_mode="public"
             )
             return response.get('secure_url')
         except Exception as e:
@@ -97,36 +99,64 @@ class StorageService:
     @staticmethod
     def download_file(remote_name: str, local_dest: str) -> bool:
         """
-        Baixa o arquivo 'raw' do Cloudinary para o disco local.
-        Necessário porque o TensorFlow precisa ler o arquivo do disco.
+        Baixa o arquivo RAW do Cloudinary para disco local.
+        Sem Admin API: depende do arquivo estar PUBLIC.
+        Retorna True se baixou, False caso não exista/erro.
         """
         try:
-            resource = cloudinary.api.resource(remote_name, resource_type="raw")
-            download_url = resource.get("secure_url")
-            
-            if not download_url:
-                print("⚠️ Arquivo não encontrado no Cloudinary (URL vazia).")
-                return False
+            os.makedirs(os.path.dirname(local_dest), exist_ok=True)
 
-            print(f"⬇️ Baixando de {remote_name}...")
-            
-            response = requests.get(download_url, stream=True)
-            
-            if response.status_code == 200:
-                with open(local_dest, 'wb') as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
+            # 1) URL pelo helper oficial
+            try:
+                url, _ = cloudinary.utils.cloudinary_url(
+                    remote_name,
+                    resource_type="raw"
+                )
+            except Exception:
+                url = None
+
+            # 2) Fallback manual (evita helper gerar rota errada em alguns setups)
+            if not url:
+                cloud_name = cloudinary.config().cloud_name
+                # padrão: https://res.cloudinary.com/<cloud_name>/raw/upload/<public_id>
+                url = f"https://res.cloudinary.com/{cloud_name}/raw/upload/{remote_name}"
+
+            logger.debug(f"Downloading: {url}")
+
+            r = requests.get(url, stream=True, timeout=30)
+
+            if r.status_code == 200:
+                with open(local_dest, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
+
+                if os.path.getsize(local_dest) <= 0:
+                    logger.error(f"Download vazio para: {remote_name}")
+                    return False
+
                 print(f"✅ Download salvo em: {local_dest}")
                 return True
-            else:
-                print(f"❌ Falha ao baixar arquivo. Status: {response.status_code}")
+
+            if r.status_code == 404:
+                logger.warning(f"(info) Arquivo ainda não existe no Cloudinary: {remote_name}")
                 return False
-                
-        except cloudinary.exceptions.NotFound:
-            print(f"ℹ️ Arquivo '{remote_name}' não existe no Cloudinary (Primeiro treino?).")
+
+            if r.status_code in (401, 403):
+                logger.error(
+                    f"Sem permissão para baixar {remote_name} (HTTP {r.status_code}). "
+                    f"Para baixar sem Admin API, o RAW precisa ser PUBLIC (access_mode='public')."
+                )
+                return False
+
+            logger.error(f"Erro HTTP {r.status_code} ao baixar {remote_name}")
+            return False
+
+        except requests.exceptions.Timeout:
+            logger.error(f"Timeout ao tentar baixar {remote_name}")
             return False
         except Exception as e:
-            print(f"❌ Erro crítico no download: {e}")
+            logger.error(f"Erro genérico no StorageService para {remote_name}: {e}")
             return False
 
 # Singleton Pattern

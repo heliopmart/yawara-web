@@ -112,3 +112,74 @@ class CheckpointAndStateCallback(tf.keras.callbacks.Callback):
         if should_save_epoch or should_save_time:
             self._save_all("periodic")
             self.last_save_time = now
+
+class BestCheckpointCallback(tf.keras.callbacks.Callback):
+    """
+    Salva o "melhor" checkpoint baseado em val_loss (se existir) senão loss.
+    - Quando melhora: salva best weights local e faz upload.
+    - Pode chamar um hook para o engine atualizar state imediatamente.
+    """
+
+    def __init__(
+        self,
+        best_checkpoint_remote_name: str,
+        best_checkpoint_local_path: str,
+        state_save_hook=None,  # () -> None
+        monitor: str = "val_loss",
+        min_delta: float = 0.0,
+        is_test: bool = False,
+        verbose: bool = True,
+    ):
+        super().__init__()
+        self.best_remote = best_checkpoint_remote_name
+        self.best_local = best_checkpoint_local_path
+        self.state_save_hook = state_save_hook
+        self.monitor = monitor
+        self.min_delta = float(min_delta)
+        self.is_test = is_test
+        self.verbose = verbose
+
+        self.best_value = None
+
+    def on_train_begin(self, logs=None):
+        # não reseta best_value aqui porque o "best" é global entre execuções;
+        # o engine injeta isso via state, se quiser.
+        if self.verbose:
+            print(f"🏆 BestCheckpoint monitor={self.monitor} min_delta={self.min_delta}")
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        value = logs.get(self.monitor)
+
+        # fallback automático: se não tem val_loss, usa loss
+        if value is None and self.monitor == "val_loss":
+            value = logs.get("loss")
+
+        if value is None:
+            return
+
+        value = float(value)
+
+        improved = False
+        if self.best_value is None:
+            improved = True
+        else:
+            # quanto menor melhor (loss)
+            improved = (self.best_value - value) > self.min_delta
+
+        if not improved:
+            return
+
+        self.best_value = value
+
+        os.makedirs(os.path.dirname(self.best_local), exist_ok=True)
+        self.model.save_weights(self.best_local)
+
+        if not self.is_test:
+            StorageService.upload_file(self.best_local, self.best_remote)
+
+        if self.state_save_hook is not None:
+            self.state_save_hook()
+
+        if self.verbose:
+            print(f"🏆 New BEST at epoch {epoch+1}: {self.monitor}={value:.6f} | saved {self.best_local}")

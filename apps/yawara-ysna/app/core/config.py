@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     # NN MODEL
     NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
+    NN_MODEL_MEMORY_FILE_ID : str = "vector_memory_npz"
 
     # ENVIRONMENT
     ACADEMIC_DEFAULT_DISPENSA_GRADE: float = 7.0
@@ -32,6 +33,17 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
     CLOUDINARY_DOCS_FOLDER_NAME: str = "yawara-docs"
+
+    # --- YAWARA ML CONFIGS ---
+    ML_MAX_SUBJECTS: int = 100
+    ML_BATCH_SIZE: int = 32
+    ML_LOCAL_TMP_DIR: str = "/tmp"
+    
+    # Nomes no Cloudinary
+    ML_CLOUD_MODEL_NAME: str = "yawara_v2_production" # O Modelo final (Keras)
+    ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint" # Os Pesos (Weights)
+    ML_CLOUD_LABELS_NAME: str = "yawara_v2_labels.json" # O mapa de Núcleos
+    ML_CLOUD_STATE_NAME: str = "yawara_v2_training_state.json"
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

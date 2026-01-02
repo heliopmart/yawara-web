@@ -3,9 +3,9 @@ from app.schemas.candidate import CandidateInput
 from app.schemas.historic import SubjectRecord
 import json
 
-from app.utils.db import db_rpc
+from app.utils.db import db_rpc, db_select
 
-def fetch_training_dataset() -> List[Dict[str, Any]]:
+def fetch_training_dataset() -> List[Dict[str, Any], List[Dict[str, Any]]]:
     """
     [TO-DO: IMPLEMENTAR CONEXÃO COM BANCO]
     
@@ -31,11 +31,16 @@ def fetch_training_dataset() -> List[Dict[str, Any]]:
     }
     """
 
-    res = db_rpc("get_training_dataset_v2")
-    if res is None:
-        return []
+    res_dataset = db_rpc("get_training_dataset_v2")
+    res_nuclei = db_select("nuclei", 'name', None, False)
+
+    if res_dataset is None:
+        return [None, None]
     
-    return res
+    if res_nuclei is None:
+        return [None, None]
+    
+    return [res_dataset, res_nuclei]
 
 
 # --- CONTRATO PARA A INFERÊNCIA (PROCESSAMENTO EM MASSA) ---

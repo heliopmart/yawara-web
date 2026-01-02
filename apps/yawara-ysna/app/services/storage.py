@@ -70,5 +70,64 @@ class StorageService:
             logger.error(f"Erro genérico no StorageService para {public_id}: {str(e)}")
             return None
 
+    @staticmethod
+    def upload_model(local_path: str, remote_name: str) -> str:
+        """
+        Sobe um arquivo local para o Cloudinary como 'raw'.
+        Args:
+            local_path: Caminho do arquivo no servidor (ex: /tmp/model.keras)
+            remote_name: Nome único para o arquivo na nuvem (public_id)
+        Returns:
+            URL pública do arquivo ou None se falhar.
+        """
+        try:
+            print(f"☁️ Iniciando upload para Cloudinary: {remote_name}...")
+            response = cloudinary.uploader.upload(
+                local_path, 
+                resource_type = "raw",
+                public_id = remote_name,
+                overwrite = True,
+                unique_filename = False
+            )
+            return response.get('secure_url')
+        except Exception as e:
+            print(f"❌ Erro no upload Cloudinary: {e}")
+            return None
+
+    @staticmethod
+    def download_model(remote_name: str, local_dest: str) -> bool:
+        """
+        Baixa o arquivo 'raw' do Cloudinary para o disco local.
+        Necessário porque o TensorFlow precisa ler o arquivo do disco.
+        """
+        try:
+            resource = cloudinary.api.resource(remote_name, resource_type="raw")
+            download_url = resource.get("secure_url")
+            
+            if not download_url:
+                print("⚠️ Arquivo não encontrado no Cloudinary (URL vazia).")
+                return False
+
+            print(f"⬇️ Baixando de {remote_name}...")
+            
+            response = requests.get(download_url, stream=True)
+            
+            if response.status_code == 200:
+                with open(local_dest, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                print(f"✅ Download salvo em: {local_dest}")
+                return True
+            else:
+                print(f"❌ Falha ao baixar arquivo. Status: {response.status_code}")
+                return False
+                
+        except cloudinary.exceptions.NotFound:
+            print(f"ℹ️ Arquivo '{remote_name}' não existe no Cloudinary (Primeiro treino?).")
+            return False
+        except Exception as e:
+            print(f"❌ Erro crítico no download: {e}")
+            return False
+
 # Singleton Pattern
 storage_service = StorageService()

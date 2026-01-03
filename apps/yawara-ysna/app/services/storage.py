@@ -89,7 +89,7 @@ class StorageService:
             response = cloudinary.uploader.upload(
                 local_path, 
                 resource_type = "raw",
-                public_id = remote_name,
+                public_id = "models/" + remote_name,
                 overwrite = True,
                 unique_filename = False,
                 access_mode="public"
@@ -107,11 +107,10 @@ class StorageService:
         Sem Admin API: depende do arquivo estar PUBLIC.
         Retorna True se baixou, False caso não exista/erro.
         """
-        
+
         try:
             os.makedirs(os.path.dirname(local_dest), exist_ok=True)
 
-            # 1) URL pelo helper oficial
             try:
                 url, _ = cloudinary.utils.cloudinary_url(
                     remote_name,
@@ -124,8 +123,7 @@ class StorageService:
             # 2) Fallback manual (evita helper gerar rota errada em alguns setups)
             if not url:
                 cloud_name = cloudinary.config().cloud_name
-                # padrão: https://res.cloudinary.com/<cloud_name>/raw/upload/<public_id>
-                url = f"https://res.cloudinary.com/{cloud_name}/raw/upload/{remote_name}"
+                url = f"https://res.cloudinary.com/{cloud_name}/raw/upload/models/{remote_name}"
 
             logger.debug(f"Downloading: {url}")
 
@@ -141,7 +139,6 @@ class StorageService:
                     logger.error(f"Download vazio para: {remote_name}")
                     return False
 
-                print(f"✅ Download salvo em: {local_dest}")
                 return True
 
             if r.status_code == 404:

@@ -21,6 +21,30 @@ class BaseEngineService:
     def __init__(self, max_concurrent_tasks: int = 3):
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
+    async def run_single(self, user_id: str, ps_edition_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Processa um candidato específico sob demanda (Modo 'Uber').
+        """
+        if not ps_edition_id:
+            ps_edition_id = data_service.get_ps_edition_active()
+        
+        logger.info(f"--- INICIANDO SINGLE RUN ({self.__class__.__name__}) para {user_id} ---")
+
+        context = self.load_context(ps_edition_id)
+        if context is None:
+             raise ValueError("Contexto de avaliação não carregado.")
+
+        task = data_service.get_candidate_task_data(user_id)
+        
+        if not task:
+            logger.warning(f"Candidato {user_id} não encontrado ou sem dados pendentes.")
+            return {"status": "error", "message": "Candidate data not found"}
+
+        success = await self._process_single_candidate(task, context, ps_edition_id)
+        
+        logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {success} ---")
+        return {"processed": 1, "success": success, "user_id": user_id}
+
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """
         Método Mestre (Template Method). Não precisa ser alterado pelos filhos.
@@ -30,16 +54,12 @@ class BaseEngineService:
         
         logger.info(f"--- INICIANDO BATCH ({self.__class__.__name__}) ---")
 
-        # 1. Busca Configurações (Hooks opcionais)
         context = self.load_context(ps_edition_id)
         if context is None:
              logger.warning("Abortando: Contexto de avaliação não carregado.")
              return
 
-        # 2. Busca Fila
         work_queue = data_service.get_pending_candidates_queue(ps_edition_id)
-        # Nota: Para a Engine 2, você pode querer criar um método 'get_all_candidates'
-        # ou reutilizar a fila se a intenção for processar os mesmos.
         
         total = len(work_queue)
         if total == 0:
@@ -48,16 +68,13 @@ class BaseEngineService:
 
         logger.info(f"Processando {total} candidatos...")
 
-        # 3. Executa tarefas com controle de concorrência
         tasks = [
             self._bounded_process(task, context, ps_edition_id)
             for task in work_queue
         ]
         
-        # Espera tudo rodar
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
-        # CORREÇÃO: Conta quantos True retornaram para saber o sucesso
         success_count = sum(1 for r in results if r is True)
 
         await self._trigger_management_alert(ps_edition_id)

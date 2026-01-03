@@ -30,8 +30,8 @@ from app.services.base_engine_service import BaseEngineService
 
 # Serviços
 from app.services.selection_data import data_service
+from app.utils.save_engine_predictions import save_classification_result
 from app.ml.engine_v1 import y_tse
-from app.utils.db import db_update
 
 logger = logging.getLogger("yawara.services.engine_v1_service")
 
@@ -74,27 +74,9 @@ class EngineV1Service(BaseEngineService):
                 nuclei_configs=nuclei_rules
             )
 
-            # DEBUG LOGGING
             
-            # print("\n\n🧮 [DEBUG] Eligibility Results:")
-            # results_dict = [
-            #     res.model_dump() if hasattr(res, 'model_dump') else res.__dict__ 
-            #     for res in eligibility_results
-            # ]
-            # print(json.dumps(results_dict, indent=2, ensure_ascii=False, default=str))
-
-            # [D] DB Update
             approved_nuclei = [r.nucleus_name for r in eligibility_results if r.is_eligible]
-
-            db_update(
-                table="ps_user_cards",
-                data={
-                    "nuclei_eligible": approved_nuclei,
-                    "updated_at": "now()" ,
-                    "is_eligible": (True if len(approved_nuclei) > 0 else False)
-                },
-                filters={"user_id": user_id, "edition_id": edition_id}
-            )
+            save_classification_result(user_id, edition_id, approved_nuclei)
             
             logger.info(f"User {user_id} OK. Aprovado: {len(approved_nuclei)} núcleos.")
             return True

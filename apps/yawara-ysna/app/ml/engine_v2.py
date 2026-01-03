@@ -5,6 +5,9 @@ import os
 import json
 from typing import List, Dict, Any, Optional
 
+# ------- CONFIGS ----------
+from app.core.config import settings
+
 # ------- SCHEMAS ----------
 from app.schemas.candidate import CandidateInput
 from app.schemas.historic import SubjectRecord, AcademicRecord
@@ -104,8 +107,8 @@ class NucleusRecommendationEngine:
     _instance = None
 
     def __init__(self):
-        self.model_path = "app/resources/models/engine_v2_synthetic.keras"
-        self.labels_path = "app/resources/models/engine_v2_labels.json"
+        self.model_path = settings.ML_ENGINE_2_PATH
+        self.labels_path = settings.ML_ENGINE_2_LABELS_PATH
         self.model = None
         self.labels = []
         self._load_artifacts()

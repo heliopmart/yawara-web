@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     SYNTHETIC_DATA_PATH: str = "app/resources/data/synthetic_dataset_v2.json"
     SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
 
+    ML_ENGINE_2_PATH: str = "app/resources/models/engine_v2.keras"
+    ML_ENGINE_2_LABELS_PATH: str = "app/resources/models/engine_v2_labels.json"
+
     ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint.weights.h5"
     ML_CLOUD_BEST_CHECKPOINT_NAME: str = "yawara_best_checkpoint_v2.weights.h5"
     ML_CLOUD_STATE_NAME: str = "yawara_v2_training_state.json"

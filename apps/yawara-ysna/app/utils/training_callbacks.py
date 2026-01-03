@@ -34,9 +34,14 @@ class CheckpointAndStateCallback(tf.keras.callbacks.Callback):
         state_provider=None,
         is_test: bool = False,
         verbose: bool = True,
+
+        time_budget_seconds : int = None,  # se quiser sobrescrever
+        upload_interval_seconds=None,   # gate de upload por tempo
+        upload_on_train_end=True,
+        upload_enabled=True,
     ):
         super().__init__()
-        self.time_budget_seconds = max(int(time_budget_minutes * 60), 60)
+        self.time_budget_seconds = time_budget_seconds or max(int(time_budget_minutes * 60), 60)
         self.stop_at_ratio = float(stop_at_ratio)
 
         self.ckpt_remote = checkpoint_remote_name
@@ -58,6 +63,12 @@ class CheckpointAndStateCallback(tf.keras.callbacks.Callback):
         self.start_time = None
         self.last_save_time = None
 
+        self.upload_interval_seconds = upload_interval_seconds
+        self.upload_on_train_end = upload_on_train_end
+        self.upload_enabled = upload_enabled
+
+        self._last_upload_ts = 0.0 # timestamp do último upload
+
     def on_train_begin(self, logs=None):
         self.start_time = time.time()
         self.last_save_time = self.start_time
@@ -68,12 +79,18 @@ class CheckpointAndStateCallback(tf.keras.callbacks.Callback):
                 f"save_epochs={self.save_every_epochs} | save_seconds={self.save_every_seconds}s"
             )
 
-    def _save_all(self, reason: str):
-        # 1) checkpoint local
+    def _upload_cloud(self):
+        print("[DBG][CB] upload_file ->", self.ckpt_remote)
+        StorageService.upload_file(self.ckpt_local, self.ckpt_remote)
+        print("[DBG][CB] upload_file ->", self.state_remote)
+        StorageService.upload_file(self.state_local, self.state_remote)
+        print("[DBG][CB] upload_file ->", self.labels_remote)
+        StorageService.upload_file(self.labels_local, self.labels_remote)
+
+    def _save_local(self):
         os.makedirs(os.path.dirname(self.ckpt_local), exist_ok=True)
         self.model.save_weights(self.ckpt_local)
 
-        # 2) state local (atômico)
         if self.state_provider:
             state = self.state_provider()
             try:
@@ -82,14 +99,41 @@ class CheckpointAndStateCallback(tf.keras.callbacks.Callback):
                 state["checkpoint_hash"] = None
             atomic_write_json(self.state_local, state)
 
-        # 3) upload (se não for teste)
-        if not self.is_test:
-            StorageService.upload_model(self.ckpt_local, self.ckpt_remote)
-            StorageService.upload_model(self.state_local, self.state_remote)
-            StorageService.upload_model(self.labels_local, self.labels_remote)
+    def _save_all(self, reason: str):
+        print("[DBG][CB] chamando _save_all()")
+        print("[DBG][CB] salvando local checkpoint/state/labels ...")
+        print("[DBG][CB] paths:", self.ckpt_local, self.state_local, self.labels_local)
+
+        self._save_local()
+
+        if self._should_upload(reason):
+            print(f"[DBG][CB] upload liberado (reason={reason}) interval={self.upload_interval_seconds}s")
+            self._upload_cloud()
+            import time
+            self._last_upload_ts = time.time()
+        else:
+            print(f"[DBG][CB] upload BLOQUEADO (reason={reason})")
 
         if self.verbose:
             print(f"💾 Saved ({reason}) | ckpt={self.ckpt_local}")
+
+    def _should_upload(self, reason: str) -> bool:
+        if self.is_test:
+            return False
+
+        if not self.upload_enabled:
+            return False
+
+        if reason == "train_end" and self.upload_on_train_end:
+            return True
+
+        # se não tem intervalo definido, não faz upload automático
+        if not self.upload_interval_seconds:
+            return False
+
+        import time
+        now = time.time()
+        return (now - self._last_upload_ts) >= self.upload_interval_seconds
 
     def on_epoch_end(self, epoch, logs=None):
         now = time.time()
@@ -144,10 +188,24 @@ class BestCheckpointCallback(tf.keras.callbacks.Callback):
     def on_train_begin(self, logs=None):
         # não reseta best_value aqui porque o "best" é global entre execuções;
         # o engine injeta isso via state, se quiser.
+        
+        # !=============================== PRINT ==================================
+        print("[DBG][CB] CheckpointAndStateCallback.on_train_begin")
+        # !=============================== PRINT ==================================
+
+        self.start_time = time.time()
+        self.last_save_time = self.start_time
+        
+        # opcional: salva state/labels cedo (checkpoint ainda não existe)
+        # self._save_all("train_begin")  # só faça isso se quiser subir arquivos mesmo antes de treinar
         if self.verbose:
             print(f"🏆 BestCheckpoint monitor={self.monitor} min_delta={self.min_delta}")
 
     def on_epoch_end(self, epoch, logs=None):
+        # !=============================== PRINT ==================================
+        print(f"[DBG][CB] on_epoch_end epoch={epoch} logs_keys={list(logs.keys()) if logs else None}")
+        # !=============================== PRINT ==================================
+
         logs = logs or {}
         value = logs.get(self.monitor)
 
@@ -183,3 +241,9 @@ class BestCheckpointCallback(tf.keras.callbacks.Callback):
 
         if self.verbose:
             print(f"🏆 New BEST at epoch {epoch+1}: {self.monitor}={value:.6f} | saved {self.best_local}")
+
+    def on_train_end(self, logs=None):
+        try:
+            self._save_all("train_end")
+        except Exception as e:
+            print(f"⚠️ Falha ao salvar no on_train_end: {e}")

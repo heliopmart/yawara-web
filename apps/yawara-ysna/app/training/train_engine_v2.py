@@ -81,6 +81,18 @@ class TrainingEngineV2:
     # -----------------------
     def _load_data_checkpoint(self) -> None:
         # best checkpoint (qualidade)
+
+        # ! ============================== PRINT ==================================
+        print("[DBG][ENGINE] exists(local_state_before_download)=", os.path.exists(self.local_state_path))
+        if os.path.exists(self.local_state_path):
+            try:
+                with open(self.local_state_path, "r", encoding="utf-8") as f:
+                    s = json.load(f)
+                print("[DBG][ENGINE] local_state_before_download last_processed_id=", s.get("last_processed_id"))
+            except Exception as e:
+                print("[DBG][ENGINE] local_state_before_download read FAIL:", str(e)[:120])
+        # ! ============================== PRINT ==================================
+
         try:
             self.storage_service.download_file(self.best_checkpoint_id, self.local_best_checkpoint)
         except Exception:
@@ -302,6 +314,14 @@ class TrainingEngineV2:
     # Pipeline
     # -----------------------
     def pipeline_training(self) -> Dict[str, Any]:
+        # !=============================== PRINT ==================================
+        print("\n[DBG][ENGINE] ===== pipeline_training START =====")
+        print("[DBG][ENGINE] is_test=", self.is_test)
+        print("[DBG][ENGINE] last_processed_id inicial=", self.last_processed_id)
+        print("[DBG][ENGINE] local_state_path=", self.local_state_path)
+        print("[DBG][ENGINE] local_labels_path=", self.local_labels_path)
+        # !=============================== PRINT ==================================
+
         system_config = self._load_system_config()
         if not system_config.autoTrainingEnabled:
             return {"status": "skipped", "reason": "disabled_by_config"}
@@ -311,6 +331,7 @@ class TrainingEngineV2:
 
         # 2) state/labels
         state = self._load_state_if_exists() or {}
+
         self.total_epochs_trained = int(state.get("total_epochs_trained", 0))
         self.last_processed_id = int(state.get("last_processed_id", 0))
         self.best_val_loss = state.get("best_val_loss", None)
@@ -360,6 +381,10 @@ class TrainingEngineV2:
         fixed_val = self._get_fixed_validation(nuclei_labels)
 
         # 6) guardian (checkpoint normal + state + labels)
+
+        time_budget_min = float(system_config.trainingTimeBudgetMin or 30)
+        upload_interval_seconds = max(60, int((time_budget_min * 60) / 3))  # 30/3 => 10min
+
         guardian_cb = CheckpointAndStateCallback(
             time_budget_minutes=time_budget,
             checkpoint_remote_name=self.checkpoint_id,
@@ -376,7 +401,12 @@ class TrainingEngineV2:
                 extra={"last_run_note": "during_fit"}
             ),
             is_test=self.is_test,
-            verbose=True
+            verbose=True,
+
+            time_budget_seconds=time_budget_min * 60,
+            upload_interval_seconds=upload_interval_seconds,
+            upload_on_train_end=True,
+            upload_enabled=True,
         )
 
         # 7) best checkpoint (qualidade)
@@ -404,6 +434,15 @@ class TrainingEngineV2:
                 courses=courses_filter,
                 chunks_per_call=1
             )
+
+            # !=============================== PRINT ==================================    
+            print("[DBG][ENGINE] raw_chunk type=", type(raw_chunk), "len=", (len(raw_chunk) if isinstance(raw_chunk, list) else "n/a"))
+
+            if not raw_chunk:
+                print("[DBG][ENGINE] raw_chunk vazio -> BREAK (sem fit, sem callback, sem upload)")
+                break
+            # !=============================== PRINT ==================================    
+
             last_chunk_meta = meta
 
             if not raw_chunk:
@@ -451,6 +490,10 @@ class TrainingEngineV2:
 
             history = self.model.fit(**fit_kwargs)
 
+            # !=============================== PRINT ==================================
+            print("[DBG][ENGINE] model.fit terminou")
+            # !=============================== PRINT ==================================
+
             trained_now = len(history.history.get("loss", []))
             trained_epochs_total_this_run += trained_now
             self.total_epochs_trained += trained_now
@@ -470,6 +513,8 @@ class TrainingEngineV2:
         target_total = self._get_target_total_epochs(system_config)
         finished_by_epochs = self.total_epochs_trained >= target_total
         finished_by_earlystop = bool(should_earlystop)
+
+
 
         if getattr(self.model, "stop_training", False):
             return {

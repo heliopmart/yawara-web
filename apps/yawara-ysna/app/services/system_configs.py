@@ -18,7 +18,6 @@ def get_active_config() -> SystemConfigModel:
     """
     try:
         row = db_select('system_config', "*", None, True)
-        print(row)
 
         # Caso seu db_select às vezes retorne list/dict {"data":...} também:
         if isinstance(row, dict) and "data" in row:

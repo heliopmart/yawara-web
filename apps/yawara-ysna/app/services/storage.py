@@ -1,6 +1,8 @@
 import logging
 import requests
 import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 import cloudinary.utils
 import os
 from typing import Optional
@@ -81,6 +83,7 @@ class StorageService:
         Returns:
             URL pública do arquivo ou None se falhar.
         """
+        
         try:
             print(f"☁️ Iniciando upload para Cloudinary: {remote_name}...")
             response = cloudinary.uploader.upload(
@@ -91,6 +94,7 @@ class StorageService:
                 unique_filename = False,
                 access_mode="public"
             )
+            print("[DBG][STORAGE] upload OK remote=", remote_name)
             return response.get('secure_url')
         except Exception as e:
             print(f"❌ Erro no upload Cloudinary: {e}")
@@ -103,6 +107,7 @@ class StorageService:
         Sem Admin API: depende do arquivo estar PUBLIC.
         Retorna True se baixou, False caso não exista/erro.
         """
+        
         try:
             os.makedirs(os.path.dirname(local_dest), exist_ok=True)
 
@@ -113,6 +118,7 @@ class StorageService:
                     resource_type="raw"
                 )
             except Exception:
+                print("[DBG][STORAGE] download FAILED:", str(e)[:200])
                 url = None
 
             # 2) Fallback manual (evita helper gerar rota errada em alguns setups)

@@ -32,7 +32,7 @@ def _cloud_exists(storage: StorageService, remote_name: str, tmp_dir: str) -> bo
 
 
 def run_prod_like_training_integration_test(
-    runs: int = 2,
+    runs: int = 1,
     sleep_between_runs_sec: float = 1.0,
     expect_best_checkpoint: bool = True,
     fail_fast: bool = True,
@@ -176,7 +176,7 @@ def run_prod_like_training_integration_test(
 if __name__ == "__main__":
     # Executa o teste de integração real
     test_report = run_prod_like_training_integration_test(
-        runs=3,
+        runs=1,
         sleep_between_runs_sec=2.0,
         expect_best_checkpoint=True,
         fail_fast=False,

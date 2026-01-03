@@ -2,6 +2,8 @@ import logging
 import json 
 
 from app.services.base_engine_service import BaseEngineService
+from app.services.storage import storage_service
+from app.core.config import settings
 from app.ml.engine_v2 import get_recommender
 from app.utils.db_loader_trainer import save_classification_result
 
@@ -14,10 +16,30 @@ class EngineV2Service(BaseEngineService):
 
     def __init__(self):
         super().__init__(max_concurrent_tasks=3)
+        self._download_artifacts()
         self.engine_nn = get_recommender()
 
+    def _download_artifacts(self):
+        """
+        Baixa os artefatos do Storage (Cloudinary/AWS S3).
+        """
+        print( "[DBG][ENGINE V2] Baixando artefatos da Engine V2..." )
+        model_name_id = settings.ML_CLOUD_MODEL_NAME
+        label_name_id = settings.ML_CLOUD_MODEL_NAME
+        local_path_engine = settings.ML_ENGINE_2_PATH
+        local_path_labels = settings.ML_ENGINE_2_LABELS_PATH
+        
+        res_model = storage_service.download_file(model_name_id, local_path_engine)
+        res_label = storage_service.download_file(label_name_id, local_path_labels)
+        
+        if res_model and res_label:
+            logger.info("Artefatos da Engine V2 baixados com sucesso.")
+        else:
+            logger.critical("Falha ao baixar artefatos da Engine V2.")
+    
     def load_context(self, ps_edition_id: str):
         return {"model_version": "v1.0"}
+    
 
     async def evaluate_candidate(self, user_id, candidate_input, history, context, edition_id):
         """

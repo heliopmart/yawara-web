@@ -10,14 +10,12 @@ def _normalize_labels_from_select(res_nuclei) -> List[str]:
         return [str(x.get("name", "")).upper().strip() for x in res_nuclei if x.get("name")]
     return [str(x).upper().strip() for x in res_nuclei]
 
-
 def fetch_nuclei_labels() -> List[str]:
     """
     Busca labels oficiais dos núcleos.
     """
     res_nuclei = db_select("nuclei", "name", None, False)
     return _normalize_labels_from_select(res_nuclei)
-
 
 def fetch_training_dataset_chunk(
     after_pm_id: int,
@@ -64,6 +62,7 @@ def fetch_training_dataset_chunk(
         return {"rows": [], "next_after_pm_id": after_pm_id, "has_more": False}
 
     next_after = after_pm_id
+    
     for r in res:
         if isinstance(r, dict):
             pm_id = r.get("pm_id")
@@ -71,8 +70,13 @@ def fetch_training_dataset_chunk(
                 next_after = pm_id
 
     has_more = len(res) == int(limit)
-    return {"rows": res, "next_after_pm_id": next_after, "has_more": has_more}
 
+    # !=============================== PRINT ==================================
+    print("[DBG][CURSOR] after_pm_id=", after_pm_id, "-> next_after=", next_after)
+    print("[DBG][CURSOR] has_more=", has_more, "(regra atual)")
+    # !=============================== PRINT ==================================
+
+    return {"rows": res, "next_after_pm_id": next_after, "has_more": has_more}
 
 def fetch_training_dataset(
     after_pm_id: Optional[int] = None,
@@ -130,3 +134,15 @@ def fetch_training_dataset(
     }
 
     return all_rows, nuclei_labels, meta
+
+def save_classification_result(user_id: str, predictions: Dict[str, float]) -> None:
+    """
+    Salva o resultado da classificação no banco de dados.
+    """
+    payload = {
+        "user_id": user_id,
+        "predictions": predictions
+    }
+    print("Salvando classificação para user_id=", user_id)
+    pass
+    # db_rpc("save_classification_result", payload)

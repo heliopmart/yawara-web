@@ -1,4 +1,5 @@
 import logging
+import os
 import json 
 
 from app.services.base_engine_service import BaseEngineService
@@ -21,13 +22,17 @@ class EngineV2Service(BaseEngineService):
 
     def _download_artifacts(self):
         """
-        Baixa os artefatos do Storage (Cloudinary/AWS S3).
+        Baixa os artefatos do Storage (Cloudinary/AWS S3) caso não existam localmente.
         """
-        print( "[DBG][ENGINE V2] Baixando artefatos da Engine V2..." )
+
         model_name_id = settings.ML_CLOUD_MODEL_NAME
-        label_name_id = settings.ML_CLOUD_MODEL_NAME
+        label_name_id = settings.ML_CLOUD_LABELS_NAME
         local_path_engine = settings.ML_ENGINE_2_PATH
         local_path_labels = settings.ML_ENGINE_2_LABELS_PATH
+
+        if os.path.exists(local_path_engine) and os.path.exists(local_path_labels):
+            logger.info("Artefatos da Engine V2 já presentes localmente. Ignorando download.")
+            return
         
         res_model = storage_service.download_file(model_name_id, local_path_engine)
         res_label = storage_service.download_file(label_name_id, local_path_labels)
@@ -36,11 +41,10 @@ class EngineV2Service(BaseEngineService):
             logger.info("Artefatos da Engine V2 baixados com sucesso.")
         else:
             logger.critical("Falha ao baixar artefatos da Engine V2.")
-    
+
     def load_context(self, ps_edition_id: str):
         return {"model_version": "v1.0"}
     
-
     async def evaluate_candidate(self, user_id, candidate_input, history, context, edition_id):
         """
         Lógica específica da V2: Predição Neural.
@@ -62,5 +66,4 @@ engine_v2_service = EngineV2Service()
 
 if __name__ == "__main__":
     import asyncio
-    # Teste manual
     asyncio.run(engine_v2_service.run_batch())

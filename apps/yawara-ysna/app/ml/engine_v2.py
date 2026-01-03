@@ -119,7 +119,7 @@ class NucleusRecommendationEngine:
             return
 
         try:
-            self.model = tf.keras.models.load_model(self.model_path)
+            self.model = tf.keras.models.load_model(self.model_path, compile=False)
             with open(self.labels_path, "r") as f:
                 self.labels = json.load(f)
             logger.info(f"[Engine 2] Carregado. Núcleos conhecidos: {len(self.labels)}")
@@ -134,7 +134,6 @@ class NucleusRecommendationEngine:
             return {"error": "Model not loaded", "recommendations": []}
 
         # 1. Preparar Input (Exatamente como no treino)
-        # Batch size = 1
         X_names = np.full((1, MAX_SUBJECTS), "", dtype=object)
         X_meta = np.zeros((1, MAX_SUBJECTS, 2), dtype=float)
         X_sem = np.zeros((1, 1), dtype=float)

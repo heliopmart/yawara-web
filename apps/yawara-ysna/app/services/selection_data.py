@@ -134,4 +134,36 @@ class SelectionDataService:
         
         return queue
 
+    def get_candidate_task_data(self, candidate_id: str) -> List[Dict]:
+        """
+        Retorna dados adicionais necessários para processar cada candidato.
+        Exemplo: Histórico escolar, preferências, etc.
+        """
+        row = db_select(
+            table="ps_user_cards",
+            filters={"id": candidate_id },
+            columns="user_id, cards_progress, nuclei_eligible, user: user_id ( course, semester )",
+            single=True
+        )
+
+        if row.get("nuclei_eligible") or (len(row.get("nuclei_eligible")) > 0 if row.get("nuclei_eligible") else False): 
+            return None
+
+        cards = row.get("cards_progress", [])
+        target_card = next(
+            (c for c in cards if c.get("card_id") == 1 and c.get("state") == "COMPLETED"), 
+            None
+        )
+
+        return (
+            {
+                "user_id": row["user_id"],
+                "file_id": target_card["file_id"],
+                "data": {
+                    "course": row["user"].get("course"),
+                    "semester": row["user"].get("semester")
+                }
+            }
+        )
+
 data_service = SelectionDataService()

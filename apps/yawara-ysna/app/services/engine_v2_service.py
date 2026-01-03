@@ -6,7 +6,7 @@ from app.services.base_engine_service import BaseEngineService
 from app.services.storage import storage_service
 from app.core.config import settings
 from app.ml.engine_v2 import get_recommender
-from app.utils.db_loader_trainer import save_classification_result
+from app.utils.save_engine_predictions import save_classification_result
 
 logger = logging.getLogger("yawara.services.engine_v2_service")
 
@@ -53,15 +53,12 @@ class EngineV2Service(BaseEngineService):
 
         result = self.engine_nn.predict(candidate_input, history)
 
-        print(json.dumps(result, indent=2))
-
         predictions = result.get("predictions", {})
 
-        save_classification_result(user_id, result["predictions"])
+        save_classification_result(user_id, edition_id, result['recommended_nuclei'])
         
-        print(json.dumps(predictions, indent=2))
-        print(f"[V2] Resultado para {user_id}: {result['recommended_nuclei']}")
-
+        logger.info(f"[V2] User {user_id} classificado. Núcleos recomendados: {len(result['recommended_nuclei'])}")
+        return True 
 engine_v2_service = EngineV2Service()
 
 if __name__ == "__main__":

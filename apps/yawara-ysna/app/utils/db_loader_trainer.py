@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional, Tuple
 
-from app.utils.db import db_rpc, db_select
+from app.utils.db import db_rpc, db_select, db_update
 from app.core.config import settings
 
 def _normalize_labels_from_select(res_nuclei) -> List[str]:
@@ -134,15 +134,3 @@ def fetch_training_dataset(
     }
 
     return all_rows, nuclei_labels, meta
-
-def save_classification_result(user_id: str, predictions: Dict[str, float]) -> None:
-    """
-    Salva o resultado da classificação no banco de dados.
-    """
-    payload = {
-        "user_id": user_id,
-        "predictions": predictions
-    }
-    print("Salvando classificação para user_id=", user_id)
-    pass
-    # db_rpc("save_classification_result", payload)

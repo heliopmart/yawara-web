@@ -21,29 +21,29 @@ class BaseEngineService:
     def __init__(self, max_concurrent_tasks: int = 3):
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
-    async def run_single(self, user_id: str, ps_edition_id: Optional[str] = None) -> Dict[str, Any]:
+    async def run_single(self, candidate_id: str, ps_edition_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Processa um candidato específico sob demanda (Modo 'Uber').
         """
         if not ps_edition_id:
             ps_edition_id = data_service.get_ps_edition_active()
         
-        logger.info(f"--- INICIANDO SINGLE RUN ({self.__class__.__name__}) para {user_id} ---")
+        logger.info(f"--- INICIANDO SINGLE RUN ({self.__class__.__name__}) para {candidate_id} ---")
 
         context = self.load_context(ps_edition_id)
         if context is None:
              raise ValueError("Contexto de avaliação não carregado.")
 
-        task = data_service.get_candidate_task_data(user_id)
+        task = data_service.get_candidate_task_data(candidate_id)
         
         if not task:
-            logger.warning(f"Candidato {user_id} não encontrado ou sem dados pendentes.")
+            logger.warning(f"Candidato {candidate_id} não encontrado ou sem dados pendentes.")
             return {"status": "error", "message": "Candidate data not found"}
 
         success = await self._process_single_candidate(task, context, ps_edition_id)
         
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {success} ---")
-        return {"processed": 1, "success": success, "user_id": user_id}
+        return {"processed": 1, "result": success, "candidate_id": candidate_id}
 
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """
@@ -121,12 +121,12 @@ class BaseEngineService:
                 subjects=[]
             )
 
-            await self.evaluate_candidate(user_id, candidate_input, record.subjects, context, edition_id)
+            result = await self.evaluate_candidate(user_id, candidate_input, record.subjects, context, edition_id)
             
             # 4. CORREÇÃO: Chama o alerta ao final do lote
             await self._trigger_management_alert(edition_id)
 
-            return True
+            return result
 
         except Exception as e:
             logger.error(f"Erro no pipeline base para {user_id}: {e}")

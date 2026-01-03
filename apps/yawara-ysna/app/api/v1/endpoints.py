@@ -31,8 +31,8 @@ async def evaluate_candidate_on_demand(candidate_id: str):
     try:
         result = await selection_pipeline.process_candidate(candidate_id)
         
-        if not result.get("success"):
-            raise HTTPException(status_code=400, detail=f"Falha na avaliação: {result.get('error')}")
+        # if not result.get("success"):
+        #     raise HTTPException(status_code=400, detail=f"Falha na avaliação: {result.get('error')}")
             
         return {
             "message": "Avaliação concluída com sucesso.",

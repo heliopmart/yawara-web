@@ -1,6 +1,6 @@
 PDF_CSS = """
 @page { size: A4; margin: 0; }
-body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 15px; box-sizing: border-box; background-color: #fff; color: #0F172A; }
+body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; box-sizing: border-box; background-color: #fff; color: #0F172A; }
 
 /* Cores Yawara */
 .bg-yawara-black { background-color: #0F172A; color: white; }
@@ -12,6 +12,7 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 15px; box-sizin
 
 /* Layout Utilities */
 .p-12 { padding: 3rem; }
+.p-8 { padding: 2rem; }
 .mb-4 { margin-bottom: 1rem; }
 .mb-8 { margin-bottom: 2rem; }
 .flex { display: flex; }
@@ -24,7 +25,7 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 15px; box-sizin
 .gap-8 { gap: 2rem; }
 
 /* Content Table */
-.content-table{ margin-top: 50px; }
+.content-table { margin-top: 30px; width: 100%; }
 
 /* Typography */
 .text-4xl { font-size: 2.25rem; font-weight: 700; }
@@ -41,17 +42,23 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 15px; box-sizin
 .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; color: white; }
 .page-break { page-break-before: always; }
 
-/* Table */
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-th { text-align: left; padding: 8px; background-color: #F1F5F9; color: #475569; text-transform: uppercase; font-size: 0.7rem; }
-td { padding: 10px 8px; border-bottom: 1px solid #F1F5F9; }
+/* --- TABLE FIXES (IMPORTANTE PARA PDF) --- */
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; }
+
+/* Garante que o cabeçalho se repita se a tabela quebrar de página */
+thead { display: table-header-group; } 
+
+/* Evita que uma linha seja cortada ao meio na quebra de página */
+tr { page-break-inside: avoid; } 
+
+th { text-align: left; padding: 10px 8px; background-color: #F1F5F9; color: #475569; text-transform: uppercase; font-size: 0.65rem; font-weight: bold; border-bottom: 2px solid #E2E8F0; }
+td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+
 .progress-track { background-color: #E2E8F0; height: 6px; border-radius: 3px; width: 100%; overflow: hidden; }
 .progress-fill { height: 100%; }
 
-
 /* Footer */
-footer { font-size: 0.8rem; color: #94A3B8; width: 100%; text-align: center; padding: 10px 5px; text-align: center; }
-
+footer { font-size: 0.7rem; color: #94A3B8; width: 100%; text-align: center; padding: 20px; position: absolute; bottom: 0; }
 """
 
 HTML_TEMPLATE = """
@@ -64,16 +71,15 @@ HTML_TEMPLATE = """
     <script src="https://cdn.tailwindcss.com"></script>
     {% endif %}
     <style>
-        /* CSS Base para Web Preview */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="{% if not pdf_mode %}bg-gray-100 py-10{% endif %}">
 
-    <div class="max-w-4xl mx-auto bg-white shadow-2xl overflow-hidden print:shadow-none">
+    <div class="max-w-4xl mx-auto bg-white shadow-xl overflow-hidden print:shadow-none">
         
-        <header class="bg-yawara-black p-12 flex justify-between items-end relative">
+        <header class="bg-yawara-black p-12 flex justify-between items-end">
             <div>
                 <h1 class="text-4xl font-bold mb-2">RELATÓRIO TÉCNICO</h1>
                 <p class="text-yawara-500 text-sm uppercase tracking-widest font-bold opacity-70">Yawara System Neural Architecture</p>
@@ -106,9 +112,9 @@ HTML_TEMPLATE = """
 
             <div class="grid grid-cols-12 gap-8 mb-8">
                 
-                <div class="col-span-5" style="text-align: center;">
+                <div class="col-span-5" style="text-align: center; display: flex; justify-content: center; align-items: center;">
                     {% if pdf_mode and nucleus.chart_b64 %}
-                        <img src="data:image/png;base64,{{ nucleus.chart_b64 }}" style="width: 100%; max-width: 280px;">
+                        <img src="data:image/png;base64,{{ nucleus.chart_b64 }}" style="width: 100%; max-width: 320px;">
                     {% else %}
                         <canvas id="chart-{{ loop.index }}" width="280" height="280"></canvas>
                         <p class="text-xs text-center text-gray-400 mt-2">Visualização Interativa</p>
@@ -121,7 +127,7 @@ HTML_TEMPLATE = """
                     <div class="space-y-4">
                         {% for item in nucleus.study_roadmap %}
                         <div class="flex items-start mb-4">
-                            <div style="min-width: 20px; margin-right: 10px;">
+                            <div style="min-width: 25px; margin-right: 10px;">
                                 {% if item.type == 'WEAKNESS' %}
                                     <span style="color: #DC2626; font-weight: bold; font-size: 1.2rem;">!</span>
                                 {% else %}
@@ -152,8 +158,14 @@ HTML_TEMPLATE = """
                     <tbody>
                         {% for feat in nucleus.full_telemetry %}
                         <tr>
-                            <td class="font-bold">{{ feat.feature_name | replace('_', ' ') | title }}</td>
-                            <td style="text-align: center; font-family: monospace;">{{ "%.1f"|format(feat.input_value) }}</td>
+                            <td class="font-bold text-gray-700">
+                                {{ feat.feature_name | replace('_', ' ') | title }}
+                            </td>
+                            
+                            <td style="text-align: center; font-weight: 600; color: #334155;">
+                                {{ "%.1f"|format(feat.input_value) }}
+                            </td>
+                            
                             <td>
                                 <div class="progress-track">
                                     {% set bar_width = (feat.importance_score | abs) * 100 %}
@@ -163,7 +175,7 @@ HTML_TEMPLATE = """
                             </td>
                             <td style="text-align: right;">
                                 {% if feat.status == 'WEAKNESS' %}
-                                    <span class="text-xs font-bold text-yawara-red">ATENÇÃO</span>
+                                    <span class="text-xs font-bold text-yawara-red bg-red-50 px-2 py-1 rounded">ATENÇÃO</span>
                                 {% else %}
                                     <span class="text-xs text-gray-400">NORMAL</span>
                                 {% endif %}

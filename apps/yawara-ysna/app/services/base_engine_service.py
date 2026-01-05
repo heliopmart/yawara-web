@@ -86,7 +86,6 @@ class BaseEngineService:
         
         return {"processed": success_count, "total": total}
 
-
     def _handle_xai_processing(self, result: Dict, task: Dict) -> bool:
         """
         Handler responsável por gerar o contexto visual (PDF Bundle) a partir dos dados brutos.

@@ -142,7 +142,7 @@ class SelectionDataService:
         row = db_select(
             table="ps_user_cards",
             filters={"id": candidate_id },
-            columns="user_id, cards_progress, nuclei_eligible, user: user_id ( course, semester )",
+            columns="user_id, cards_progress, nuclei_eligible, user: user_id ( course, semester, name )",
             single=True
         )
 
@@ -160,6 +160,7 @@ class SelectionDataService:
                 "user_id": row["user_id"],
                 "file_id": target_card["file_id"],
                 "data": {
+                    "name": row['user'].get('name'),
                     "course": row["user"].get("course"),
                     "semester": row["user"].get("semester")
                 }

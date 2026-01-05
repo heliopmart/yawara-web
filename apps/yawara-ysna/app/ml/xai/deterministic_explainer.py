@@ -45,9 +45,9 @@ class DeterministicMathematician:
             status = "NORMAL"
             grade = item.candidate_grade
             if grade >= 8.0:
-                status = "MUITO BOM"
+                status = "STRENGTH"
             elif grade < 5.0 and item.nucleus_weight > 1.0:
-                status = "MELHORAR"
+                status = "WEAKNESS"
 
             feature = FeatureImpact(
                 feature_name=item.subject,

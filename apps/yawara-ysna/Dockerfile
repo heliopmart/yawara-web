@@ -9,12 +9,21 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Instala dependências do sistema necessárias para compilar certas libs
-# (gcc e python3-dev às vezes são necessários para bibliotecas matemáticas)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc python3-dev \
+# (gcc e python3-dev às vezes são necessários para bibliotecas matemáticas)    
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    gcc \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libffi-dev \
+    shared-mime-info \
+    libcairo2 \
+    libgobject-2.0-0 \
+    libglib2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 # Copia e instala as dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt

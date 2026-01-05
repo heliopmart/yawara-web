@@ -30,7 +30,6 @@ class EngineV2Service(BaseEngineService):
         """
         Baixa os artefatos do Storage (Cloudinary/AWS S3) caso não existam localmente.
         """
-
         model_name_id = settings.ML_CLOUD_MODEL_NAME
         label_name_id = settings.ML_CLOUD_LABELS_NAME
         local_path_engine = settings.ML_ENGINE_2_PATH

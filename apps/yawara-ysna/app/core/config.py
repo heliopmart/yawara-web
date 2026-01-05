@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     
     # Nomes no Cloudinary
 
-    SYNTHETIC_DATA_PATH: str = "app/resources/data/synthetic_dataset_v2.json"
+    SYNTHETIC_DATA_PATH: str = "app/resources/data/engine_v2_labels_synthetic.json"
     SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
 
     ML_ENGINE_2_PATH: str = "app/resources/models/engine_v2.keras"

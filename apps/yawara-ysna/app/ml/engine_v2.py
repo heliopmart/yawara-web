@@ -10,7 +10,7 @@ from app.core.config import settings
 
 # ------- SCHEMAS ----------
 from app.schemas.candidate import CandidateInput
-from app.schemas.historic import SubjectRecord, AcademicRecord
+from app.schemas.historic import SubjectRecord
 
 # ------- CLASS ----------
 from app.services.neural_resolver import get_resolver
@@ -106,12 +106,21 @@ class NucleusRecommendationEngine:
     """
     _instance = None
 
-    def __init__(self):
-        self.model_path = settings.ML_ENGINE_2_PATH
-        self.labels_path = settings.ML_ENGINE_2_LABELS_PATH
+    def __init__(self, is_test: bool = False):
+        self.is_test = is_test
         self.model = None
         self.labels = []
+
+        self._load_self_model_and_label()
         self._load_artifacts()
+
+    def _load_self_model_and_label(self):
+        if(self.is_test):
+            self.model_path = settings.SYNTHETIC_DATA_PATH
+            self.labels_path = settings.SYNTHETIC_TRAIN_PATH
+        else:
+            self.model_path = settings.ML_ENGINE_2_PATH
+            self.labels_path = settings.ML_ENGINE_2_LABELS_PATH
 
     def _load_artifacts(self):
         if not os.path.exists(self.model_path):
@@ -185,5 +194,5 @@ class NucleusRecommendationEngine:
 # Factory
 def get_recommender():
     if NucleusRecommendationEngine._instance is None:
-        NucleusRecommendationEngine._instance = NucleusRecommendationEngine()
+        NucleusRecommendationEngine._instance = NucleusRecommendationEngine(False)
     return NucleusRecommendationEngine._instance

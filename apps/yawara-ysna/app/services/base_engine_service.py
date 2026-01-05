@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any
 from app.services.selection_data import data_service
 from app.services.storage import storage_service
 from app.services.ingestion import ingest_academic_record_from_pdf 
+from app.services.report_analyst import report_analyst
 
 # Schemas
 from app.schemas.candidate import CandidateInput
@@ -40,10 +41,13 @@ class BaseEngineService:
             logger.warning(f"Candidato {candidate_id} não encontrado ou sem dados pendentes.")
             return {"status": "error", "message": "Candidate data not found"}
 
-        success = await self._process_single_candidate(task, context, ps_edition_id)
+        result = await self._process_single_candidate(task, context, ps_edition_id)
         
-        logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {success} ---")
-        return {"processed": 1, "result": success, "candidate_id": candidate_id}
+        if result.get("success"):
+             result = self._handle_xai_processing(result, task)
+
+        logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
+        return {"processed": 1, "xai": result, "candidate_id": candidate_id}
 
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """
@@ -81,6 +85,35 @@ class BaseEngineService:
         logger.info(f"--- BATCH FINALIZADO. Sucessos: {success_count}/{total} ---")
         
         return {"processed": success_count, "total": total}
+
+
+    def _handle_xai_processing(self, result: Dict, task: Dict) -> bool:
+        """
+        Handler responsável por gerar o contexto visual (PDF Bundle) a partir dos dados brutos.
+        """
+        if not result.get("xai_reports"):
+            return result
+
+        try:
+            logger.info("📊 Processando camada visual de XAI...")
+            
+            candidate_data = task.get("data", {})
+            candidate_info = {
+                "id": task.get("user_id"),
+                "name": candidate_data.get("name", "Candidato")
+            }
+            
+            report_bundle = report_analyst.generate_report_bundle(
+                candidate_info, 
+                result["xai_reports"]
+            )
+            
+            result["report_bundle"] = report_bundle.model_dump()
+            return result
+
+        except Exception as e:
+            logger.error(f"Erro ao gerar bundle XAI: {e}")
+            return result
 
     def load_context(self, ps_edition_id: str) -> Any:
         """Pode ser sobrescrito para carregar regras ou pesos."""

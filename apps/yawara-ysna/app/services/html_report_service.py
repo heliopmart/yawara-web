@@ -1,15 +1,16 @@
 import logging
 import io
 import base64
+import textwrap 
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from jinja2 import Template
 from weasyprint import HTML, CSS
 from app.templates.report_xai import HTML_TEMPLATE, PDF_CSS
-
 from app.schemas.report import CandidateReportBundle
 
+# Configura backend não-interativo para servidor
 matplotlib.use('Agg')
 
 logger = logging.getLogger("yawara.services.html_generator")
@@ -50,37 +51,47 @@ class HTMLReportService:
         Cria um gráfico de radar 'Yawara Style' usando Matplotlib.
         Retorna string base64.
         """
-        # Limpar plot anterior
-        plt.clf()
+        plt.clf() # Limpar plot anterior
         
         # Setup dos dados (Circular)
         N = len(labels)
-        if N < 3: return "" # Proteção
+        if N < 3: return "" 
+        
+        # --- TRATAMENTO DE TEXTO (A Mágica da Gemini) ---
+        # Quebra labels longas em múltiplas linhas (max 15 chars por linha)
+        # Ex: "Humanidades e Ciências Sociais" -> "Humanidades e\nCiências\nSociais"
+        wrapped_labels = ["\n".join(textwrap.wrap(l, width=15)) for l in labels]
         
         angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
         values_loop = values + values[:1]
         angles_loop = angles + angles[:1]
 
-        # Design Dark/Red
-        fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
+        # Design Dark/Red Yawara
+        # Aumentei o figsize para 5x5 para caber melhor os textos
+        fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
         
         # Desenha linhas e preenchimento
         ax.plot(angles_loop, values_loop, color='#DC2626', linewidth=2, linestyle='solid')
         ax.fill(angles_loop, values_loop, color='#DC2626', alpha=0.25)
 
         # Estilização dos Eixos
-        ax.set_yticklabels([]) # Remove números radiais
+        ax.set_yticklabels([]) # Remove números radiais (0, 2, 4...)
         ax.set_xticks(angles)
-        ax.set_xticklabels(labels, size=9, color="#64748B") # Labels cinza técnico
+        
+        # Configuração das Labels (Disciplinas)
+        # pad=18 empurra o texto para longe do gráfico para não encavalar
+        ax.set_xticklabels(wrapped_labels, size=6, color="#475569", weight="bold") 
+        ax.tick_params(axis='x', pad=25) 
         
         # Grid
         ax.grid(color='#E2E8F0', linestyle='--', linewidth=0.5)
-        ax.spines['polar'].set_visible(False) # Remove borda externa circular feia
+        ax.spines['polar'].set_visible(False) 
 
-        # Salvar em Buffer
+        # Salvar em Buffer com margem generosa (bbox_inches='tight')
         buf = io.BytesIO()
-        plt.tight_layout()
-        plt.savefig(buf, format='png', transparent=True, dpi=100)
+        plt.tight_layout(pad=4.0) 
+        plt.savefig(buf, format='png', transparent=True, dpi=100, bbox_inches='tight', pad_inches=0.2)
+        
         buf.seek(0)
         b64_string = base64.b64encode(buf.read()).decode('utf-8')
         plt.close(fig)

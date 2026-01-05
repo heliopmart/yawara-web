@@ -108,7 +108,7 @@ class ReportAnalyst:
         full_list_features = sorted_by_impact 
 
         # Prepara labels limpas
-        chart_labels = [f['feature_name'][:15].replace('_', ' ').title() for f in chart_features]
+        chart_labels = [f['feature_name'][:40].replace('_', ' ').title() for f in chart_features]
         chart_values = [f['input_value'] for f in chart_features] # Nota 0-10
         
         # Mapeia cores do gráfico (Cinza para normal, Vermelho para gap)

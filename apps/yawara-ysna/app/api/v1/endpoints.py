@@ -3,7 +3,6 @@ from app.services.ingestion import ingest_academic_record_from_pdf
 from app.schemas.historic import AcademicRecord
 
 from app.ml.pipeline import selection_pipeline
-from app.services.pdf_report_service import pdf_report_service
 from app.schemas.report import CandidateReportBundle
 from app.services.html_report_service import html_report_service
 

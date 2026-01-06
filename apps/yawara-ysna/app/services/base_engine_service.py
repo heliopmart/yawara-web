@@ -9,6 +9,7 @@ from app.core.config import settings
 from fastapi.concurrency import run_in_threadpool
 
 # Serviços Comuns
+from app.services.alert_service import AlertService, AlertLevel, AlertSource
 from app.services.selection_data import data_service
 from app.services.storage import storage_service
 from app.services.ingestion import ingest_academic_record_from_pdf 
@@ -62,6 +63,8 @@ class BaseEngineService:
         if pdf_bytes:
             upload_success = await self._upload_report_pdf(candidate_id,  task.get("user_id", None), pdf_bytes)
 
+        await self._trigger_management_alert(candidate_id, result)
+
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
         return {"processed": 1, "success": upload_success, "xai": result, "candidate_id": candidate_id}
 
@@ -97,7 +100,6 @@ class BaseEngineService:
         
         success_count = sum(1 for r in results if r is True)
 
-        await self._trigger_management_alert(ps_edition_id)
         logger.info(f"--- BATCH FINALIZADO. Sucessos: {success_count}/{total} ---")
         
         return {"processed": success_count, "total": total}
@@ -195,7 +197,9 @@ class BaseEngineService:
 
     async def _bounded_process(self, task, context, edition_id):
         async with self.semaphore:
-            return await self._process_single_candidate(task, context, edition_id)
+           result = await self._process_single_candidate(task, context, edition_id)
+           await self._trigger_management_alert(edition_id, result)
+           return result
 
     async def _process_single_candidate(self, task, context, edition_id):
         """
@@ -244,25 +248,43 @@ class BaseEngineService:
         """
         raise NotImplementedError("As subclasses devem implementar isso!")
 
-    async def _trigger_management_alert(self, ps_edition_id: str):
+    async def _trigger_management_alert(self, candidate_id: str, result: Dict[str, Any]):
         """
-        [PLACEHOLDER] Alerta de Gestão para Núcleos Vazios.
+        Alerta de Gestão Simplificado (Foco no Candidato).
         
-        Objetivo:
-        Verificar no banco se algum núcleo teve 0 aprovados nesta edição.
-        Se sim, disparar notificação (Slack/Email) para a banca decidir:
-        1. Baixar a régua no banco (ex: de 70% para 60%) e rodar de novo?
-        2. Fazer repescagem manual?
-        
-        Isso garante que não alteramos a lógica da Engine automaticamente,
-        preservando a consistência dos dados para a IA futura.
+        Regras:
+        1. Se success == False -> Alerta CRÍTICO (Erro técnico).
+        2. Se success == True mas approved == False -> Alerta WARNING (Candidato Rejeitado).
+           Isso permite que a gestão tenha uma lista rápida de quem 'rodou' para eventual repescagem.
         """
-        logger.info(f"🔔 [MANAGEMENT ALERT] Verificando saúde dos núcleos da edição {ps_edition_id}...")
-        
-        # TODO: Implementar query: 
-        # SELECT nucleus_id, count(*) FROM ps_user_cards 
-        # WHERE edition_id = ... AND nucleus_id = ANY(nuclei_eligible)
-        # GROUP BY nucleus_id
-        
-        # Por enquanto, apenas logamos que a função foi chamada.
-        pass
+        try:
+            if not result.get("success"):
+                error_msg = result.get("error", "Erro desconhecido na avaliação")
+                await AlertService.create_alert(
+                    title="❌ Falha na Avaliação",
+                    message=f"A Engine não conseguiu avaliar o candidato {candidate_id}. Motivo: {error_msg}",
+                    level=AlertService.CRITICAL,
+                    source=AlertService.BACKEND_ENGINE,
+                    metadata={"candidate_id": candidate_id, "raw_result": str(result)}
+                )
+                return
+
+            is_approved = result.get("approved", False)
+            
+            if not is_approved:
+                score = result.get("predictions_raw", {}).get("global_score", 0.0)
+                
+                await AlertService.create_alert(
+                    title="🚫 Candidato Não Selecionado",
+                    message=f"O candidato {candidate_id} completou o processo mas não atingiu os critérios de corte (Score: {score:.2f}).",
+                    level=AlertLevel.WARNING,
+                    source=AlertSource.BACKEND_ENGINE,
+                    metadata={
+                        "candidate_id": candidate_id,
+                        "global_score": score,
+                        "report_url": result.get("report_url")
+                    }
+                )
+
+        except Exception as e:
+            logger.error(f"Erro ao criar alerta para {candidate_id}: {e}")

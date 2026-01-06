@@ -37,20 +37,23 @@ class Settings(BaseSettings):
     # 1. Canonical Subject Engine (O Resolvedor de Nomes)
     NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
     NN_MODEL_MEMORY_FILE_ID: str = "vector_memory_npz"
-    # [CORREÇÃO] Adicionada a variável que faltava para o neural_resolver.py
     ML_CANONICAL_WEIGHTS_PATH: str = "app/resources/models/yawara_canonical_subject_model_v1.weights.h5"
 
     # 2. Engine V2 (A Rede Neural Principal)
-    # [CORREÇÃO] Adicionados caminhos locais para o engine_v2_service.py carregar o modelo
     ML_ENGINE_2_PATH: str = "app/resources/models/engine_v2.keras"
     ML_ENGINE_2_LABELS_PATH: str = "app/resources/models/engine_v2_labels.json"
 
+    # 3. Synthetic Data & Test Paths (Adicionados Novamente)
+    SYNTHETIC_DATA_PATH: str = "app/resources/data/synthetic_dataset_v2.json"
+    SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
+
     # --- CLOUD ARTIFACTS (Cloudinary/Training) ---
-    # Nomes remotos para download/upload
+    ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint.weights.h5"
     ML_CLOUD_BEST_CHECKPOINT_NAME: str = "yawara_best_checkpoint_v2.weights.h5"
     ML_CLOUD_STATE_NAME: str = "yawara_v2_training_state.json"
     ML_CLOUD_LABELS_NAME: str = "yawara_v2_labels.json"
     ML_CLOUD_MODEL_NAME: str = "yawara_v2_model.keras"
+    ML_LOCAL_TMP_DIR: str = "/tmp"
 
     # --- TRAINING HYPERPARAMETERS (Mantidos originais) ---
     ML_TRAIN_TIME_BUDGET_MIN: int = 20         
@@ -63,10 +66,20 @@ class Settings(BaseSettings):
     ML_MAX_CHUNKS_PER_RUN: int = 10
     ML_VAL_CHUNK_SIZE: int = 256
     ML_VAL_COURSES: Optional[List[str]] = None 
+    ML_MAX_SUBJECTS: int = 100
+    ML_BATCH_SIZE: int = 32
 
     # Early Stopping
     ML_EARLYSTOP_PATIENCE_RUNS: int = 8      
     ML_EARLYSTOP_MIN_DELTA: float = 0.0005      
+
+    # --- LOSS & CLASS WEIGHTS ---
+    # (Adicionados Novamente: Usados no _compute_class_weights e compile)
+    ML_USE_BALANCED_LOSS: bool = True
+    ML_POSITIVE_THRESHOLD: float = 0.001
+    ML_CLASS_WEIGHT_EPS: float = 1e-6
+    ML_CLASS_WEIGHT_MIN: float = 0.25
+    ML_CLASS_WEIGHT_MAX: float = 8.0
 
     # --- BUSINESS RULES ---
     ACADEMIC_DEFAULT_DISPENSA_GRADE: float = 7.0
@@ -79,6 +92,7 @@ class Settings(BaseSettings):
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
+    CLOUDINARY_DOCS_FOLDER_NAME: str = ""
 
     # Configuração Pydantic
     model_config = SettingsConfigDict(

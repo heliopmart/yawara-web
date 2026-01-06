@@ -50,10 +50,11 @@ def fetch_training_dataset_chunk(
     payload = {
         "p_after_pm_id": int(after_pm_id),
         "p_limit": int(limit),
-        "p_courses": courses,  # pode ser None
+        "p_courses": courses, 
     }
 
-    res = db_rpc("get_training_dataset_v2_chunk", payload)
+    # Versão antiga era get_training_dataset_v2_chunk
+    res = db_rpc("get_training_dataset_v3_chunk", payload)
 
     if not res:
         return {"rows": [], "next_after_pm_id": after_pm_id, "has_more": False}

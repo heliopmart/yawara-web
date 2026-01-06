@@ -2,14 +2,24 @@ import logging
 import asyncio
 from typing import Optional, Dict, Any
 
+# settings
+from app.core.config import settings
+
+# 
+from fastapi.concurrency import run_in_threadpool
+
 # Serviços Comuns
 from app.services.selection_data import data_service
 from app.services.storage import storage_service
 from app.services.ingestion import ingest_academic_record_from_pdf 
 from app.services.report_analyst import report_analyst
+from app.services.html_report_service import html_report_service
+from app.services.report_analyst import report_analyst
+from app.utils.db import db_update
 
 # Schemas
 from app.schemas.candidate import CandidateInput
+from app.schemas.report import CandidateReportBundle
 
 logger = logging.getLogger("yawara.services.base_engine_service")
 
@@ -45,9 +55,15 @@ class BaseEngineService:
         
         if result.get("success"):
              result = self._handle_xai_processing(result, task)
+        
+        pdf_bytes = await self._generate_report_bundle(result)
+
+        upload_success = False
+        if pdf_bytes:
+            upload_success = await self._upload_report_pdf(candidate_id,  task.get("user_id", None), pdf_bytes)
 
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
-        return {"processed": 1, "xai": result, "candidate_id": candidate_id}
+        return {"processed": 1, "success": upload_success, "xai": result, "candidate_id": candidate_id}
 
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """
@@ -121,6 +137,57 @@ class BaseEngineService:
         except Exception as e:
             logger.error(f"Erro ao gerar bundle XAI: {e}")
             return result
+
+    async def _generate_report_bundle(self, result: Dict) -> Optional[bytes]:
+        """
+        Gera o bundle de relatório XAI a partir dos dados brutos.
+        """
+        report_data = result.get("report_bundle")
+
+        if not report_data:
+            logger.warning("Tentativa de gerar PDF sem 'report_bundle' disponível. Pulando etapa.")
+            return None
+
+        try:
+            bundle = CandidateReportBundle(**report_data)
+
+            pdf_bytes = await run_in_threadpool(
+                html_report_service.generate_pdf_bytes,
+                bundle
+            )
+
+            return pdf_bytes
+        except Exception as e:
+            logger.error(f"Erro ao gerar PDF do bundle XAI: {e}")
+            return None
+
+    async def _upload_report_pdf(self, candidate_id: str, user_id: str, pdf_bytes: bytes) -> bool:
+        """
+        Upload do PDF para o cloud e update do registro gerado para o Storage.
+        """
+        
+        try:
+            remote_name = f"{settings.CLOUDINARY_DOCS_FOLDER_NAME}/ps/{user_id if user_id else candidate_id}/yawara_sna_report.pdf"
+            url = await run_in_threadpool(
+                storage_service.upload_bytes, 
+                pdf_bytes, 
+                remote_name
+            )
+            
+            if not url:
+                raise Exception("Falha ao obter URL do Cloudinary")
+
+            await run_in_threadpool(
+                db_update,               
+                "ps_user_cards",           
+                {"final_result_doc": url}, 
+                {"id": candidate_id}      
+            )
+            
+            return True
+        except Exception as e:
+            logger.error(f"Erro ao fazer upload do PDF para {candidate_id}: {e}")
+            return False
 
     def load_context(self, ps_edition_id: str) -> Any:
         """Pode ser sobrescrito para carregar regras ou pesos."""

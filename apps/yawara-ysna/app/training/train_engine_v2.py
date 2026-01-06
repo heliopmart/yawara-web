@@ -154,32 +154,80 @@ class TrainingEngineV2:
     # Target
     # -----------------------
     def _calculate_training_target(self, outcomes: List[Dict], nuclei_labels: List[str]) -> np.ndarray:
-        target_vector = np.zeros(len(nuclei_labels), dtype=float)
+        """
+        Converte a lista de outcomes (histórico + atual) em um vetor One-Hot/Soft-Target.
+        Agora suporta estruturas de notas aninhadas (JSON dentro de JSON).
+        """
+        # Inicializa vetor zerado (tamanho = num_nucleos)
+        target_vector = np.zeros(len(nuclei_labels), dtype=np.float32)
+
+        # Mapeamento auxiliar: Nome do Núcleo -> Índice no vetor
+        label_to_idx = {name: i for i, name in enumerate(nuclei_labels)}
+        
+        # Dicionário para acumular notas por núcleo (caso o aluno tenha várias entradas para o mesmo núcleo)
+        # Ex: { "Sistemas Embarcados": [8.5, 7.0] }
+        scores_by_nucleus: Dict[str, List[float]] = {}
+
+        # --- FUNÇÃO AUXILIAR DE EXTRAÇÃO SEGURA ---
+        def extract_recursive_mean(data: Any) -> float:
+            """
+            Extrai média numérica de estruturas caóticas (Dicts, Ints, Floats).
+            Se encontrar um dict, mergulha nele.
+            """
+            if isinstance(data, (int, float)):
+                return float(data)
+            if isinstance(data, str):
+                try:
+                    return float(data)
+                except ValueError:
+                    return 0.0
+            if isinstance(data, dict):
+                # Extrai valores recursivamente
+                extracted_values = [extract_recursive_mean(v) for v in data.values()]
+                # Remove zeros que podem ser falha de parse (opcional, aqui mantemos tudo)
+                if not extracted_values: 
+                    return 0.0
+                return float(np.mean(extracted_values))
+            return 0.0
+        # ------------------------------------------
 
         for outcome in outcomes:
-            nuc_name = str(outcome.get("nucleus", "")).upper().strip()
-            if nuc_name not in nuclei_labels:
+            nucleus_name = outcome.get("nucleus")
+            
+            # Se o núcleo não estiver na lista de labels atuais, ignora (ex: núcleo extinto)
+            if nucleus_name not in label_to_idx:
                 continue
-            idx = nuclei_labels.index(nuc_name)
-
-            if outcome.get("status") == 0:
-                score = 0.0
+                
+            tech = outcome.get("tech", {})
+            social = outcome.get("social", {})
+            
+            # Extração Robusta das Médias
+            tech_avg = extract_recursive_mean(tech)
+            social_avg = extract_recursive_mean(social)
+            
+            # Regra de Negócio: Como combinar Tech + Social?
+            # V1/V2 Padrão: Média simples entre os dois (50% / 50%)
+            # Se um deles for zero, assume que é 100% do outro (para não penalizar falta de dado social antigo)
+            if tech_avg > 0 and social_avg > 0:
+                final_score = (tech_avg + social_avg) / 2
             else:
-                social = outcome.get("social") or {}
-                tech = outcome.get("tech") or {}
+                final_score = tech_avg + social_avg # Um deles é zero
+            
+            # Normaliza para 0.0 a 1.0 (Assumindo notas 0-10)
+            normalized_score = min(max(final_score / 10.0, 0.0), 1.0)
+            
+            if nucleus_name not in scores_by_nucleus:
+                scores_by_nucleus[nucleus_name] = []
+            scores_by_nucleus[nucleus_name].append(normalized_score)
 
-                social_avg = float(np.mean(list(social.values()))) if social else 0.0
-                tech_vol = float(sum(tech.values())) if tech else 0.0
-
-                norm_social = min(social_avg / 10.0, 1.0)
-                norm_tech = min(tech_vol / 10.0, 1.0)
-
-                score = (norm_social * 0.6) + (norm_tech * 0.4)
-
-            target_vector[idx] = score
+        # Consolida o vetor final
+        for nucleus_name, scores in scores_by_nucleus.items():
+            idx = label_to_idx[nucleus_name]
+            # Se o aluno tem 3 notas históricas no mesmo núcleo, tiramos a média delas
+            # Isso cria um target mais estável para a IA
+            target_vector[idx] = np.mean(scores)
 
         return target_vector
-
     # -----------------------
     # Passo 5: Balanceamento (Weighted MSE por núcleo)
     # -----------------------

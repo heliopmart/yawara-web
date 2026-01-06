@@ -38,6 +38,25 @@ class EngineV2Service(BaseEngineService):
         # O Singleton é carregado aqui. Se falhar, o serviço sobe mas loga erro.
         self.engine_nn = get_recommender()
 
+    def _to_json_safe(self, obj):
+        # numpy scalar -> python scalar
+        if isinstance(obj, np.generic):
+            return obj.item()
+
+        # numpy array -> list
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+
+        # dict -> recurse
+        if isinstance(obj, dict):
+            return {str(k): self._to_json_safe(v) for k, v in obj.items()}
+
+        # list/tuple -> recurse
+        if isinstance(obj, (list, tuple)):
+            return [self._to_json_safe(v) for v in obj]
+
+        return obj
+
     def _download_artifacts(self) -> None:
         """
         Garante que os arquivos .keras e .json (pesos e labels) existam localmente.
@@ -159,11 +178,15 @@ class EngineV2Service(BaseEngineService):
 
             logger.info(f"[V2] Ciclo completo finalizado para {user_id}.")
 
+            predictions_safe = self._to_json_safe(predictions)
+            xai_reports_safe = self._to_json_safe(xai_reports)
+            recommended_safe = self._to_json_safe(recommended)
+        
             return {
                 "success": True,
-                "approved": recommended,
-                "xai_reports": xai_reports, 
-                "predictions_raw": predictions
+                "approved": recommended_safe,
+                "xai_reports": xai_reports_safe,
+                "predictions_raw": predictions_safe
             }
 
         except Exception as e:

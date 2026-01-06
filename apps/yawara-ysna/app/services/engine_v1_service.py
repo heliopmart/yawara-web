@@ -117,7 +117,8 @@ class EngineV1Service(BaseEngineService):
             )
             
             logger.info(f"V1 Verdict | User {user_id} | Approved: {len(approved_nuclei)} nuclei.")
-            
+        
+
             return {
                 "success": True,
                 "approved": approved_nuclei,

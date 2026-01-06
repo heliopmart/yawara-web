@@ -4,6 +4,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 import cloudinary.utils
+import tempfile
 import os
 from typing import Optional
 from app.core.config import settings
@@ -74,6 +75,41 @@ class StorageService:
         except Exception as e:
             logger.error(f"Erro genérico no StorageService para {public_id}: {str(e)}")
             return None
+        
+    @staticmethod
+    def upload_bytes(file_bytes: bytes, remote_name: str) -> Optional[str]:
+        """
+        Realiza Upload de bytes diretamente para o bucket 'raw'.
+
+        Args:
+            file_bytes (bytes): Conteúdo binário do arquivo.
+            remote_name (str): Nome desejado na nuvem (será prefixado com 'models/').
+
+        Returns:
+            Optional[str]: URL segura do arquivo uploadado ou None.
+        """
+        try:
+            logger.info(f"☁️ Iniciando upload de bytes para Cloudinary: models/{remote_name}...")
+            
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                tmp.write(file_bytes)
+                tmp_path = tmp.name
+
+            response = cloudinary.uploader.upload(
+                tmp_path, 
+                resource_type="raw",
+                public_id=f"{remote_name}",
+                overwrite=True,
+            )
+            
+            logger.info(f"✅ Upload concluído: {remote_name}")
+
+            os.remove(tmp_path)
+            return response.get('secure_url')
+
+        except Exception as e:
+            logger.error(f"❌ Erro no upload Cloudinary: {e}", exc_info=True)
+            return None
 
     @staticmethod
     def upload_file(local_path: str, remote_name: str) -> Optional[str]:
@@ -99,9 +135,8 @@ class StorageService:
                 access_mode="public"
             )
             
-            url = response.get('secure_url')
             logger.info(f"✅ Upload concluído: {remote_name}")
-            return url
+            return response.get('secure_url')
 
         except Exception as e:
             logger.error(f"❌ Erro no upload Cloudinary: {e}", exc_info=True)

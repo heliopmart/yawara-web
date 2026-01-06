@@ -146,9 +146,10 @@ async def evaluate_candidate_on_demand(candidate_id: str):
     try:
         logger.info(f"Iniciando avaliação manual para {candidate_id}")
         result = await selection_pipeline.process_candidate(candidate_id)
-            
+        
+        success = result.get("success", False)
         return {
-            "message": "Avaliação concluída com sucesso.",
+            "message":  "Avaliação concluída com sucesso." if success else "Avaliação concluída com falhas.",
             "details": result
         }
 

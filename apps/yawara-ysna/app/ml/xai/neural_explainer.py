@@ -3,15 +3,14 @@ import tensorflow as tf
 import numpy as np
 from typing import List, Dict, Any
 
-from app.schemas.xai import XAIAnalysisResult, FeatureImpact
+from app.schemas.xai import XAIAnalysisResult, FeedbackItem
 
-logger = logging.getLogger("yawara.ml.xai.neural")
+logger = logging.getLogger("yawara.xai.neural")
 
 class NeuralMathematician:
     """
-    XAI Component for Engine V2 (Neural Network).
-    Uses Gradient-based Saliency Maps to determine feature importance.
-    Agora com NORMALIZAÇÃO DINÂMICA para evitar Vanishing Gradients.
+    Explicador para a Engine V2 (Deep Learning).
+    Utiliza Análise de Gradientes (Saliency Maps) para explicar o 'Black Box'.
     """
 
     @staticmethod
@@ -22,96 +21,106 @@ class NeuralMathematician:
         target_nucleus_name: str,
         subject_names_list: List[str]
     ) -> XAIAnalysisResult:
+        """
+        Gera explicação baseada na sensibilidade da rede (Gradientes).
+        """
         
-        # Unpack inputs (meta tensor is at index 1)
-        x_meta_tensor = tf.convert_to_tensor(inputs[1]) # Shape: (1, 100, 2)
+        # 1. Cálculo do Gradiente (Sensitivity Analysis)
+        # Queremos saber: d(ScoreNucleo) / d(Notas)
+        # Os inputs[1] são os metadados das matérias (Nota, Carga).
         
-        # 1. Gradient Calculation
         with tf.GradientTape() as tape:
-            tape.watch(x_meta_tensor)
+            # Observamos o tensor de notas
+            tape.watch(inputs[1]) 
             
-            # Reconstruct input list with watched tensor
-            watched_inputs = [inputs[0], x_meta_tensor, inputs[2], inputs[3]]
+            # Roda a predição
+            predictions = model(inputs)
             
-            # Forward Pass
-            predictions = model(watched_inputs)
-            target_score = predictions[0, target_nucleus_index]
+            # Pega o score do núcleo alvo
+            target_score = predictions[0][target_nucleus_index]
 
-        # Backward Pass (Derivatives)
-        gradients = tape.gradient(target_score, x_meta_tensor)
+        # Calcula o gradiente do score em relação às notas
+        # Isso nos diz o "Feature Importance" local para este aluno
+        grads = tape.gradient(target_score, inputs[1])
         
-        # 2. Process Gradients (Input * Gradient)
-        grads_val = gradients.numpy()[0, :, 0] 
-        inputs_val = x_meta_tensor.numpy()[0, :, 0] # Normalized grades (0-1)
-
-        # --- CORREÇÃO: DYNAMIC SCALING ---
-        # Encontra o maior gradiente absoluto para usar como referência (1.0)
-        # Isso resolve o problema de scores muito baixos gerarem explicações zeradas.
-        max_grad = np.max(np.abs(grads_val))
+        # O tensor de grads tem shape (1, 100, 2). Queremos apenas a dimensão da Nota (índice 0)
+        # grads[0, :, 0] -> Vetor de importância das notas
+        note_importance = grads[0, :, 0].numpy()
         
-        # Evita divisão por zero se a rede estiver morta (todos grads = 0)
-        scale_factor = 1.0 / max_grad if max_grad > 1e-9 else 1.0
+        # Recupera as notas originais do input
+        original_grades = inputs[1][0, :, 0].numpy() # shape (100,)
 
-        features: List[FeatureImpact] = []
+        # 2. Construção dos Dados XAI
+        affinity = float(target_score) * 100.0
+        status_label = "RECOMENDADO" if affinity >= 50.0 else "EM ANÁLISE"
+        status_color = "#166534" if affinity >= 50.0 else "#64748B" # Verde ou Cinza
         
-        for i, subject_name in enumerate(subject_names_list):
-            if not subject_name: continue 
-            
-            raw_grad = float(grads_val[i])
-            grade_norm = float(inputs_val[i])
-            real_grade = grade_norm * 10.0
-            
-            # Normalizamos o gradiente para a escala humana (0 a 1.0 relativo ao maior impacto)
-            # Se raw_grad era 0.0003 e era o maior, agora scaled_grad vira 1.0
-            scaled_grad = raw_grad * scale_factor
-            
-            # Importance = Scaled Gradient * Value
-            # Representa o quanto a nota atual contribuiu para o score
-            importance = scaled_grad * grade_norm
-            
-            # Potential Gain = (Max_Grade - Current_Grade) * Scaled Gradient
-            # Representa o potencial pedagógico real
-            potential_gain = (1.0 - grade_norm) * scaled_grad
-            
-            # Semantic Classification
-            status = "NORMAL"
-            
-            # Ajustamos os limiares para a nova escala normalizada
-            if importance > 0.4: 
-                status = "STRENGTH" # Matéria forte
-            elif scaled_grad > 0.4 and grade_norm < 0.6:
-                # Se o gradiente é alto (rede quer isso) mas a nota é baixa
-                status = "WEAKNESS" 
+        # Baixa afinidade
+        if affinity < 30.0: status_color = "#DC2626" 
 
-            # Filtro de ruído: Se o impacto for muito irrelevante, ignoramos ou marcamos normal
-            # (Opcional: você pode descomentar para limpar o JSON)
-            # if abs(scaled_grad) < 0.05: continue
+        chart_labels = []
+        chart_values = []
+        full_telemetry = []
+        roadmap = []
 
-            features.append(FeatureImpact(
-                feature_name=subject_name,
-                input_value=round(real_grade, 2),
+        # Iteramos sobre as matérias válidas (que têm nome)
+        for i, name in enumerate(subject_names_list):
+            if not name or name == "": continue
+            
+            grade_0_1 = original_grades[i] # Normalizado 0-1
+            grade_real = grade_0_1 * 10.0
+            importance = float(note_importance[i])
+            
+            # Adiciona ao gráfico
+            chart_labels.append(name[:10])
+            chart_values.append(grade_real)
+            
+            # Lógica de Diagnóstico Neural
+            # Se a importância é alta (>0.01) e a nota é baixa (<0.6), é um gargalo
+            status_feat = "NORMAL"
+            
+            if importance > 0.001 and grade_0_1 < 0.6:
+                status_feat = "WEAKNESS"
+                msg = "Matéria crítica para este núcleo. A rede indica alta sensibilidade à melhoria desta nota."
                 
-                # Valores agora são relativos (0-1 ou um pouco mais), fáceis de ler num gráfico
-                importance_score=round(importance, 4),
-                relative_influence=0.0, # Será recalculado abaixo
-                
-                # Só mostramos ganho positivo. Se grad for negativo (rede penalizando nota alta?), zeramos.
-                potential_gain=round(max(0.0, potential_gain), 4),
-                status=status
-            ))
+                roadmap.append(FeedbackItem(
+                    subject=name,
+                    message=msg,
+                    type="WEAKNESS",
+                    icon="zap" # Ícone de energia/neural
+                ))
+            
+            full_telemetry.append({
+                "feature_name": name,
+                "input_value": grade_real,
+                "importance_score": importance * 100, # Escala visual
+                "status": status_feat
+            })
 
-        # 3. Normalize Relative Influence (Percentual do Bolo)
-        total_importance = sum(abs(f.importance_score) for f in features) or 1.0
-        for f in features:
-            f.relative_influence = round(abs(f.importance_score) / total_importance, 4)
+        # Ordenar telemetria por importância (descendente)
+        full_telemetry = sorted(full_telemetry, key=lambda x: x['importance_score'], reverse=True)
+        
+        # Limita gráfico aos top 8 mais importantes para não poluir
+        # (Mas mantém telemetria completa na tabela)
+        top_indices = np.argsort(note_importance)[-8:] # Top 8 índices
+        final_chart_labels = [chart_labels[i] for i in range(len(chart_labels)) if i in top_indices]
+        final_chart_values = [chart_values[i] for i in range(len(chart_values)) if i in top_indices]
 
-        # Ordenação Pedagógica: Prioridade para o que dá mais ganho (Estude isso!)
-        features.sort(key=lambda x: x.potential_gain, reverse=True)
+        obs = (f"Análise Neural: Afinidade de {affinity:.1f}%. "
+               "O sistema identificou padrões no histórico compatíveis com o perfil de sucesso deste núcleo." 
+               if affinity >= 50 else 
+               f"Análise Neural: Afinidade de {affinity:.1f}%. "
+               "O modelo detectou gaps em competências-chave que reduzem a probabilidade de aprovação.")
 
         return XAIAnalysisResult(
-            engine_type="V2_NEURAL_GRADIENT",
-            target_nucleus=target_nucleus_name,
-            final_score=float(target_score),
-            threshold=0.5,
-            features_analysis=features
+            nucleus_name=target_nucleus_name,
+            status_label=status_label,
+            status_color=status_color,
+            affinity_percentage=int(affinity),
+            main_observation=obs,
+            study_roadmap=roadmap,
+            chart_labels=final_chart_labels if final_chart_labels else chart_labels[:8],
+            chart_values=final_chart_values if final_chart_values else chart_values[:8],
+            chart_colors=["#DC2626"],
+            full_telemetry=full_telemetry
         )

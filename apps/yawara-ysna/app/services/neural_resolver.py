@@ -1,5 +1,6 @@
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
+from functools import lru_cache 
 
 # CONFIGS IMPORT ---------------------------------------
 from app.core.config import settings
@@ -13,78 +14,81 @@ from app.utils.llm_client import GeminiClient
 logger = logging.getLogger("yawara.services.resolver")
 
 class DynamicNeuralResolver:
-    """Orquestrador de resolução de entidades semânticas (Híbrido Neuro-Simbólico).
+    """
+    Orquestrador de resolução de entidades semânticas (Híbrido Neuro-Simbólico).
 
-    Esta classe atua como a camada de serviço que coordena a inteligência do Y-CSNN ( CANONICAL SUBJECT ENGINE ).
-    Ela não realiza cálculos vetoriais diretamente (delegados ao `CanonicalSubjectEngine`),
-    mas decide *qual* estratégia usar para resolver uma disciplina desconhecida.
-
-    Estratégia de Resolução:
-        1. **Fast Path (Memória Neural):** Consulta o motor vetorial. Se a confiança for
-           alta (acima do threshold), retorna imediatamente (latência < 50ms).
-        2. **Slow Path (Consultor LLM):** Se houver ambiguidade, constrói um prompt
-           com os candidatos próximos e consulta o Gemini 2.5 Flash para raciocínio.
-        3. **Auto-Learning (Loop de Feedback):** Se a LLM identificar um sinônimo,
-           o Resolver instrui o Engine a memorizar o novo vetor, tornando a próxima
-           consulta rápida.
+    Atua como camada de inteligência sobre o motor vetorial (Y-CSNN).
+    
+    Estratégia de Resolução (Neuro-Symbolic Pipeline):
+        1. **Cache (L1):** Verifica se este termo exato já foi resolvido recentemente (LRU).
+        2. **Neural Memory (L2):** Consulta o Vector Engine. Se confiança > threshold, aceita.
+        3. **LLM Reasoning (L3):** Se ambíguo, consulta o Gemini 2.5 para desambiguação semântica.
+        4. **Learning:** Se a LLM descobrir um novo sinônimo, o Resolver ensina o Vector Engine (memória de longo prazo).
 
     Attributes:
-        engine (CanonicalSubjectEngine): O motor de inferência vetorial e persistência.
-        llm (GenerativeModel): A instância do cliente Gemini para tarefas generativas.
+        engine (CanonicalSubjectEngine): Motor vetorial (TensorFlow/Faiss).
+        llm_client (GeminiClient): Interface com LLM Generativa.
     """
 
     _instance = None
 
-    # 2.0s = 30 RPM (Requisições por Minuto) - Seguro para evitar erros 429.
-    MIN_REQUEST_INTERVAL = 2.0
-
-    def __init__(self, weights_path: str):
-        """Inicializa os serviços de inteligência.
-
-        Args:
-            weights_path (str): Caminho para os pesos do modelo neural (.h5).
+    def __init__(self, weights_path: Optional[str] = None):
         """
-        logger.info("[Y-CSNN] Inicializando Resolver Híbrido...")
+        Inicializa os motores de inteligência.
         
-        # 1. Inicializa o Motor Neural (Cuida de Vetores e Memória)
-        self.engine = CanonicalSubjectEngine(weights_path)
-
+        Args:
+            weights_path: Path opcional. Se None, usa o definido no settings/padrão.
+        """
+        path = weights_path or settings.ML_CANONICAL_WEIGHTS_PATH
+        logger.info(f"[Y-CSNN] Inicializando Resolver Híbrido com pesos em: {path}")
+        
+        # Inicializa Componentes
+        self.engine = CanonicalSubjectEngine(path)
         self.llm_client = GeminiClient()
 
+    # Otimização para Cache de Resoluções Repetidas
+    @lru_cache(maxsize=4096) 
     def resolve(self, raw_input: str, threshold: float = 0.70) -> Dict[str, Any]:
-        """Resolve o nome de uma disciplina para sua forma canônica oficial.
+        """
+        Resolve o nome da disciplina usando estratégia em cascata (Cache -> Neural -> LLM).
+
+        O uso de @lru_cache aqui é vital. Ele garante que chamadas repetidas para 
+        "Cálculo I" (comum em históricos em lote) sejam respondidas em nanosegundos,
+        pulando todo o processamento pesado de Tensores e chamadas de API.
 
         Args:
-            raw_input (str): O texto "sujo" extraído do PDF (ex: "Calc. Diferencial I").
-            threshold (float, optional): O limiar de confiança (0.0 a 1.0) para aceitar
-                a resposta da memória neural sem consultar a LLM. Defaults to 0.70.
+            raw_input (str): Texto sujo (ex: "Introd. a Comp.").
+            threshold (float): Confiança mínima para aceitar a memória neural.
 
         Returns:
-            Dict[str, Any]: Objeto de resposta contendo:
-                - canonical (str): Nome oficial padronizado (ex: "CALCULO_1").
-                - confidence (float): Grau de certeza da resposta.
-                - source (str): Origem da decisão ("NEURAL_MEMORY" ou "LLM_GENERATION").
-                - new_concept (bool): Flag indicando se é uma disciplina inédita no sistema.
+            Dict: Objeto padronizado com 'canonical', 'confidence', etc.
         """
-        # 1. Vetorização (O Engine cuida da limpeza básica e embedding)
-        try:
-            input_vec = self.engine.vectorise(raw_input)
-        except Exception as e:
-            # Fallback de segurança se o TensorFlow falhar na inferência
-            logger.error(f"Erro Neural: {e}")
-            return self._fallback_response(raw_input, "NEURAL_ENGINE_FAILURE")
+        if not raw_input:
+            return {"canonical": "UNKNOWN", "confidence": 0.0, "source": "EMPTY"}
 
-        # 2. Busca na Memória (O Engine devolve os candidatos)
-        top_candidates = self.engine.search_nearest(input_vec, top_k=5)
+        # 1. Vetorização e Busca Neural (TensorFlow)
+        try:
+            # O Engine cuida da limpeza básica e embedding
+            input_vec = self.engine.vectorise(raw_input)
+            
+            # Busca na Memória Vetorial
+            top_candidates = self.engine.search_nearest(input_vec, top_k=5)
+        except Exception as e:
+            logger.error(f"Falha no Motor Neural: {e}. Usando Fallback.")
+            return self._fallback_response(raw_input, "NEURAL_FAILURE")
+
+        # 2. Análise dos Candidatos
         
-        # Cenário A: Memória Vazia (Cold Start) -> Chama LLM direto
+        # Cenário A: Cold Start (Memória Vazia) -> LLM
         if not top_candidates:
-            return self._ask_gemini_for_concept(raw_input, input_vec, [])
+            logger.info(f"Cold Start para '{raw_input}'. Acionando LLM.")
+            return self._resolve_via_llm(raw_input, input_vec, [])
 
         best_match_name, best_match_score = top_candidates[0]
         
-        # Cenário B: Confiança Alta -> Retorna memória (Fast Path)
+        # Cenário B: Confiança Alta (Fast Path)
         if best_match_score >= threshold:
+            # logger.debug(f"Hit Neural: '{raw_input}' -> '{best_match_name}' ({best_match_score:.2f})")
             return {
                 "canonical": best_match_name,
                 "confidence": round(float(best_match_score), 4),
@@ -92,41 +96,46 @@ class DynamicNeuralResolver:
                 "new_concept": False
             }
         
-        # Cenário C: Ambiguidade -> Chama LLM (Slow Path)
-        logger.info(f"Ambiguidade detectada em '{raw_input}' ({best_match_score:.2f}). Acionando LLM.")
+        # Cenário C: Ambiguidade (Slow Path) -> LLM
+        logger.info(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Acionando LLM.")
         return self._resolve_via_llm(raw_input, input_vec, top_candidates)
 
     def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:
-        """Ponte entre a decisão de chamar a IA e a ação de aprender."""
+        """
+        Slow Path: Usa IA Generativa para raciocinar sobre o termo e atualiza a memória vetorial.
+        """
         try:
-            # 1. Delega a pergunta para o especialista (GeminiClient)
+            # Consulta síncrona (Pode ser otimizada para async no futuro se o GeminiClient suportar)
             decision = self.llm_client.check_concept_ambiguity(raw_input, candidates)
             
-            canonical = decision["canonical"].upper().replace(" ", "_")
+            canonical = decision.get("canonical", "UNKNOWN").upper().replace(" ", "_")
             is_new = decision.get("is_new", False)
 
-            # 2. Ciclo de Aprendizado (O Resolver manda o Engine memorizar)
-            self.engine.memorize(canonical, vector)
-            logger.info(f"Aprendizado: '{raw_input}' -> '{canonical}'")
+            # Auto-Learning: Se a LLM tem certeza, ensinamos o motor vetorial
+            # para que na próxima vez ele caia no Fast Path.
+            if canonical != "UNKNOWN":
+                self.engine.memorize(canonical, vector)
+                logger.info(f"🧠 Aprendizado Auto-Supervisionado: '{raw_input}' mapeado para '{canonical}'")
 
             return {
                 "canonical": canonical,
-                "confidence": 1.0,
+                "confidence": 1.0, # LLM é autoridade máxima
                 "source": "LLM_GENERATION",
                 "new_concept": is_new,
                 "reasoning": decision.get("reasoning")
             }
+
         except Exception as e:
-            # Se a LLM falhar, fallback para o melhor candidato neural
+            logger.error(f"Erro na LLM para '{raw_input}': {e}")
             return self._fallback_response(raw_input, "LLM_ERROR", candidates)
 
     def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:
-        """Gera uma resposta segura quando todos os sistemas inteligentes falham.
-
-        Garante que o pipeline de ingestão nunca trave, retornando o melhor palpite
-        disponível (Top-1 da memória) ou o próprio input normalizado.
         """
+        Fail-safe: Retorna o melhor que temos para não travar o processo seletivo.
+        """
+        # Se tiver algum candidato neural (mesmo ruim), usa ele. Senão, usa o próprio input.
         fallback_name = candidates[0][0] if candidates else raw_input.upper().replace(" ", "_")
+        
         return {
             "canonical": fallback_name,
             "confidence": 0.0,
@@ -134,8 +143,8 @@ class DynamicNeuralResolver:
             "new_concept": False
         }
 
-def get_resolver(weights_path="app/resources/models/yawara_canonical_subject_model_v1.weights.h5") -> DynamicNeuralResolver:
-    """Singleton Factory para obter a instância única do Resolvedor."""
+def get_resolver() -> DynamicNeuralResolver:
+    """Singleton Factory."""
     if DynamicNeuralResolver._instance is None:
-        DynamicNeuralResolver._instance = DynamicNeuralResolver(weights_path)
+        DynamicNeuralResolver._instance = DynamicNeuralResolver()
     return DynamicNeuralResolver._instance

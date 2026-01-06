@@ -1,85 +1,71 @@
 from typing import List, Dict
-from app.core.config  import settings
-from app.schemas.historic import SubjectRecord
-import json
-
-# Configuração de Negócio
-# Nota atribuída para matérias com status "DS" (Dispensa/Transferência).
-DEFAULT_DISPENSA_GRADE = settings.ACADEMIC_DEFAULT_DISPENSA_GRADE
-
-from typing import List, Dict
-from app.core.config  import settings
+from app.core.config import settings
 from app.schemas.historic import SubjectRecord
 
 # Configuração de Negócio
-# Nota atribuída para matérias com status "DS" (Dispensa/Transferência).
-DEFAULT_DISPENSA_GRADE = settings.ACADEMIC_DEFAULT_DISPENSA_GRADE
+# Nota atribuída para matérias com status "DS" (Dispensa/Transferência) ou "AP" sem nota.
+DEFAULT_DISPENSA_GRADE = settings.ACADEMIC_DEFAULT_DISPENSA_GRADE or 7.0
 
-# [NOVO] Nota de corte para considerar a disciplina como "Sucesso".
-# Se o aluno tirou menos que isso, para fins de competência técnica, é como se não tivesse cursado.
+# Nota de corte para considerar a disciplina como "Sucesso" para fins de cálculo de competência.
 MIN_PASSING_GRADE = 6.0 
 
 def optimize_student_history(history: List[SubjectRecord]) -> Dict[str, float]:
     """
-    Transforma a lista rica de histórico em um mapa otimizado para cálculo vetorial.
+    Transforma a lista bruta de histórico em um mapa otimizado {disciplina_canon: nota}.
     
-    Lógica de Negócio Atualizada (v2):
-    1. Se tem nota numérica >= 6.0, usa a nota. (FILTRO DE APROVAÇÃO)
-    2. Se não tem nota, mas o status é 'DS' (Dispensa), usa a DEFAULT_DISPENSA_GRADE.
-    3. Reprovações (Nota < 6.0 ou Status RP) são ignoradas sumariamente.
-    4. Resolve duplicatas mantendo a MAIOR nota (Política Otimista).
+    Regras de Negócio (v2):
+    1. Se tem nota numérica >= 6.0, usa a nota (Maior nota prevalece em caso de duplicata).
+    2. Se status é 'DS' (Dispensa) ou 'AP' (Aprovado sem nota), usa DEFAULT_DISPENSA_GRADE.
+    3. Reprovações (< 6.0 ou status RP/RE) são ignoradas nesta etapa (não geram competência).
     
     Args:
-        history: Lista de SubjectRecord (padrão do sistema).
+        history (List[SubjectRecord]): Lista de registros brutos do PDF.
         
     Returns:
-        Dict[str, float]: { 'nome_materia_lower': nota_final }
+        Dict[str, float]: Mapa normalizado (ex: {'CALCULO_1': 8.5}).
     """
     optimized_map: Dict[str, float] = {}
-    
+
     for item in history:
+        # Se não tiver nome canônico resolvido, usamos o raw sanitizado
+        if not item.subject_canonical:
+             # Fallback simples se o resolver falhou
+             key = item.name_raw.upper().strip().replace(" ", "_")
+        else:
+             key = item.subject_canonical.lower().strip() # Chave sempre minúscula para comparação
+
         current_grade = 0.0
         should_process = False
+        
+        # --- Lógica de Decisão ---
 
-        # DEBUG
-        # print("--- Processando Item de Histórico ---")
-        # print(json.dumps(item.model_dump(), ensure_ascii=False, indent=2))
-
-        # Caso 1: Existe nota numérica E O ALUNO PASSOU
-        # Corrigimos o bug onde nota 0.3 contava pontos.
+        # Caso 1: Tem nota numérica válida
         if item.grade is not None:
             if item.grade >= MIN_PASSING_GRADE:
-                current_grade = item.grade
+                current_grade = float(item.grade)
                 should_process = True
             else:
-                # Se a nota é menor que 6.0, ignoramos.
-                # Isso faz com que a matéria não entre no dict, e a Engine assuma 0.0 depois.
+                # Nota vermelha: Ignora (não conta como competência adquirida)
                 should_process = False 
             
-        # Caso 2: Não tem nota, mas é Dispensa (DS)
-        elif item.status and item.status.strip().upper() == "DS":
-            current_grade = DEFAULT_DISPENSA_GRADE
-            should_process = True
-            
-        # Caso Extra: Se quiser garantir que status 'AP' sem nota entre (ex: TCC as vezes)
-        # elif item.status == 'AP' and item.grade is None:
-        #     current_grade = MIN_PASSING_GRADE # Assume o mínimo
-        #     should_process = True
-
-        # Se não caiu em nenhum caso (Reprovação, Trancamento), pula
+        # Caso 2: Sem nota, mas é Dispensa (DS) ou Aproveitamento (AP)
+        elif item.status:
+            status_clean = item.status.strip().upper()
+            if status_clean in ["DS", "DISPENSA", "AP", "APROVADO", "AM"]:
+                current_grade = float(DEFAULT_DISPENSA_GRADE)
+                should_process = True
+        
+        # Se não é elegível, pula
         if not should_process:
             continue
-            
-        # Normalização da Chave (Nome da Matéria)
-        key = item.subject_canonical.lower().strip()
 
-        # Lógica de Duplicatas (Política Otimista)
-        # Ex: O aluno reprovou (3.0 - ignorado acima) e depois passou (7.0).
-        # O 7.0 entra aqui.
+        # --- Lógica de Otimização (Maior Nota Vence) ---
+        # Se o aluno fez a matéria 2 vezes (passou com 6.0 e depois melhorou para 8.0),
+        # ficamos com o 8.0.
         if key in optimized_map:
             if current_grade > optimized_map[key]:
                 optimized_map[key] = current_grade
         else:
             optimized_map[key] = current_grade
-            
+
     return optimized_map

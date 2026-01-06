@@ -12,59 +12,75 @@ from app.core.config import settings
 from app.schemas.candidate import CandidateInput
 from app.schemas.historic import SubjectRecord
 
-# ------- CLASS ----------
+# ------- SERVICES ----------
 from app.services.neural_resolver import get_resolver
 from app.services.ingestion import ingest_academic_record_from_pdf 
 
-# --- IMPORTANDO A ARQUITETURA ---
-from app.ml.architectures.nucleus_recommender_nn import build_deep_set_architecture
-
 logger = logging.getLogger("yawara.ml.engine_v2")
 
-# --- CONFIGURAÇÕES GLOBAIS ---
+# --- HIPERPARÂMETROS GLOBAIS (Devem dar match com o treino) ---
 MAX_SUBJECTS_PER_STUDENT = 100
-MAX_SUBJECTS=100
+MAX_SUBJECTS = 100 # Alias
 HASHING_BINS = 5000
 EMBEDDING_DIM = 64
 
 class EngineDataProcessor:
     """
-    Responsável por transformar PDF/Dados Brutos em Tensores para a Rede Neural.
-    Agora integrado com o DynamicNeuralResolver para garantir a qualidade do dado.
+    Processador de Dados para a Engine V2.
+    
+    Responsabilidade:
+        Transformar objetos Pydantic e listas de disciplinas em Tensores (NumPy arrays)
+        formatados e normalizados para a entrada da Rede Neural.
+        Também integra com o 'Neural Resolver' para normalizar nomes de matérias.
     """
 
     def __init__(self):
+        # O Resolver usa NLP para corrigir "Calc. 1" -> "CALCULO_DIFERENCIAL_I"
         self.resolver = get_resolver()
 
     @staticmethod
-    def normalize_grade(grade: float | None) -> float:
+    def normalize_grade(grade: Optional[float]) -> float:
+        """Normaliza nota 0-10 para 0.0-1.0."""
         if grade is None: return 0.0
-        return float(grade) / 10.0
+        try:
+            val = float(grade)
+            return min(max(val / 10.0, 0.0), 1.0)
+        except (ValueError, TypeError):
+            return 0.0
 
     @staticmethod
-    def normalize_workload(hours: int) -> float:
+    def normalize_workload(hours: Optional[int]) -> float:
+        """Normaliza carga horária. Assume ~100h como 1.0."""
+        if not hours: return 0.6 # Default 60h
         return min(float(hours) / 100.0, 1.2)
 
     @staticmethod
     def normalize_semester(semester: int) -> float:
+        """Normaliza semestre 1-10 para 0.1-1.0."""
         return min(float(semester) / 10.0, 1.0)
 
     async def ingest_and_prepare(self, candidate: CandidateInput, pdf_bytes: bytes) -> Dict[str, np.ndarray]:
         """
-        Orquestra o pipeline completo: 
-        PDF -> Texto Sujo -> Canonical (Resolver) -> Tensor (Engine).
+        Helper para testes: Recebe PDF bruto e devolve tensores prontos.
         """
         try:
             academic_record = await ingest_academic_record_from_pdf(pdf_bytes)
             subjects = academic_record.subjects
         except Exception as e:
-            logger.error(f"[Engine 2] Falha na ingestão do PDF: {e}")
+            logger.error(f"[Processor] Falha na ingestão do PDF: {e}")
             subjects = []
 
         return self.records_to_tensor(candidate, subjects)
 
     def records_to_tensor(self, candidate: CandidateInput, historic: List[SubjectRecord]) -> Dict[str, np.ndarray]:
-        """Converte a lista de registros (já com nomes brutos) em tensores."""
+        """
+        Converte histórico escolar em dicionário de tensores numpy.
+        
+        Outputs:
+            - subject_names: (1, 100) strings (Input de Embedding)
+            - subject_meta: (1, 100, 2) floats (Nota, Carga Horária)
+            - student_context: (1, 1) float (Semestre atual)
+        """
         
         batch_names = np.full((1, MAX_SUBJECTS_PER_STUDENT), "", dtype=object)
         batch_meta = np.zeros((1, MAX_SUBJECTS_PER_STUDENT, 2), dtype=np.float32)
@@ -75,14 +91,15 @@ class EngineDataProcessor:
             if count >= MAX_SUBJECTS_PER_STUDENT: break
             
             # --- INTEGRAÇÃO COM NEURAL RESOLVER ---
+            # Se a matéria não tem canônico, tentamos resolver agora.
             canonical_name = record.subject_canonical
             
             if not canonical_name:
-                logger.info(f"[Engine 2] Resolvendo on-the-fly: {record.name_raw}")
+                # logger.debug(f"Resolvendo on-the-fly: {record.name_raw}")
                 resolution = self.resolver.resolve(record.name_raw)
                 canonical_name = resolution["canonical"]
 
-            batch_names[0, count] = canonical_name
+            batch_names[0, count] = canonical_name.upper()
 
             batch_meta[0, count, 0] = self.normalize_grade(record.grade)
             batch_meta[0, count, 1] = self.normalize_workload(record.workload_hours)
@@ -91,18 +108,21 @@ class EngineDataProcessor:
 
         batch_context[0, 0] = self.normalize_semester(candidate.semester)
 
+        # Nota: O 'course' não está sendo retornado aqui, pois a arquitetura pode variar,
+        # mas quem chama geralmente adiciona manualmente se necessário.
         return {
             "subject_names": batch_names,
             "subject_meta": batch_meta,
             "student_context": batch_context
         }
 
-# Instância global
+# Instância Global do Processor
 processor = EngineDataProcessor()
 
 class NucleusRecommendationEngine:
     """
-    Engine 2: Realiza a inferência usando o modelo treinado.
+    Wrapper da Rede Neural (TensorFlow/Keras).
+    Carrega o modelo .keras e executa inferências.
     """
     _instance = None
 
@@ -111,11 +131,11 @@ class NucleusRecommendationEngine:
         self.model = None
         self.labels = []
 
-        self._load_self_model_and_label()
+        self._configure_paths()
         self._load_artifacts()
 
-    def _load_self_model_and_label(self):
-        if(self.is_test):
+    def _configure_paths(self):
+        if self.is_test:
             self.model_path = settings.SYNTHETIC_DATA_PATH
             self.labels_path = settings.SYNTHETIC_TRAIN_PATH
         else:
@@ -124,60 +144,74 @@ class NucleusRecommendationEngine:
 
     def _load_artifacts(self):
         if not os.path.exists(self.model_path):
-            logger.warning("[Engine 2] Modelo não encontrado. Rode o script de treino primeiro.")
+            logger.warning(f"[Engine 2] Modelo não encontrado em {self.model_path}. Modo de inferência desativado.")
             return
 
         try:
+            # compile=False é mais rápido para inferência (não carrega otimizadores)
             self.model = tf.keras.models.load_model(self.model_path, compile=False)
-            with open(self.labels_path, "r") as f:
-                self.labels = json.load(f)
-            logger.info(f"[Engine 2] Carregado. Núcleos conhecidos: {len(self.labels)}")
+            
+            if os.path.exists(self.labels_path):
+                with open(self.labels_path, "r") as f:
+                    self.labels = json.load(f)
+            
+            logger.info(f"🧠 Engine V2 Carregada. Núcleos: {len(self.labels)}")
         except Exception as e:
-            logger.error(f"[Engine 2] Erro fatal no loading: {e}")
+            logger.critical(f"🧠 Erro fatal carregando Engine V2: {e}")
+            self.model = None
 
     def predict(self, candidate: CandidateInput, historic: List[SubjectRecord]) -> Dict[str, Any]:
         """
-        Retorna as probabilidades para cada núcleo.
+        Executa a inferência síncrona (Bloqueante - deve ser chamada via threadpool).
         """
         if not self.model:
-            return {"error": "Model not loaded", "recommendations": []}
+            return {"error": "Modelo V2 não carregado (Cold Start ou Arquivo ausente).", "recommendations": []}
 
-        # 1. Preparar Input (Exatamente como no treino)
+        # 1. Preparação dos Dados (Usando o Processor ou Manualmente para garantir performance)
+        # Aqui fazemos manual para garantir alinhamento exato com o .keras input layer
         X_names = np.full((1, MAX_SUBJECTS), "", dtype=object)
         X_meta = np.zeros((1, MAX_SUBJECTS, 2), dtype=float)
         X_sem = np.zeros((1, 1), dtype=float)
         X_course = np.full((1, 1), "", dtype=object)
 
-        # Preenche Histórico
+        # Preenchimento (Lógica similar ao Processor, mas otimizada para o loop local)
         for i, rec in enumerate(historic):
             if i >= MAX_SUBJECTS: break
-            # Usa canonical se tiver, senão raw
-            name = rec.subject_canonical or rec.name_raw.upper()
-            X_names[0, i] = name
+            name = rec.subject_canonical or rec.name_raw
+            X_names[0, i] = name.upper() if name else ""
             
-            grade = float(rec.grade) if rec.grade is not None else 0.0
-            workload = float(rec.workload_hours) if rec.workload_hours else 60.0
-            
-            X_meta[0, i, 0] = grade / 10.0
-            X_meta[0, i, 1] = workload / 100.0
+            # Normalizações inline
+            g = float(rec.grade) if rec.grade is not None else 0.0
+            w = float(rec.workload_hours) if rec.workload_hours else 60.0
+            X_meta[0, i, 0] = min(g / 10.0, 1.0)
+            X_meta[0, i, 1] = min(w / 100.0, 1.2)
 
-        # Preenche Contexto
-        X_sem[0, 0] = float(candidate.semester) / 10.0
-        X_course[0, 0] = candidate.course.upper() # Importante ser UPPER
+        X_sem[0, 0] = min(float(candidate.semester) / 10.0, 1.0)
+        X_course[0, 0] = candidate.course.upper()
 
-    
-        X_names_tf = tf.constant(X_names, dtype=tf.string)
-        X_course_tf = tf.constant(X_course, dtype=tf.string)
+        # Conversão para Tensor (Evita overhead de conversão implícita do Keras)
+        inputs = [
+            tf.constant(X_names, dtype=tf.string),
+            tf.convert_to_tensor(X_meta, dtype=tf.float32),
+            tf.convert_to_tensor(X_sem, dtype=tf.float32),
+            tf.constant(X_course, dtype=tf.string)
+        ]
 
-        # 2. Inferência
-        probs = self.model.predict([X_names_tf, X_meta, X_sem, X_course_tf], verbose=0)[0]
-        # 3. Formatar Saída
+        # 2. Inferência (Verbose=0 para não sujar logs)
+        # O modelo retorna um batch de (1, num_labels). Pegamos o índice [0].
+        probs = self.model.predict(inputs, verbose=0)[0]
+
+        # 3. Pós-processamento (Decoding)
         result = {}
         unlocked = []
         
         for i, label in enumerate(self.labels):
+            # Proteção caso o modelo retorne menos classes que o JSON de labels
+            if i >= len(probs): break
+            
             score = float(probs[i])
-            status = "UNLOCKED" if score >= 0.5 else "LOCKED" # Threshold arbitrário
+            # Threshold de 0.5 (Sigmoid padrão). Pode ser ajustado via config.
+            status = "UNLOCKED" if score >= 0.5 else "LOCKED"
             
             result[label] = {
                 "score": round(score, 4),
@@ -191,7 +225,7 @@ class NucleusRecommendationEngine:
             "recommended_nuclei": unlocked
         }
 
-# Factory
+# Factory Singleton
 def get_recommender():
     if NucleusRecommendationEngine._instance is None:
         NucleusRecommendationEngine._instance = NucleusRecommendationEngine(False)

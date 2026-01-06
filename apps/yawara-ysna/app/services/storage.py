@@ -8,14 +8,19 @@ import os
 from typing import Optional
 from app.core.config import settings
 
-# Configuração de Log
 logger = logging.getLogger("yawara.services.storage")
 
 class StorageService:
     """
-    Serviço responsável pela comunicação com o Cloudinary.
-    Foca apenas em baixar o arquivo para a memória (bytes),
-    sem salvar em disco para manter o container 'stateless'.
+    Gateway de comunicação com o Cloudinary (Object Storage).
+
+    Responsabilidade:
+        Gerenciar upload e download de artefatos grandes (Modelos .keras, Pesos .h5).
+        Não salva arquivos em disco permanentemente (Stateless), exceto para cache de modelos.
+
+    Note:
+        Os métodos desta classe são SÍNCRONOS (Bloqueantes). 
+        Se utilizados em rotas HTTP, devem ser envolvidos em threads.
     """
 
     def __init__(self):
@@ -27,140 +32,149 @@ class StorageService:
                 secure=True
             )
         except Exception as e:
-            logger.critical(f"Falha ao configurar Cloudinary: {e}")
+            logger.critical(f"Falha ao configurar credenciais Cloudinary: {e}")
 
     def get_file_bytes(self, public_id: str) -> Optional[bytes]:
         """
-        Gera a URL segura e baixa o conteúdo do arquivo.
+        Baixa o conteúdo de um arquivo diretamente para a memória (RAM).
 
         Args:
-            public_id (str): O ID do arquivo no Cloudinary (ex: "yawara-docs/ps/uuid/arquivo")
+            public_id (str): ID do recurso no Cloudinary (ex: "yawara-docs/arquivo.pdf").
 
         Returns:
-            bytes: O conteúdo binário do PDF.
-            None: Se houver erro ou arquivo não encontrado.
+            Optional[bytes]: Conteúdo binário ou None se falhar.
         """
         if not public_id:
             return None
 
         try:
-            # 1. Gerar a URL de Download
+            # 1. Gerar a URL de Download assinada
             download_url, _ = cloudinary.utils.cloudinary_url(
                 public_id,
                 resource_type="raw" 
             )
 
-            logger.debug(f"Fetching URL: {download_url}")
+            logger.debug(f"Fetching Bytes from: {download_url}")
 
-            # 2. Executar o Download (HTTP GET)
-            # Timeout de 15s para evitar que a thread fique presa para sempre
+            # 2. Executar o Download
             response = requests.get(download_url, timeout=15)
 
-            # 3. Validar Resposta
             if response.status_code == 200:
                 return response.content
             elif response.status_code == 404:
-                logger.warning(f"Arquivo não encontrado no Cloudinary: {public_id}")
+                logger.warning(f"Arquivo não encontrado (404): {public_id}")
                 return None
             else:
                 logger.error(f"Erro HTTP {response.status_code} ao baixar {public_id}")
                 return None
 
         except requests.exceptions.Timeout:
-            logger.error(f"Timeout ao tentar baixar {public_id}")
+            logger.error(f"Timeout (15s) ao tentar baixar {public_id}")
             return None
         except Exception as e:
             logger.error(f"Erro genérico no StorageService para {public_id}: {str(e)}")
             return None
 
     @staticmethod
-    def upload_file(local_path: str, remote_name: str) -> str:
+    def upload_file(local_path: str, remote_name: str) -> Optional[str]:
         """
-        Sobe um arquivo local para o Cloudinary como 'raw'.
+        Realiza Upload de um arquivo local para o bucket 'raw'.
+
         Args:
-            local_path: Caminho do arquivo no servidor (ex: /tmp/model.keras)
-            remote_name: Nome único para o arquivo na nuvem (public_id)
+            local_path (str): Caminho absoluto do arquivo no disco.
+            remote_name (str): Nome desejado na nuvem (será prefixado com 'models/').
+
         Returns:
-            URL pública do arquivo ou None se falhar.
+            Optional[str]: URL segura do arquivo uploadado ou None.
         """
-        
         try:
-            print(f"☁️ Iniciando upload para Cloudinary: {remote_name}...")
+            logger.info(f"☁️ Iniciando upload para Cloudinary: models/{remote_name}...")
+            
             response = cloudinary.uploader.upload(
                 local_path, 
-                resource_type = "raw",
-                public_id = "models/" + remote_name,
-                overwrite = True,
-                unique_filename = False,
+                resource_type="raw",
+                public_id=f"models/{remote_name}",
+                overwrite=True,
+                unique_filename=False,
                 access_mode="public"
             )
-            print("[DBG][STORAGE] upload OK remote=", remote_name)
-            return response.get('secure_url')
+            
+            url = response.get('secure_url')
+            logger.info(f"✅ Upload concluído: {remote_name}")
+            return url
+
         except Exception as e:
-            print(f"❌ Erro no upload Cloudinary: {e}")
+            logger.error(f"❌ Erro no upload Cloudinary: {e}", exc_info=True)
             return None
 
     @staticmethod
     def download_file(remote_name: str, local_dest: str) -> bool:
         """
-        Baixa o arquivo RAW do Cloudinary para disco local.
-        Sem Admin API: depende do arquivo estar PUBLIC.
-        Retorna True se baixou, False caso não exista/erro.
-        """
+        Baixa um arquivo RAW para o disco local (Cache de Modelos).
+        
+        Logica de Fallback:
+            Tenta gerar URL via SDK. Se falhar, constrói URL pública manualmente.
+            Isso é necessário pois em alguns ambientes a assinatura de URL raw falha.
 
+        Args:
+            remote_name (str): ID do arquivo (sem prefixo models/ se a URL for manual).
+            local_dest (str): Caminho local onde salvar.
+
+        Returns:
+            bool: True se sucesso, False caso contrário.
+        """
         try:
             os.makedirs(os.path.dirname(local_dest), exist_ok=True)
+            url = None
 
+            # 1. Tentativa via SDK
             try:
-                url, _ = cloudinary.utils.cloudinary_url(
-                    remote_name,
-                    resource_type="raw"
-                )
-            except Exception:
-                print("[DBG][STORAGE] download FAILED:", str(e)[:200])
-                url = None
+                url, _ = cloudinary.utils.cloudinary_url(remote_name, resource_type="raw")
+            except Exception as e:
+                logger.warning(f"Falha ao gerar URL via SDK: {e}. Tentando fallback manual.")
 
-            # 2) Fallback manual (evita helper gerar rota errada em alguns setups)
+            # 2. Fallback Manual (Lógica de Negócio Preservada)
             if not url:
-                cloud_name = cloudinary.config().cloud_name
-                url = f"https://res.cloudinary.com/{cloud_name}/raw/upload/models/{remote_name}"
-
-            logger.debug(f"Downloading: {url}")
-
-            r = requests.get(url, stream=True, timeout=30)
-
-            if r.status_code == 200:
-                with open(local_dest, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=1024 * 1024):
-                        if chunk:
-                            f.write(chunk)
-
-                if os.path.getsize(local_dest) <= 0:
-                    logger.error(f"Download vazio para: {remote_name}")
+                config = cloudinary.config()
+                if config.cloud_name:
+                    url = f"https://res.cloudinary.com/{config.cloud_name}/raw/upload/models/{remote_name}"
+                else:
+                    logger.error("Cloudinary não configurado. Impossível gerar URL.")
                     return False
 
-                return True
+            logger.debug(f"Downloading Model: {url} -> {local_dest}")
 
-            if r.status_code == 404:
-                logger.warning(f"(info) Arquivo ainda não existe no Cloudinary: {remote_name}")
-                return False
+            # Stream=True para não carregar arquivos gigantes na RAM
+            with requests.get(url, stream=True, timeout=60) as r:
+                if r.status_code == 200:
+                    with open(local_dest, "wb") as f:
+                        for chunk in r.iter_content(chunk_size=1024 * 1024): # Chunks de 1MB
+                            if chunk:
+                                f.write(chunk)
 
-            if r.status_code in (401, 403):
-                logger.error(
-                    f"Sem permissão para baixar {remote_name} (HTTP {r.status_code}). "
-                    f"Para baixar sem Admin API, o RAW precisa ser PUBLIC (access_mode='public')."
-                )
-                return False
+                    # Validação de integridade simples
+                    if os.path.getsize(local_dest) <= 0:
+                        logger.error(f"Download resultou em arquivo vazio: {remote_name}")
+                        os.remove(local_dest) # Limpa lixo
+                        return False
 
-            logger.error(f"Erro HTTP {r.status_code} ao baixar {remote_name}")
-            return False
+                    return True
 
-        except requests.exceptions.Timeout:
-            logger.error(f"Timeout ao tentar baixar {remote_name}")
-            return False
+                elif r.status_code == 404:
+                    logger.warning(f"Arquivo não existe no Cloudinary: {remote_name}")
+                    return False
+                
+                elif r.status_code in (401, 403):
+                    logger.error(f"Acesso negado ({r.status_code}) a {url}. Verifique se o arquivo é 'Public'.")
+                    return False
+
+                else:
+                    logger.error(f"Erro HTTP {r.status_code} no download de {remote_name}")
+                    return False
+
         except Exception as e:
-            logger.error(f"Erro genérico no StorageService para {remote_name}: {e}")
+            logger.error(f"Erro crítico no download de {remote_name}: {e}", exc_info=True)
             return False
 
-# Singleton Pattern
+# Singleton
 storage_service = StorageService()

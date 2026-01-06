@@ -1,34 +1,51 @@
 import logging
 import io
 import base64
-import textwrap 
+import textwrap
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import threading # <--- NOVO: Thread Safety
 from jinja2 import Template
 from weasyprint import HTML, CSS
+
 from app.templates.report_xai import HTML_TEMPLATE, PDF_CSS
 from app.schemas.report import CandidateReportBundle
 
-# Configura backend não-interativo para servidor
+# Backend headless para servidor
 matplotlib.use('Agg')
 
 logger = logging.getLogger("yawara.services.html_generator")
 
+# Lock global para operações do Matplotlib
+_plt_lock = threading.Lock()
+
 class HTMLReportService:
+    """
+    Serviço de Geração de Relatórios Visuais.
+    
+    Responsabilidade:
+        1. Gerar Gráficos Radar (Matplotlib) a partir de dados numéricos.
+        2. Renderizar HTML (Jinja2) com os dados e gráficos.
+        3. Converter HTML para PDF (WeasyPrint).
+    
+    Thread Safety:
+        Utiliza um Lock global para a geração de gráficos, pois o Matplotlib
+        não é totalmente thread-safe em ambientes concorrentes.
+    """
     
     def generate_html(self, bundle: CandidateReportBundle) -> str:
-        """Gera HTML interativo para validação visual (com Chart.js)."""
+        """Gera HTML interativo (Web View)."""
         template = Template(HTML_TEMPLATE)
         return template.render(bundle=bundle, pdf_mode=False)
 
     def generate_pdf_bytes(self, bundle: CandidateReportBundle) -> bytes:
         """
-        Gera o PDF final 'Print-Ready'.
-        Substitui Chart.js por imagens estáticas Matplotlib e injeta CSS nativo.
+        Gera o binário do PDF final.
         """
-        # 1. Gerar imagens dos gráficos (Matplotlib) para cada núcleo
+        # 1. Gerar imagens dos gráficos (CPU Bound)
         for nucleus in bundle.nuclei_reports:
+            # Gera o base64 do gráfico e injeta no objeto
             nucleus.chart_b64 = self._generate_radar_chart_image(
                 nucleus.chart_labels, 
                 nucleus.chart_values
@@ -38,64 +55,70 @@ class HTMLReportService:
         template = Template(HTML_TEMPLATE)
         html_content = template.render(bundle=bundle, pdf_mode=True)
 
-        # 3. Converter para PDF com WeasyPrint e CSS customizado
+        # 3. Converter para PDF (WeasyPrint)
         try:
             pdf_file = HTML(string=html_content).write_pdf(stylesheets=[CSS(string=PDF_CSS)])
             return pdf_file
         except Exception as e:
-            logger.error(f"Erro na conversão WeasyPrint: {e}")
+            logger.error(f"Erro WeasyPrint: {e}")
             raise e
 
     def _generate_radar_chart_image(self, labels, values) -> str:
         """
-        Cria um gráfico de radar 'Yawara Style' usando Matplotlib.
-        Retorna string base64.
+        Gera gráfico de radar 'Yawara Style' (Dark Red).
+        Thread-safe via Lock.
         """
-        plt.clf() # Limpar plot anterior
-        
-        # Setup dos dados (Circular)
-        N = len(labels)
-        if N < 3: return "" 
-        
-        # --- TRATAMENTO DE TEXTO (A Mágica da Gemini) ---
-        # Quebra labels longas em múltiplas linhas (max 15 chars por linha)
-        # Ex: "Humanidades e Ciências Sociais" -> "Humanidades e\nCiências\nSociais"
-        wrapped_labels = ["\n".join(textwrap.wrap(l, width=15)) for l in labels]
-        
-        angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
-        values_loop = values + values[:1]
-        angles_loop = angles + angles[:1]
+        # Protege a área crítica de desenho
+        with _plt_lock:
+            try:
+                # Cria figura nova (Interface OO evita estado global sujo)
+                fig = plt.figure(figsize=(5, 5))
+                ax = fig.add_subplot(111, polar=True)
+                
+                N = len(labels)
+                if N < 3: 
+                    plt.close(fig)
+                    return "" 
+                
+                # Tratamento de Texto (Quebra de linha para não encavalar)
+                wrapped_labels = ["\n".join(textwrap.wrap(l, width=12)) for l in labels]
+                
+                # Fechar o loop do radar
+                angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
+                values_loop = values + values[:1]
+                angles_loop = angles + angles[:1]
 
-        # Design Dark/Red Yawara
-        # Aumentei o figsize para 5x5 para caber melhor os textos
-        fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
-        
-        # Desenha linhas e preenchimento
-        ax.plot(angles_loop, values_loop, color='#DC2626', linewidth=2, linestyle='solid')
-        ax.fill(angles_loop, values_loop, color='#DC2626', alpha=0.25)
+                # Plot
+                ax.plot(angles_loop, values_loop, color='#DC2626', linewidth=2, linestyle='solid')
+                ax.fill(angles_loop, values_loop, color='#DC2626', alpha=0.25)
 
-        # Estilização dos Eixos
-        ax.set_yticklabels([]) # Remove números radiais (0, 2, 4...)
-        ax.set_xticks(angles)
-        
-        # Configuração das Labels (Disciplinas)
-        # pad=18 empurra o texto para longe do gráfico para não encavalar
-        ax.set_xticklabels(wrapped_labels, size=6, color="#475569", weight="bold") 
-        ax.tick_params(axis='x', pad=25) 
-        
-        # Grid
-        ax.grid(color='#E2E8F0', linestyle='--', linewidth=0.5)
-        ax.spines['polar'].set_visible(False) 
+                # Estilo Clean
+                ax.set_yticklabels([]) # Sem números radiais
+                ax.set_xticks(angles)
+                
+                # Labels com margem extra (pad=24)
+                ax.set_xticklabels(wrapped_labels, size=7, color="#475569", weight="bold") 
+                ax.tick_params(axis='x', pad=24) 
+                
+                ax.grid(color='#E2E8F0', linestyle='--', linewidth=0.5)
+                ax.spines['polar'].set_visible(False) 
 
-        # Salvar em Buffer com margem generosa (bbox_inches='tight')
-        buf = io.BytesIO()
-        plt.tight_layout(pad=4.0) 
-        plt.savefig(buf, format='png', transparent=True, dpi=100, bbox_inches='tight', pad_inches=0.2)
-        
-        buf.seek(0)
-        b64_string = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close(fig)
-        
-        return b64_string
+                # Salvar
+                buf = io.BytesIO()
+                # Margem generosa para o texto não cortar
+                plt.tight_layout(pad=4.0) 
+                plt.savefig(buf, format='png', transparent=True, dpi=100, bbox_inches='tight', pad_inches=0.2)
+                
+                # Cleanup
+                plt.close(fig)
+                
+                buf.seek(0)
+                return base64.b64encode(buf.read()).decode('utf-8')
+
+            except Exception as e:
+                logger.error(f"Erro ao gerar gráfico: {e}")
+                # Sempre fecha a figura em caso de erro para liberar memória
+                plt.close('all') 
+                return ""
 
 html_report_service = HTMLReportService()

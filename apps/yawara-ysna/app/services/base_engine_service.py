@@ -97,14 +97,22 @@ class BaseEngineService:
             logger.info("📊 Processando camada visual de XAI...")
             
             candidate_data = task.get("data", {})
+            
+            user_id_safe = task.get("user_id") or task.get("candidate_id") or "Unknown"
+
             candidate_info = {
-                "id": task.get("user_id"),
-                "name": candidate_data.get("name", "Candidato")
+                "user_id": user_id_safe,
+                "input_obj": CandidateInput(
+                    name=candidate_data.get("name", f"Candidato {user_id_safe[:8]}"),
+                    course=candidate_data.get("course", "N/A"),
+                    semester=candidate_data.get("semester", 1),
+                    subjects=[]
+                )
             }
             
-            report_bundle = report_analyst.generate_report_bundle(
+            report_bundle = report_analyst.create_bundle(
                 candidate_info, 
-                result["xai_reports"]
+                result 
             )
             
             result["report_bundle"] = report_bundle.model_dump()
@@ -122,7 +130,7 @@ class BaseEngineService:
         async with self.semaphore:
             return await self._process_single_candidate(task, context, edition_id)
 
-    async def _process_single_candidate(self, task, context, edition_id) -> bool:
+    async def _process_single_candidate(self, task, context, edition_id):
         """
         Realiza o trabalho pesado comum (I/O) e chama o método de avaliação específico.
         """
@@ -155,7 +163,6 @@ class BaseEngineService:
 
             result = await self.evaluate_candidate(user_id, candidate_input, record.subjects, context, edition_id)
             
-            # 4. CORREÇÃO: Chama o alerta ao final do lote
             await self._trigger_management_alert(edition_id)
 
             return result

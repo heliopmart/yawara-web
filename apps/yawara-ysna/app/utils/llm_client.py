@@ -1,17 +1,15 @@
 """
 Módulo Cliente LLM (Large Language Model Client).
 
-Responsável por encapsular toda a complexidade de comunicação com a API do Google Gemini.
-Implementa padrões de resiliência como Rate Limiting, tratamento de erros de rede
-e limpeza de respostas JSON (Sanitization).
+Responsável por encapsular a comunicação com a API do Google Gemini.
+Implementa padrões de resiliência e sanitização de JSON.
 """
 
 import json
-import re
 import time
 import logging
 import google.generativeai as genai
-from typing import List, Tuple, Dict, Any
+from typing import Dict, Any, List
 
 from app.core.config import settings
 
@@ -22,59 +20,84 @@ class GeminiClient:
     Cliente wrapper para o Google Generative AI com Rate Limiting integrado.
     """
     
-    # Configuração do Rate Limiter (2.0s = 30 RPM - Seguro para Free Tier)
     MIN_REQUEST_INTERVAL = 2.0
 
     def __init__(self):
         self._configure_api()
         self._last_call_timestamp = 0.0
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        self.model_name = 'gemini-2.5-flash' 
+        self.model = None
+        self._init_model()
 
     def _configure_api(self):
+        """Configura a chave de API globalmente."""
         try:
+            if not settings.GOOGLE_API_KEY:
+                logger.warning("GOOGLE_API_KEY não encontrada. LLM Client iniciará desativado.")
+                return
             genai.configure(api_key=settings.GOOGLE_API_KEY)
         except Exception as e:
             logger.error(f"Falha ao configurar API Gemini: {e}")
 
+    def _init_model(self):
+        """Instancia o modelo generativo."""
+        try:
+            self.model = genai.GenerativeModel(self.model_name)
+        except Exception as e:
+            logger.error(f"Erro ao instanciar modelo {self.model_name}: {e}")
+
     def _enforce_rate_limit(self):
-        """Bloqueia a execução se necessário para respeitar a quota da API."""
+        """Bloqueia a execução brevemente se necessário para respeitar a quota."""
         elapsed = time.time() - self._last_call_timestamp
         if elapsed < self.MIN_REQUEST_INTERVAL:
-            time.sleep(self.MIN_REQUEST_INTERVAL - elapsed)
-        
+            wait_time = self.MIN_REQUEST_INTERVAL - elapsed
+            logger.debug(f"Rate Limit: Aguardando {wait_time:.2f}s...")
+            time.sleep(wait_time)
         self._last_call_timestamp = time.time()
 
-    def check_concept_ambiguity(self, raw_input: str, candidates: List[Tuple[str, float]]) -> Dict[str, Any]:
+    def check_concept_ambiguity(self, raw_input: str, candidates: List) -> Dict[str, Any]:
         """
-        Consulta o Gemini para decidir se um termo é sinônimo ou novo conceito.
+        Consulta a LLM para decidir se um termo é sinônimo ou novo conceito.
         """
+        if not self.model:
+            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "LLM Disabled"}
+
         self._enforce_rate_limit()
 
-        # Constrói o contexto para a IA
-        candidates_text = "\n".join([f"- {name} ({score:.1%})" for name, score in candidates])
+        # Formata lista de candidatos para o prompt
+        candidates_text = "\n".join([f"- {name} (Score: {score:.1%})" for name, score in candidates])
         
         prompt = f"""
         Você é o Kernel Semântico do Yawara.
-        INPUT: "{raw_input}"
         
-        MEMÓRIA NEURAL (Candidatos próximos):
+        INPUT DO HISTÓRICO: "{raw_input}"
+        
+        MEMÓRIA NEURAL (Candidatos parecidos encontrados):
         {candidates_text}
         
         TAREFA:
-        O input é semanticamente IGUAL a algum candidato (sinônimo, abreviação)?
+        O input refere-se à MESMA disciplina de algum candidato acima (sinônimo, abreviação, erro de OCR)?
         Ou é um conceito NOVO (disciplina distinta)?
         
-        RESPOSTA JSON APENAS:
+        REGRAS:
+        - Se for igual, retorne o nome canônico do candidato.
+        - Se for novo, crie um nome padronizado (UPPERCASE_SNAKE_CASE).
+        - Responda APENAS JSON válido.
+        
+        RESPOSTA JSON:
         {{
-            "canonical": "NOME_EXISTENTE_OU_NOVO_PADRONIZADO",
+            "canonical": "NOME_PADRONIZADO",
             "is_new": boolean,
             "reasoning": "curta explicação"
         }}
         """
 
         try:
-            if settings.ENVIRONMENT == "development_local_mock":
-                raise Exception("MOCK MODE")
+            # Modo Mock para testes locais (evita gastar quota)
+            if getattr(settings, "ENVIRONMENT", "") == "development_local_mock":
+                logger.info("Mockando resposta da LLM...")
+                return {"canonical": raw_input.upper().replace(" ", "_"), "is_new": True, "reasoning": "MOCK"}
 
             response = self.model.generate_content(
                 prompt,
@@ -85,11 +108,15 @@ class GeminiClient:
 
         except Exception as e:
             logger.error(f"Erro na chamada LLM: {str(e)}")
-            # Relança para o Resolver decidir o fallback
-            raise e
+            # Retorna estrutura de erro segura para o Resolver não quebrar
+            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "LLM Error"}
 
     def _parse_json_response(self, text: str) -> Dict[str, Any]:
-        """Limpa e converte a resposta Markdown/String para Dict."""
-        clean_text = re.sub(r"^```json\s*", "", text)
-        clean_text = re.sub(r"\s*```$", "", clean_text)
-        return json.loads(clean_text)
+        """Limpa e converte a resposta para Dict."""
+        try:
+            # Remove crases de markdown se o modelo adicionar (```json ... ```)
+            clean_text = text.replace("```json", "").replace("```", "").strip()
+            return json.loads(clean_text)
+        except json.JSONDecodeError:
+            logger.error(f"Falha ao decodificar JSON da LLM: {text[:100]}...")
+            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "Invalid JSON"}

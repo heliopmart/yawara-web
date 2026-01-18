@@ -6,6 +6,7 @@ import { AuthRole } from '@yawara/types';
 export const useUserRole = () => {
     const [role, setRole] = useState<AuthRole>('USER');
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<{ nucleus: string } | null>(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -31,5 +32,5 @@ export const useUserRole = () => {
         return () => { isMounted = false; };
     }, []);
 
-    return { role, isLoading };
+    return { role, isLoading, user };
 };

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import random
+import json
 import os
 from typing import List, Tuple, Dict, Any
 
@@ -11,148 +12,33 @@ from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
 # 1. CORPUS DE NORMALIZAÇÃO (Dataset "Gold Standard")
 # ==============================================================================
 # Este dicionário define a "Verdade Absoluta" do sistema.
-# O modelo aprenderá que todas as strings em 'vars' devem ser atraídas
-# para o mesmo ponto vetorial que 'canonical'.
 
-TRAINING_SEEDS: List[Dict[str, Any]] = [
-    # --- MATEMÁTICA PURA ---
-    {
-        "canonical": "CALCULO_DIFERENCIAL_INTEGRAL_1",
-        "vars": [
-            "CALCULO DIFERENCIAL E INTEGRAL I", "CALCULO 1", "CALCULO I", 
-            "CALC. DIF. E INT. I", "MATEMATICA A", "C.D.I. 1", 
-            "CALCULO DIFERENCIAL E INTEGRAL" 
-        ]
-    },
-    {
-        "canonical": "CALCULO_DIFERENCIAL_INTEGRAL_2",
-        "vars": [
-            "CALCULO DIFERENCIAL E INTEGRAL II", "CALCULO 2", "CALCULO II", 
-            "CALC. DIF. E INT. II", "MATEMATICA B", "C.D.I. 2"
-        ]
-    },
-    {
-        "canonical": "CALCULO_DIFERENCIAL_INTEGRAL_3",
-        "vars": [
-            "CALCULO DIFERENCIAL E INTEGRAL III", "CALCULO 3", "CALCULO III", 
-            "CALC. DIF. E INT. III", "MATEMATICA C"
-        ]
-    },
-    {
-        "canonical": "GEOMETRIA_ANALITICA",
-        "vars": [
-            "GEOMETRIA ANALITICA", "G.A.", "ALGEBRA VETORIAL E GEOMETRIA ANALITICA",
-            "VETORES E GEOMETRIA", "GEOMETRIA ANALITICA E ALGEBRA LINEAR"
-        ]
-    },
-    {
-        "canonical": "ALGEBRA_LINEAR",
-        "vars": [
-            "ALGEBRA LINEAR", "ALGEBRA LINEAR I", "INTRODUCAO A ALGEBRA LINEAR",
-            "MATRIZES E VETORES"
-        ]
-    },
-    {
-        "canonical": "PROBABILIDADE_ESTATISTICA",
-        "vars": [
-            "PROBABILIDADE E ESTATISTICA", "ESTATISTICA BASICA", "ESTATISTICA",
-            "INTRODUCAO A PROBABILIDADE", "METODOS ESTATISTICOS"
-        ]
-    },
-
-    # --- FÍSICA ---
-    {
-        "canonical": "FISICA_I", # Física 1
-        "vars": [
-            "FISICA I", "FISICA 1", "FISICA GERAL I", "FISICA GERAL 1", 
-            "MECANICA CLASSICA", "MECANICA NEWTONIANA", "FISICA A"
-        ]
-    },
-    {
-        "canonical": "FISICA_III", # Física 3 (Geralmente)
-        "vars": [
-            "FISICA III", "FISICA 3", "FISICA GERAL III", "ELETROMAGNETISMO",
-            "ELETRICIDADE E MAGNETISMO", "FISICA C"
-        ]
-    },
-    {
-        "canonical": "FISICA_II", # Física 2
-        "vars": [
-            "FISICA II", "FISICA 2", "FISICA GERAL II", "TERMODINAMICA E ONDAS",
-            "FISICA B", "OSCILACOES E ONDAS"
-        ]
-    },
-    {
-        "canonical": "LABORATORIO_FISICA_I",
-        "vars": [
-            "LABORATORIO DE FISICA I", "LAB DE FISICA II", 
-            "FISICA EXPERIMENTAL II", "LAB FISICA II"
-        ]
-    },
-    {
-        "canonical": "LABORATORIO_FISICA_II",
-        "vars": [
-            "LABORATORIO DE FISICA II", "LAB FISICA II", 
-            "FISICA EXPERIMENTAL II", "LAB FISICA II"
-        ]
-    },
-
-    # --- COMPUTAÇÃO ---
-    {
-        "canonical": "ALGORITMOS_PROGRAMACAO",
-        "vars": [
-            "ALGORITMOS E PROGRAMACAO", "INTRODUCAO A COMPUTACAO", "LOGICA DE PROGRAMACAO",
-            "ALGORITMOS 1", "PROGRAMACAO DE COMPUTADORES", "PROGRAMACAO APLICADA A ENGENHARIA"
-        ]
-    },
-    {
-        "canonical": "METODOS_NUMERICOS",
-        "vars": [
-            "METODOS NUMERICOS PARA ENGENHARIA", "CALCULO NUMERICO", 
-            "ANALISE NUMERICA", "COMPUTACAO NUMERICA"
-        ]
-    },
-
-    # --- ENGENHARIA GERAL ---
-    {
-        "canonical": "DESENHO_TECNICO",
-        "vars": [
-            "DESENHO TECNICO", "EXPRESSAO GRAFICA", "DESENHO MECANICO", 
-            "GEOMETRIA DESCRITIVA", "DESENHO ARQUITETONICO", 
-            "DESENHO TECNICO DE MAQUINAS E MECANISMOS"
-        ]
-    },
-    {
-        "canonical": "INTRODUCAO_ENGENHARIA",
-        "vars": [
-            "INTRODUCAO A ENGENHARIA", "INTRODUCAO A ENGENHARIA DE COMPUTACAO",
-            "INTRODUCAO A TECNOLOGIA"
-        ]
-    },
-    {
-        "canonical": "CIRCUITOS_ELETRICOS",
-        "vars": [
-            "CIRCUITOS ELETRICOS", "CIRCUITOS ELETRICOS I", "TEORIA DE CIRCUITOS",
-            "ANALISE DE CIRCUITOS", "CIRCUITOS DIGITAIS", "ELETROTECNICA"
-        ]
-    },
-    {
-        "canonical": "QUIMICA_GERAL",
-        "vars": [
-            "QUIMICA GERAL", "QUIMICA GERAL I", "QUIMICA TECNOLOGICA",
-            "PRINCIPIOS DE QUIMICA"
-        ]
-    },
+def load_dataset_from_root(path_from_root: str) -> List[Dict[str, Any]]:
+    """
+    Carrega um arquivo assumindo que o caminho começa na RAIZ do projeto.
+    Exemplo de input: 'app/resources/training/NN/canonical_labels.json'
+    """
     
-    # --- HUMANAS / OBRIGATÓRIAS GERAIS ---
-    {
-        "canonical": "HUMANIDADES_SOCIAIS",
-        "vars": [
-            "EDUCACAO SOCIEDADE E CIDADANIA", "SOCIOLOGIA", "FILOSOFIA",
-            "ETICA E CIDADANIA", "ANTROPOLOGIA CULTURAL"
-        ]
-    }
-]
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(current_dir))
+    full_path = os.path.join(project_root, path_from_root)
+    
+    print(f"[DEBUG] Tentando abrir: {full_path}")
+    
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(
+            f"Erro fatal: Não achei o arquivo!\n"
+            f"Raiz detectada: {project_root}\n"
+            f"Caminho final tentado: {full_path}"
+        )
+        
+    with open(full_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        
+    print(f"[DATASET] Sucesso! Carregadas {len(data)} entidades de {path_from_root}")
+    return data
+
+TRAINING_SEEDS: List[Dict[str, Any]] = load_dataset_from_root("app/resources/training/NN/canonical_labels.json")
 
 # ==============================================================================
 # 2. GERADOR DE DADOS SINTÉTICOS (Data Augmentation)
@@ -284,7 +170,7 @@ def train():
     """
     # Hiperparâmetros
     BATCH_SIZE = 64
-    EPOCHS = 30
+    EPOCHS = 80
     LR = 0.001
 
     print("[TREINO] Inicializando Normalizador de Entidades (CanonicalSubjectNN)...")

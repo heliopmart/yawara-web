@@ -3,6 +3,8 @@ from tensorflow.keras import layers, Model
 import numpy as np
 from typing import Dict, List
 
+from app.utils.text import normalize_text_strict
+
 class CanonicalSubjectNN:
     """Define a arquitetura da Rede Neural para encoding semântico de disciplinas.
 
@@ -65,6 +67,8 @@ class CanonicalSubjectNN:
         Returns:
             np.ndarray: Array de inteiros com shape `(max_len,)`, dtype int32.
         """
+        s = normalize_text_strict(s or "")
+
         s = (s or "").upper()[: self.max_len]
         ids: List[int] = []
         for ch in s:

@@ -2,6 +2,7 @@ import unicodedata
 from typing import Optional
 import re
 
+
 def normalize_text_strict(text: str) -> str:
     """
     Normalização forte para IA e indexação:

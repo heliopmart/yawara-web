@@ -9,7 +9,7 @@ from app.core.config import settings
 from fastapi.concurrency import run_in_threadpool
 
 # Serviços Comuns
-from app.services.alert_service import AlertService, AlertLevel, AlertSource
+from app.services.alert_service import alert_service, AlertLevel, AlertSource
 from app.services.selection_data import data_service
 from app.services.storage import storage_service
 from app.services.ingestion import ingest_academic_record_from_pdf 
@@ -56,14 +56,15 @@ class BaseEngineService:
         
         if result.get("success"):
              result = self._handle_xai_processing(result, task)
+        else:
+            logger.error(f"Erro ao processar candidato {candidate_id}: {result.get('error')}")
+            return {"processed": 0, "success": False, "xai": result, "candidate_id": candidate_id}
         
         pdf_bytes = await self._generate_report_bundle(result)
 
         upload_success = False
         if pdf_bytes:
             upload_success = await self._upload_report_pdf(candidate_id,  task.get("user_id", None), pdf_bytes)
-
-        await self._trigger_management_alert(candidate_id, result)
 
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
         return {"processed": 1, "success": upload_success, "xai": result, "candidate_id": candidate_id}
@@ -232,15 +233,16 @@ class BaseEngineService:
                 subjects=[]
             )
 
+
             result = await self.evaluate_candidate(user_id, candidate_input, record.subjects, context, edition_id)
             
-            await self._trigger_management_alert(edition_id)
+            await self._trigger_management_alert(user_id, result)
 
             return result
 
         except Exception as e:
             logger.error(f"Erro no pipeline base para {user_id}: {e}")
-            return False
+            return {"success": False, "error": str(e)}
 
     async def evaluate_candidate(self, user_id, candidate_input, history, context, edition_id):
         """
@@ -260,11 +262,11 @@ class BaseEngineService:
         try:
             if not result.get("success"):
                 error_msg = result.get("error", "Erro desconhecido na avaliação")
-                await AlertService.create_alert(
+                await alert_service.create_alert(
                     title="❌ Falha na Avaliação",
                     message=f"A Engine não conseguiu avaliar o candidato {candidate_id}. Motivo: {error_msg}",
-                    level=AlertService.CRITICAL,
-                    source=AlertService.BACKEND_ENGINE,
+                    level=AlertLevel.CRITICAL,
+                    source=AlertSource.BACKEND_ENGINE,
                     metadata={"candidate_id": candidate_id, "raw_result": str(result)}
                 )
                 return
@@ -274,7 +276,7 @@ class BaseEngineService:
             if not is_approved:
                 score = result.get("predictions_raw", {}).get("global_score", 0.0)
                 
-                await AlertService.create_alert(
+                await alert_service.create_alert(
                     title="🚫 Candidato Não Selecionado",
                     message=f"O candidato {candidate_id} completou o processo mas não atingiu os critérios de corte (Score: {score:.2f}).",
                     level=AlertLevel.WARNING,
@@ -286,5 +288,6 @@ class BaseEngineService:
                     }
                 )
 
+            return 
         except Exception as e:
             logger.error(f"Erro ao criar alerta para {candidate_id}: {e}")

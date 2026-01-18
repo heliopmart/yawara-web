@@ -1,0 +1,42 @@
+$bg-black: #050505;
+$card-dark: #0f0f0f;
+$yawara-red: #e60000;
+$yawara-red-glow: rgba(230, 0, 0, 0.15);
+$text-gray: #888;
+$border-tech: rgba(255, 255, 255, 0.03);
+
+
+
+.taskCard {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid $text-gray;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: $yawara-red;
+  }
+
+  .taskTitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #eee;
+  }
+}
+
+.priorityDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 0; // Quadrado fica mais "computacional"
+  
+  &.high { 
+    background: $yawara-red; 
+    box-shadow: 0 0 10px $yawara-red; 
+  }
+  &.medium { background: #ffaa00; }
+}

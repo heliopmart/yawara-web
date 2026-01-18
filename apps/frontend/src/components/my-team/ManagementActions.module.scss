@@ -1,0 +1,46 @@
+$bg-black: #050505;
+$card-dark: #0f0f0f;
+$yawara-red: #e60000;
+$yawara-red-glow: rgba(230, 0, 0, 0.15);
+$text-gray: #888;
+$border-tech: rgba(255, 255, 255, 0.03);
+
+
+.adminActions {
+  display: flex;
+  gap: 1rem;
+
+  button {
+    text-transform: uppercase;
+    font-weight: 900;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+
+  .primaryBtn {
+    background: $yawara-red;
+    color: #fff;
+    border: none;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 85% 100%, 0 100%);
+    
+    &:hover {
+      background: #ff1a1a;
+      padding-right: 35px;
+    }
+  }
+
+  .secondaryBtn {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+
+    &:hover {
+      background: #fff;
+      color: #000;
+    }
+  }
+}

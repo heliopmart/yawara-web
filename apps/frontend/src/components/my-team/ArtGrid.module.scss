@@ -1,0 +1,61 @@
+$bg-black: #050505;
+$card-dark: #0f0f0f;
+$yawara-red: #e60000;
+$yawara-red-glow: rgba(230, 0, 0, 0.15);
+$text-gray: #888;
+$border-tech: rgba(255, 255, 255, 0.03);
+
+
+.artGrid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.artCard {
+  background: $card-dark;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $yawara-red;
+    box-shadow: 0 0 30px $yawara-red-glow;
+    transform: translateY(-5px);
+  }
+
+  h4 {
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .cardDescription {
+    color: $text-gray;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .memberList {
+    display: flex;
+    gap: 5px;
+  }
+
+  .memberName {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: $yawara-red;
+    border: 1px solid rgba($yawara-red, 0.3);
+    padding: 2px 6px;
+    text-transform: uppercase;
+  }
+}

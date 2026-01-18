@@ -147,7 +147,7 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     if _resolver:
         try:
             # Chama o resolvedor neural para obter o nome canônico. Return { "canonical", "confidence", ... }
-            resolution_result = _resolver.resolve(name_raw)
+            resolution_result = _resolver.resolve(name_raw.upper())
 
             # Extrai os campos do resultado
             subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")

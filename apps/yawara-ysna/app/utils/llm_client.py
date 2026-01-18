@@ -7,8 +7,12 @@ Implementa padrões de resiliência e sanitização de JSON.
 
 import json
 import time
+import re
 import logging
 import google.generativeai as genai
+
+# from google import genai
+
 from typing import Dict, Any, List
 
 from app.core.config import settings
@@ -20,10 +24,10 @@ class GeminiClient:
     Cliente wrapper para o Google Generative AI com Rate Limiting integrado.
     """
     
-    MIN_REQUEST_INTERVAL = 2.0
+    MIN_REQUEST_INTERVAL = 15.0
 
     def __init__(self):
-        self._configure_api()
+        self.client = self._configure_api()
         self._last_call_timestamp = 0.0
         
         self.model_name = 'gemini-2.5-flash' 
@@ -36,6 +40,9 @@ class GeminiClient:
             if not settings.GOOGLE_API_KEY:
                 logger.warning("GOOGLE_API_KEY não encontrada. LLM Client iniciará desativado.")
                 return
+            
+            # return genai.Client(api_key=settings.GOOGLE_API_KEY)
+            
             genai.configure(api_key=settings.GOOGLE_API_KEY)
         except Exception as e:
             logger.error(f"Falha ao configurar API Gemini: {e}")
@@ -107,9 +114,14 @@ class GeminiClient:
             return self._parse_json_response(response.text)
 
         except Exception as e:
-            logger.error(f"Erro na chamada LLM: {str(e)}")
+            print(e)
+            # logger.error(f"Erro na chamada LLM: {str(e)}")
+
+            timer = getattr(e, "retry_delay", {"seconds": 30}).get("seconds", 30)
+            logger.warning(f"Aguardando {timer}s antes de nova tentativa...")
+
             # Retorna estrutura de erro segura para o Resolver não quebrar
-            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "LLM Error"}
+            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "LLM Error", "time": timer}
 
     def _parse_json_response(self, text: str) -> Dict[str, Any]:
         """Limpa e converte a resposta para Dict."""

@@ -48,7 +48,7 @@ class DynamicNeuralResolver:
 
     # Otimização para Cache de Resoluções Repetidas
     @lru_cache(maxsize=4096) 
-    def resolve(self, raw_input: str, threshold: float = 0.70) -> Dict[str, Any]:
+    def resolve(self, raw_input: str, threshold: float = 0.69) -> Dict[str, Any]:
         """
         Resolve o nome da disciplina usando estratégia em cascata (Cache -> Neural -> LLM).
 
@@ -98,6 +98,7 @@ class DynamicNeuralResolver:
         
         # Cenário C: Ambiguidade (Slow Path) -> LLM
         logger.info(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Acionando LLM.")
+        print(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Acionando LLM.")
         return self._resolve_via_llm(raw_input, input_vec, top_candidates)
 
     def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:

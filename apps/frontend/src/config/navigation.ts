@@ -36,6 +36,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
 
         { label: 'GERENCIAR NÚCLEO', href: '/account/admin/nucleusManager' },
         
+        
         { label: 'PROCESSO SELETIVO', href: '/account/admin/ps/presence' },
         ...COMMON_LINKS
     ],

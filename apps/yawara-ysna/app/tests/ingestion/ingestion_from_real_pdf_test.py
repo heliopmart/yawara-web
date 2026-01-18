@@ -3,7 +3,7 @@ import os
 from app.services.ingestion import ingest_academic_record_from_pdf
 
 # Caminho relativo para o PDF de teste
-PDF_PATH = "app/tests/docs/pdf_academic_historic/ufgd_academic_historic_test_1.pdf"
+PDF_PATH = "app/tests/docs/pdf_academic_historic/ufgd_academic_historic_test_2.pdf"
 
 class TestRealPDFIngestion:
     """Teste de Integração End-to-End com arquivo PDF real.

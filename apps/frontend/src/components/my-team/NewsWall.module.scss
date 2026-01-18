@@ -1,0 +1,31 @@
+$bg-black: #050505;
+$card-dark: #0f0f0f;
+$yawara-red: #e60000;
+$yawara-red-glow: rgba(230, 0, 0, 0.15);
+$text-gray: #888;
+$border-tech: rgba(255, 255, 255, 0.03);
+
+.newsWall {
+  background: rgba($yawara-red, 0.02);
+  border: 1px solid $border-tech;
+  padding: 1.5rem;
+  border-radius: 2px;
+
+  .newsItem {
+    padding: 1rem 0;
+    border-bottom: 1px solid $border-tech;
+    
+    p {
+      font-size: 0.9rem;
+      color: #ddd;
+      margin-bottom: 0.5rem;
+    }
+
+    small {
+      color: $yawara-red;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+  }
+}

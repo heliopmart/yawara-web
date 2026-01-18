@@ -1,0 +1,240 @@
+$yawara-red: #e60000;
+$bg-dark: #050505;
+$border-color: rgba(255, 255, 255, 0.05);
+
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+
+@mixin up($bp) {
+  @media (min-width: $bp) { @content; }
+}
+
+.container {
+  color: #fff;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(1rem, 2.2vw, 2rem);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: clamp(1.2rem, 3vw, 3rem);
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 1rem;
+
+  @include up($bp-md) {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+}
+
+.viewToggle {
+  display: flex;
+  width: 100%;
+  gap: 6px;
+
+  @include up($bp-md) {
+    width: auto;
+    gap: 10px;
+  }
+
+  button {
+    flex: 1;
+    background: transparent;
+    border: 1px solid #333;
+    color: #666;
+    padding: 10px 8px;
+    font-weight: 800;
+    font-size: clamp(0.62rem, 2.2vw, 0.75rem);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.25s ease;
+    white-space: nowrap;
+
+    &.active {
+      border-color: $yawara-red;
+      color: $yawara-red;
+      background: rgba($yawara-red, 0.05);
+    }
+
+    @include up($bp-md) {
+      flex: 0 0 auto;
+      padding: 8px 16px;
+    }
+  }
+}
+
+/* =========================
+   FILTER BAR (ESTILIZADA)
+   ========================= */
+.filterBar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  padding: 12px;
+
+  @include up($bp-md) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  label {
+    color: #777;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+
+    @include up($bp-md) {
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+  }
+
+  select {
+    width: 100%;
+    min-height: 42px;
+
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: $yawara-red;
+
+    padding: 10px 12px;
+    border-radius: 6px;
+
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    text-align: left;
+    outline: none;
+
+    transition: 0.2s ease;
+
+    &:focus {
+      border-color: rgba($yawara-red, 0.85);
+      box-shadow: 0 0 0 3px rgba($yawara-red, 0.15);
+    }
+
+    @include up($bp-md) {
+      width: auto;
+      min-width: 320px;
+    }
+  }
+}
+
+.tableContainer {
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
+
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 10px;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.78rem, 2vw, 0.9rem);
+
+  /* scroll horizontal quando tiver muitas colunas (NOTAS DINÂMICAS) */
+  min-width: 560px;
+  @include up($bp-md) { min-width: 700px; }
+
+  th {
+    text-align: left;
+    padding: 0.9rem;
+    color: #444;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid $border-color;
+    white-space: nowrap;
+
+    @media (max-width: $bp-sm) {
+      padding: 0.75rem;
+      font-size: 0.62rem;
+    }
+  }
+
+  td {
+    padding: 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    white-space: nowrap;
+
+    @media (max-width: $bp-sm) {
+      padding: 0.75rem;
+    }
+  }
+}
+
+.scoreInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input {
+    width: 52px;
+    background: #000;
+    border: 1px solid #222;
+    color: $yawara-red;
+    padding: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    font-size: 0.85rem;
+
+    &:focus {
+      border-color: $yawara-red;
+      outline: none;
+      box-shadow: 0 0 10px rgba($yawara-red, 0.2);
+    }
+
+    @media (max-width: $bp-sm) {
+      width: 46px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .maxLabel {
+    font-size: 0.65rem;
+    color: #444;
+    font-weight: 800;
+  }
+}
+
+.presentBtn, .saveBtn {
+  background: $yawara-red;
+  color: #fff;
+  border: none;
+  padding: 9px 12px;
+  font-weight: 900;
+  font-size: clamp(0.62rem, 1.8vw, 0.7rem);
+  cursor: pointer;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+  white-space: nowrap;
+  transition: 0.2s ease;
+
+  &:hover { filter: brightness(1.15); }
+
+  @media (max-width: $bp-sm) {
+    padding: 10px 12px;
+  }
+}

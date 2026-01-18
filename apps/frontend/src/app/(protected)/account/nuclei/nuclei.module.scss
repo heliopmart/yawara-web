@@ -1,0 +1,102 @@
+$yawara-red: #e60000;
+$bg-black: #050505;
+$card-bg: #0d0d0d;
+$border-glow: rgba(230, 0, 0, 0.1);
+
+.container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.header {
+    margin-bottom: 3rem;
+    .breadcrumb {
+        font-family: 'JetBrains Mono', monospace;
+        color: $yawara-red;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+    }
+    h1 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-style: italic;
+    }
+}
+
+.nucleiGrid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+.nucleusCard {
+    background: $card-bg;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 2rem;
+    position: relative;
+    transition: 0.3s;
+
+    &:hover {
+        border-color: $yawara-red;
+        box-shadow: 0 0 20px $border-glow;
+        transform: translateY(-5px);
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0; right: 0;
+        width: 40px; height: 40px;
+        background: linear-gradient(45deg, transparent 50%, rgba($yawara-red, 0.1) 50%);
+    }
+}
+
+.cardHeader {
+    margin-bottom: 1rem;
+    h2 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: #666;
+        font-weight: 700;
+    }
+}
+
+.progressBar {
+    height: 4px;
+    background: #1a1a1a;
+    margin-bottom: 2rem;
+    .fill {
+        height: 100%;
+        background: $yawara-red;
+        box-shadow: 0 0 10px $yawara-red;
+    }
+}
+
+.artsSection {
+    h3 {
+        font-size: 0.7rem;
+        color: $yawara-red;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba($yawara-red, 0.2);
+        padding-bottom: 5px;
+    }
+}
+
+.artsList {
+    list-style: none;
+    padding: 0;
+    li {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.02);
+        color: #aaa;
+        .artId { color: #555; margin-right: 10px; font-weight: 400; }
+    }
+}

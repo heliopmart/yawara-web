@@ -1,0 +1,425 @@
+$yawara-red: #e60000;
+$yawara-blue: #007AFF;
+$yawara-green: #34C759;
+$text-black: #1d1d1f;
+$text-gray: #86868b;
+$bg-gray: #f5f5f7;
+
+.pageWrapper {
+    background-color: #fff;
+    color: $text-black;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.header {
+    padding: 8rem 0 4rem;
+    text-align: center;
+
+    .overline {
+        color: $yawara-red;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+    }
+
+    .mainTitle {
+        font-size: 4rem;
+        font-weight: 700;
+        margin: 1.5rem 0;
+        letter-spacing: -0.04em;
+
+        i{
+            text-decoration: underline;
+            text-decoration-color: $yawara-red;
+        }
+
+        @media (max-width: 750px) {
+            font-size: 3rem;
+        }
+    }
+
+    .heroDescription {
+        font-size: 1.4rem;
+        color: $text-gray;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.4;
+    }
+}
+
+.whiteSection {
+    padding: 6rem 0;
+}
+
+.graySection {
+    padding: 6rem 0;
+    background-color: $bg-gray;
+}
+
+.sectionHeading {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    align-items: center;
+
+    @media (min-width: 992px) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .featureText p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #424245;
+        margin-bottom: 1.5rem;
+    }
+}
+
+// Estilização do Orb Neural Clean
+.neuralNode {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .pulseCore {
+        width: 40px;
+        height: 40px;
+        background: $yawara-red;
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba($yawara-red, 0.4);
+    }
+
+    .ring {
+        position: absolute;
+        border: 1px solid #e5e5e7;
+        border-radius: 50%;
+        animation: rotate 10s infinite linear;
+
+        &:nth-child(2) {
+            width: 100px;
+            height: 100px;
+            border-top-color: $yawara-blue;
+        }
+
+        &:nth-child(3) {
+            width: 160px;
+            height: 160px;
+            border-bottom-color: $yawara-green;
+            animation-duration: 15s;
+        }
+    }
+}
+
+.pipelineSteps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.pipelineCard {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+
+    .stepNum {
+        color: $yawara-red;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: 1.5rem;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        font-size: 0.85rem;
+        color: $text-gray;
+        line-height: 1.4;
+    }
+}
+
+.comparisonTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 3rem;
+
+    th {
+        text-align: left;
+        padding: 1rem;
+        color: $text-gray;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e5e5e7;
+    }
+
+    td {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid #e5e5e7;
+        font-size: 0.95rem;
+    }
+
+    .activeTag {
+        color: $yawara-green;
+        font-weight: 800;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+    }
+
+    .devTag {
+        color: $yawara-blue;
+        font-weight: 800;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+    }
+}
+
+.testSection {
+    padding: 5rem 0;
+}
+
+.testCard {
+    background: #fff;
+    border: 1px solid #e5e5e7;
+    border-radius: 32px;
+    padding: 4rem;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.customUpload {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    border: 1px solid #d2d2d7;
+    border-radius: 980px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+
+    &:hover {
+        border-color: $yawara-red;
+        color: $yawara-red;
+    }
+}
+
+.actionBtn {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 2rem auto 0;
+    background: $text-black;
+    color: #fff;
+    border: none;
+    padding: 1.2rem;
+    border-radius: 980px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:disabled {
+        opacity: 0.1;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+        background: $yawara-red;
+        transform: scale(1.02);
+    }
+}
+
+.introParagraph {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: $text-black;
+    margin-bottom: 3rem;
+}
+
+.engineExplainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 4rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .engineBox {
+        h4 {
+            color: $yawara-red;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: $text-gray;
+            line-height: 1.7;
+        }
+    }
+}
+
+.xaiHighlight {
+    background-color: #f9f9fb;
+    border-left: 4px solid $yawara-blue;
+    padding: 2.5rem;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 4rem;
+
+    h4 {
+        color: $yawara-blue;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    p {
+        font-size: 0.95rem;
+        color: $text-gray;
+        line-height: 1.7;
+    }
+}
+
+.tableScroll {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.resourcesHeader {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 4rem;
+}
+
+.centeredSub {
+    font-size: 1.1rem;
+    color: $text-gray;
+    line-height: 1.5;
+}
+
+.linkGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.resourceCard {
+    background: #ffffff;
+    border: 1px solid #e5e5e7;
+    border-radius: 16px;
+    padding: 2.5rem;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+
+    text-decoration: none !important;
+
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+        border-color: #d2d2d7;
+
+        .externalLinkIcon {
+            color: $yawara-red;
+            transform: translateX(5px);
+        }
+    }
+
+    .cardContent {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .iconBox {
+        width: 60px;
+        height: 60px;
+        background: #f5f5f7;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: 0.7rem;
+    }
+
+    .pdfIcon {
+        color: $yawara-red;
+    }
+
+    .apiIcon {
+        color: $yawara-blue;
+    }
+
+    .cardText {
+        h4 {
+            color: $text-black;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: $text-gray;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 300px;
+        }
+    }
+
+    .externalLinkIcon {
+        font-size: 1.5rem;
+        color: #d2d2d7;
+        font-weight: 300;
+        transition: 0.3s;
+    }
+}
+
+.progressFill {
+    height: 100%;
+    background: $yawara-red;
+    transition: width 0.3s;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

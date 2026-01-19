@@ -9,7 +9,7 @@ export default function AccountNotFound() {
       <p>
         Ah não! Essa pagina não está disponível no momento. Talvez ela esteja em construção ou você tenha digitado o endereço errado.
       </p>
-      <Link href="/account">Voltar para o inicio</Link>
+      <Link href="/in">Voltar para o inicio</Link>
     </main>
   );
 }

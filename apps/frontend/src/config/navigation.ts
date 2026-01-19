@@ -1,4 +1,4 @@
-import {AuthRole} from '@yawara/types'
+import { AuthRole } from '@yawara/types'
 
 export interface NavLink {
     label: string;
@@ -6,62 +6,67 @@ export interface NavLink {
 }
 
 const COMMON_LINKS: NavLink[] = [
-    { label: 'MINHA CONTA', href: '/account/my-account' },
+    { label: 'MINHA CONTA', href: '/in/my-account' },
 ];
 
 export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
     GUEST: [],
-    
-    USER: [
-        { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
-        ...COMMON_LINKS
-    ],
-    
-    MEMBER: [
-        { label: 'MINHA EQUIPE', href: '/account/my-team' },
-        { label: 'NÚCLEOS', href: '/account/nuclei' },
-        { label: 'FERRAMENTAS E RECURSOS', href: '/account/ferramentas' },
-        { label: 'REQUISIÇÕES', href: '/account/requests' },
-        { label: 'DOCUMENTOS', href: '/account/docs' },
-        ...COMMON_LINKS
-    ],
-    
-    LEADER: [
-        { label: 'MINHA EQUIPE', href: '/account/my-team' },
-        { label: 'NÚCLEOS', href: '/account/nuclei' },
-        { label: 'FERRAMENTAS', href: '/account/ferramentas' },
-        { label: 'REQUISIÇÕES', href: '/account/requests' },
-        { label: 'GESTÃO DE ALOCAÇÃO', href: '/account/admin/allocation' },
-        { label: 'EMISSÃO DE CERTIFICADOS', href: '/account/admin/certificates' },
 
-        { label: 'GERENCIAR NÚCLEO', href: '/account/admin/nucleusManager' },
-        
-        
-        { label: 'PROCESSO SELETIVO', href: '/account/admin/ps/presence' },
-        { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
+    USER: [
+        { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },
+        ...COMMON_LINKS
+    ],
+
+    MEMBER: [
+        { label: 'MINHA EQUIPE', href: '/in/my-team' },
+        { label: 'NÚCLEOS', href: '/in/nuclei' },
+        { label: 'FERRAMENTAS E RECURSOS', href: '/in/tools' },
+        { label: 'DOCUMENTOS', href: '/in/docs' },
+        ...COMMON_LINKS
+    ],
+
+    LEADER: [
+        { label: 'MINHA EQUIPE', href: '/in/my-team' },
+        { label: 'NÚCLEOS', href: '/in/nuclei' },
+        { label: 'FERRAMENTAS', href: '/in/tools' },
+        { label: 'REQUISIÇÕES', href: '/in/requests' },
+
+        { label: 'GERENCIAR NÚCLEO', href: '/in/admin/nucleusManager' },
         ...COMMON_LINKS
     ],
 
     ADMIN: [
-        { label: 'CRIAR PROCESSO SELETIVO', href: '/account/admin/ps-config' },
-        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/account/admin/ps/presence' },
-        { label: 'DASHBOARD GERAL', href: '/account/admin/dashboard' },
+        { label: 'MINHA EQUIPE', href: '/in/my-team' },
+        { label: 'FERRAMENTAS', href: '/in/tools' },
+        { label: 'REQUISIÇÕES', href: '/in/requests' },
+        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/create' },
+        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
         ...COMMON_LINKS
     ],
 
     MODERATOR: [
-        { label: 'MINHA EQUIPE', href: '/account/my-team' },
-        { label: 'NÚCLEOS', href: '/account/nuclei' },
-        { label: 'FERRAMENTAS E RECURSOS', href: '/account/ferramentas' },
-        { label: 'REQUISIÇÕES', href: '/account/requests' },
-        { label: 'DOCUMENTOS', href: '/account/admin/docs' },
-        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/account/admin/ps/presence' },
-        { label: 'EVENTOS', href: '/account/events' },
+        { label: 'MINHA EQUIPE', href: '/in/my-team' },
+        { label: 'NÚCLEOS', href: '/in/nuclei' },
+        { label: 'FERRAMENTAS E RECURSOS', href: '/in/tools' },
+        { label: 'REQUISIÇÕES', href: '/in/requests' },
+        { label: 'DOCUMENTOS', href: '/in/admin/docs' },
+        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
+        { label: 'EVENTOS', href: '/in/events' },
+
         ...COMMON_LINKS
     ],
 
     DEVELOPER: [
-        { label: 'DASHBOARD GERAL', href: '/account/admin/dashboard' },
+        { label: 'MINHA EQUIPE', href: '/in/my-team' },
+        { label: 'NÚCLEOS', href: '/in/nuclei' },
+        { label: 'FERRAMENTAS E RECURSOS', href: '/in/tools' },
+        { label: 'REQUISIÇÕES', href: '/in/requests' },
+        { label: 'DOCUMENTOS', href: '/in/admin/docs' },
+        { label: 'GERENCIAR NÚCLEO', href: '/in/admin/nucleusManager' },
+        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/create' },
+        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
+        { label: 'EVENTOS', href: '/in/events' },
+        { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },
         ...COMMON_LINKS
     ]
 };

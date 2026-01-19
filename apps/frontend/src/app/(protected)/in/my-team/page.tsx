@@ -1,7 +1,7 @@
 'use client';
 
 import { useUserRole } from '@/hooks/useUserRole';
-import styles from '@/app/(protected)/account/my-team/myTeam.module.scss'
+import styles from '@/app/(protected)/in/my-team/myTeam.module.scss'
 
 import {NewsWall} from '@/components/my-team/NewsWall';
 import {TaskWall} from '@/components/my-team/TaskWall';

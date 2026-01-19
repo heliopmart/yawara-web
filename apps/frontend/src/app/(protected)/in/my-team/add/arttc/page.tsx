@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '@/app/(protected)/account/my-team/arttc.module.scss';
+import styles from '@/app/(protected)/in/my-team/arttc.module.scss';
 
 interface Member {
     id: string;

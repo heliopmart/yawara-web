@@ -33,7 +33,7 @@ const AccountDashboard: React.FC = () => {
         title: "BEM-VINDO DE VOLTA",
         message: "Não há novas mensagens ou ações pendentes. Verifique o menu lateral para detalhes.",
         buttonText: "Ver Minha Equipe",
-        buttonLink: "/account/my-team",
+        buttonLink: "/in/my-team",
         statusColor: "default" as "default" | "warning" | "success",
     };
 
@@ -45,14 +45,14 @@ const AccountDashboard: React.FC = () => {
             ? `Você precisa concluir a etapa: ${nextStep.title.toUpperCase()}.`
             : "Sua escolha de núcleo está pendente. Por favor, envie sua preferência.";
         cardProps.buttonText = nextStep ? nextStep.actionButton?.text || "Ir para Etapa" : "Enviar Escolha";
-        cardProps.buttonLink = nextStep ? "/account" : "/account"; // O link deve ser ajustado
+        cardProps.buttonLink = nextStep ? "/in" : "/in"; // O link deve ser ajustado
         cardProps.statusColor = "warning";
         
     } else if (status === 'REVIEW_IN_PROGRESS') {
         cardProps.title = "EM ANÁLISE";
         cardProps.message = "Parabéns! Suas etapas foram concluídas. Os resultados estão sendo avaliados e serão publicados em breve.";
         cardProps.buttonText = "Ver Processo Seletivo";
-        cardProps.buttonLink = "/account";
+        cardProps.buttonLink = "/in";
         cardProps.statusColor = "default";
     }
 

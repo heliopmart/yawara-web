@@ -141,7 +141,7 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
         finalResult: {
             show: finalResultShow,
             message: (userApplication.nuclei_chosen && userApplication.nuclei_chosen.length > 0)
-                ? `Parabéns! Você foi selecionado para fazer parte do Yawara Motorsports no semestre ${rawBackendData.name}! Seu núcleo será o de ${userApplication.nuclei_chosen.join(' e ')}.`
+                ? `Parabéns! Você foi selecionado para fazer parte do Yawara no semestre ${rawBackendData.name}! Seu núcleo será o de ${userApplication.nuclei_chosen.join(' e ')}.`
                 : 'Embora você não tenha sido classificado, seus resultados são ótimos! Esperamos que participe novamente no próximo semestre.',
             evaluationPdfLink: userApplication.final_result_doc || '#',
         },

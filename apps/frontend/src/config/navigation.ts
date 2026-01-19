@@ -38,6 +38,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         
         
         { label: 'PROCESSO SELETIVO', href: '/account/admin/ps/presence' },
+        { label: 'PROCESSO SELETIVO', href: '/account/processo-seletivo' },
         ...COMMON_LINKS
     ],
 

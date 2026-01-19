@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
 
     // --- REGRA 2: Proteção de Processo Seletivo ---
     if (path.startsWith('/account/processo-seletivo')) {
-        if (userRole === 'MEMBER' || userRole === 'LEADER') {
+        if (userRole === 'MEMBER') { //  || userRole === 'LEADER'
             return NextResponse.redirect(new URL('/account/my-team', req.url));
         }
     }

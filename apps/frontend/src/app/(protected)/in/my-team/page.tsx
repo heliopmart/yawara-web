@@ -1,6 +1,7 @@
 'use client';
 
 import { useUserRole } from '@/hooks/useUserRole';
+import {useMyTeam} from "@/hooks/useMyTeam"
 import styles from '@/app/(protected)/in/my-team/myTeam.module.scss'
 
 import {NewsWall} from '@/components/my-team/NewsWall';
@@ -9,8 +10,18 @@ import {ArtGrid} from '@/components/my-team/ArtGrid';
 import {ManagementActions} from '@/components/my-team/ManagementActions';
 
 const MyTeamPage = () => {
-    const { role, isLoading, user } = useUserRole();
-    const isLeader = role === 'LEADER' || role === 'MODERATOR';
+    const {
+        role, 
+        isLoading, 
+        user,
+
+        arttcsGrid,
+        artGrid,
+        taskWall,
+        newsWall,
+
+        isLeader
+    } = useMyTeam();
 
     return (
         <div className={styles.mainContainer}>
@@ -26,8 +37,8 @@ const MyTeamPage = () => {
                 
                 <section className={styles.mainContent}>
                     <TaskWall />
-                    <ArtGrid title="ARTs Ativas" items={[]} type="ART" />
-                    <ArtGrid title="ARTTCs" items={[]} type="ARTTC" />
+                    <ArtGrid data={artGrid} title='ART' type='ART' />
+                    <ArtGrid data={arttcsGrid} title='ARTTC' type='ARTTC' />
                 </section>
             </div>
         </div>

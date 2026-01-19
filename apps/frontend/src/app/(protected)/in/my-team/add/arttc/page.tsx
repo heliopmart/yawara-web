@@ -1,60 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import {useAddNote} from "@/hooks/useMyTeam";
 import styles from '@/app/(protected)/in/my-team/arttc.module.scss';
 
-interface Member {
-    id: string;
-    name: string;
-    score: number;
-}
-
-interface ArtReference {
-    id: string;
-    title: string;
-}
-
 const AddArttcPage = () => {
-    const router = useRouter();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [availableMembers, setAvailableMembers] = useState<Member[]>([]);
-    const [allocatedMembers, setAllocatedMembers] = useState<Member[]>([]);
-    const [artReferences, setArtReferences] = useState<ArtReference[]>([]);
-    const [selectedArtId, setSelectedArtId] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-
-    useEffect(() => {
-        // Mocks para Integrantes e ARTs de referência
-        const membersMock: Member[] = [
-            { id: '1', name: 'Helio', score: 98 },
-            { id: '2', name: 'Dev Firmware A', score: 88 },
-            { id: '3', name: 'Eng Software B', score: 91 },
-        ];
-        const artsMock: ArtReference[] = [
-            { id: 'art_101', title: 'Inversor de Frequência V1' },
-            { id: 'art_102', title: 'Módulo de Telemetria' },
-        ];
-        
-        setAvailableMembers(membersMock);
-        setArtReferences(artsMock);
-    }, []);
-
-    const handleAddMember = (member: Member) => {
-        if (!allocatedMembers.find(m => m.id === member.id)) {
-            setAllocatedMembers([...allocatedMembers, member]);
-        }
-    };
-
-    const handleRemoveMember = (id: string) => {
-        setAllocatedMembers(allocatedMembers.filter(m => m.id !== id));
-    };
-
-    const filteredMembers = availableMembers.filter(m =>
-        m.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !allocatedMembers.find(am => am.id === m.id)
-    );
-
+    const {
+            router,
+            note,
+            filtered,
+            allocatedMembers,
+            filterText,
+            file,
+            arts,
+    
+            handleAllocateMember,
+            handleExcludeAllocatedMembers,
+            setFilterText,
+            setFile,
+            
+            handleSubmit,
+            handleArtChange
+        } = useAddNote('ARTTC');
+    
     return (
         <main className={styles.container}>
             <header className={styles.header}>
@@ -67,7 +34,7 @@ const AddArttcPage = () => {
                 </div>
             </header>
 
-            <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+            <form className={styles.form} onSubmit={handleSubmit}>
                 <div className={styles.fieldSection}>
                     <div className={styles.inputWrapper}>
                         <label>NOME DA ARTTC</label>
@@ -77,13 +44,13 @@ const AddArttcPage = () => {
                     <div className={styles.inputWrapper}>
                         <label>ART DE REFERÊNCIA </label>
                         <select 
-                            value={selectedArtId} 
-                            onChange={(e) => setSelectedArtId(e.target.value)}
+                            value={note?.type ==='ARTTC' ? note.art : ''} 
+                            onChange={handleArtChange}
                             title='Selecione a ART vinculada'
                             className={styles.selectInput}
                         >
                             <option value="">Selecione a ART vinculada</option>
-                            {artReferences.map(art => (
+                            {arts.map(art => (
                                 <option key={art.id} value={art.id}>{art.title}</option>
                             ))}
                         </select>
@@ -96,21 +63,21 @@ const AddArttcPage = () => {
                         <input 
                             type="text" 
                             placeholder="Pesquisar membro por nome..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
                         />
                     </div>
 
                     <div className={styles.teamGrid}>
                         <div className={styles.memberList}>
                             <p className={styles.listLabel}>DISPONÍVEIS</p>
-                            {filteredMembers.map(member => (
+                            {filtered?.map(member => (
                                 <div key={member.id} className={styles.memberCard}>
                                     <div className={styles.memberInfo}>
-                                        <span className={styles.memberName}>{member.name}</span>
-                                        <span className={styles.memberScore}>SCORE: {member.score}</span>
+                                        <span className={styles.memberName}>{member.user.name}</span>
+                                        <span className={styles.memberScore}>Advertência: {member.warnings}</span>
                                     </div>
-                                    <button type="button" onClick={() => handleAddMember(member)} className={styles.addBtn}>
+                                    <button type="button" onClick={() => handleAllocateMember(member.id)} className={styles.addBtn}>
                                         + ADD
                                     </button>
                                 </div>
@@ -121,8 +88,8 @@ const AddArttcPage = () => {
                             <p className={styles.listLabel}>ALOCADOS NA ARTTC</p>
                             {allocatedMembers.map(member => (
                                 <div key={member.id} className={styles.allocatedCard}>
-                                    <span>{member.name}</span>
-                                    <button onClick={() => handleRemoveMember(member.id)}>×</button>
+                                    <span>{member.user.name}</span>
+                                    <button onClick={() => handleExcludeAllocatedMembers(member.id)}>×</button>
                                 </div>
                             ))}
                         </div>

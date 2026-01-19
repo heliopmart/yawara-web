@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import {useManageArt} from "@/hooks/useMyTeam"
 import styles from '@/app/(protected)/in/my-team/art.module.scss'; 
 
 interface Report {
@@ -13,17 +12,16 @@ interface Report {
 }
 
 const ManageArtPage = ({ params }: { params: { id: string } }) => {
-    const router = useRouter();
-    const [file, setFile] = useState<File | null>(null);
-    const [reports, setReports] = useState<Report[]>([]);
-
-    useEffect(() => {
-        const mockReports: Report[] = [
-            { id: 'rep_1', date: '10/01/2026', author: 'Helio', filename: 'analise_termica_v1.pdf', type: 'PARTIAL' },
-            { id: 'rep_2', date: '15/01/2026', author: 'Engenheiro X', filename: 'validacao_sensores.pdf', type: 'PARTIAL' },
-        ];
-        setReports(mockReports);
-    }, []);
+    const {
+        router,
+        art,
+        file,
+        loading,
+        
+        setFile,
+        handleDonwload,
+        handleUploadReport
+    } = useManageArt(params.id);
 
     return (
         <main className={styles.container}>
@@ -33,7 +31,7 @@ const ManageArtPage = ({ params }: { params: { id: string } }) => {
                 </button>
                 <div className={styles.titleInfo}>
                     <span className={styles.statusBadge}>ACTIVE SYSTEM</span>
-                    <h1>Gerenciar: {params.id.replace(/-/g, ' ').toUpperCase()}</h1>
+                    <h1>Gerenciar: {!loading ? art?.title : "CARREGANDO..."}</h1>
                     <p>Acompanhamento de progresso e validação de documentação técnica.</p>
                 </div>
             </header>
@@ -57,25 +55,25 @@ const ManageArtPage = ({ params }: { params: { id: string } }) => {
                     </div>
 
                     <div className={styles.actionButtons}>
-                        <button className={styles.submitBtn}>ENVIAR RELATÓRIO</button>
-                        <button className={styles.finalizeBtn}>FINALIZAR ART</button>
+                        <button className={styles.submitBtn} onClick={() => handleUploadReport('PARTIAL')}>ENVIAR RELATÓRIO</button>
+                        <button className={styles.finalizeBtn} onClick={() => handleUploadReport('FINAL')}>FINALIZAR ART</button>
                     </div>
                 </section>
 
                 <section className={styles.teamSection}>
                     <h3 className={styles.sectionTitle}>LOG DE DOCUMENTAÇÃO</h3>
                     <div className={styles.timeline}>
-                        {reports.map((report) => (
+                        {!loading && art?.arttc?.map((report) => (
                             <div key={report.id} className={styles.timelineItem}>
                                 <div className={styles.timelinePoint} />
                                 <div className={styles.reportInfo}>
                                     <div className={styles.reportMeta}>
-                                        <span className={styles.reportDate}>{report.date}</span>
-                                        <span className={styles.reportAuthor}>BY: {report.author}</span>
+                                        <span className={styles.reportDate}>{new Date(report.finish_at || '').toDateString()}</span>
+                                        <span className={styles.reportAuthor}>Criado em: {new Date(report.created_at || '').toDateString()}</span>
                                     </div>
-                                    <a href="#" className={styles.reportLink}>
-                                        {report.filename} <span>[DOWNLOAD]</span>
-                                    </a>
+                                    <button onClick={() => handleDonwload(report.file_id)} className={styles.reportLink}>
+                                       {report.code} <span>[DOWNLOAD]</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}

@@ -27,14 +27,14 @@ export class AuthRepository {
             //     single: true
             // })
 
-            const res = await callRpc<AuthRespositoryUserDataByEmail | null>({
+            const res = await callRpc<AuthRespositoryUserDataByEmail[] | null>({
                 bd: bd,
                 functionName: 'get_user_auth_data',
                 params: { email_param: email }
             })
 
             if (res) {
-                return res as unknown as AuthRespositoryUserDataByEmail ;
+                return (res.data as unknown as AuthRespositoryUserDataByEmail[])[0] ;
             }
 
             return null

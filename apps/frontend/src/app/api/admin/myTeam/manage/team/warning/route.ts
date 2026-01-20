@@ -6,7 +6,6 @@ import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import {userIdSchema} from '@/lib/validations/myTeam.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
-import {TeamMember} from "@yawara/types"
 
 export async function PATCH(request: NextRequest) {
     try {
@@ -18,17 +17,17 @@ export async function PATCH(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
         
-        if(!ALLOWED_ROLES[1].includes(user_data.role)){
+        if (user_data.role !== ALLOWED_ROLES[1]) {
             throw 'FORBIDDEN_ERROR';
         }
 
-        const {user_id} = await request.json();
+        const {team_id} = await request.json();
 
-        const checkData = userIdSchema.parse({user_id});
+        const checkData = userIdSchema.parse({team_id: team_id});
 
-        const res = await new MyTeamService(user_data).putWarningUser(checkData.user_id);
+        const res = await new MyTeamService(user_data).putWarningUser(checkData.team_id);
        
-        return successResponse<TeamMember>(res, 200);
+        return successResponse<boolean>(res, 200);
 
     } catch (error) {
         console.error('team/manage/warning/route.PUT error:', error);

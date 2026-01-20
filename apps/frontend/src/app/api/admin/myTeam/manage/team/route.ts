@@ -7,7 +7,7 @@ import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
 import {TeamMember} from "@yawara/types"
 
-export async function PUT(request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
         const user_token = await getCookie('user-session')
 
@@ -17,12 +17,12 @@ export async function PUT(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
-        const res = await new MyTeamService(user_data).getMyTeamData();
+        const res = await new MyTeamService(user_data).getTeamMember();
        
-        return successResponse<TeamMember>(res, 200);
+        return successResponse<TeamMember[]>(res, 200);
 
     } catch (error) {
-        console.error('team/route.GET error:', error);
+        console.error('myTeam/manage/team/route.GET error:', error);
 
         const errorDetail = handle_error(error);
         return errorResponse(

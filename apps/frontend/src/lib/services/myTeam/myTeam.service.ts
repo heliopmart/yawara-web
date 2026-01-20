@@ -1,6 +1,7 @@
 import { TokenPayload } from '@yawara/types';
 import { MyTeamRepository } from '@/lib/repository/myTeam/myTeam.repository'
-import { TeamNotesHistory, ArtManageProps } from "@yawara/types"
+import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify } from "@yawara/types"
+import {CloudinaryService} from '@/lib/services/cloudinary/cloudinary.service'
 
 export class MyTeamService {
     private auth: TokenPayload;
@@ -15,7 +16,11 @@ export class MyTeamService {
     // =================== GET ===================
     // ===========================================
 
-    async getMyTeamData() {
+    /**
+     * Get my team data 
+     * @return {Promise<myTeamDataProps>} My team data
+     */
+    async getMyTeamData() : Promise<myTeamDataProps> {
         try {
             const teamData = await this.myTeamRepository.getMyTeamData(); // RPC call
             return teamData;
@@ -24,7 +29,11 @@ export class MyTeamService {
         }
     }
 
-    async getTeamMember() {
+    /**
+     * Get team members
+     * @return {Promise<TeamMember[]>} Team members
+     */
+    async getTeamMember() : Promise<TeamMember[]> {
         try {
             const teamMember = await this.myTeamRepository.getTeamMember();
             return teamMember;
@@ -33,7 +42,11 @@ export class MyTeamService {
         }
     }
 
-    async getMyTeamDataForNote() {
+    /**
+     * Get my team data for notes, only user dont have art assigned
+     * @return {Promise<TeamMemberMinify[]>} My team data for notes
+     */
+    async getMyTeamDataForNote() : Promise<TeamMemberMinify[]> {
         try {
             const teamData = await this.myTeamRepository.getMyTeamDataForNote(); // RPC call
             return teamData;
@@ -42,6 +55,11 @@ export class MyTeamService {
         }
     }
 
+    /**
+     * Get art details by art ID
+     * @param {string} artId - Art ID
+     * @return {Promise<ArtManageProps>} Art details
+     */
     async getArt(artId: string): Promise<ArtManageProps> {
         try {
             const artData = await this.myTeamRepository.getArt(artId);
@@ -52,6 +70,11 @@ export class MyTeamService {
         }
     }
 
+    /**
+     * Get arttc details by arttc ID
+     * @param {string} arttcId - Arttc ID
+     * @return {Promise<ArtManageProps>} Arttc details
+     */
     async getArttc(arttcId: string): Promise<ArtManageProps> {
         try {
             const arttcData = await this.myTeamRepository.getArttc(arttcId);
@@ -66,9 +89,16 @@ export class MyTeamService {
     // ================== CREATE =================
     // ===========================================
 
-    async createArt(title: string, description: string, file: File, members: string[]) {
+    /**
+     * Create a new art
+     * @param {string} title - Art title
+     * @param {string} description - Art description
+     * @param {string[]} members - Team members
+     * @return {Promise<ArtManageProps>} Created art
+     */
+    async createArt(title: string, description: string, members: string[]) {
         try {
-            const createdArt = await this.myTeamRepository.createArt(title, description, file, members);
+            const createdArt = await this.myTeamRepository.createArt(title, description, members);
             return createdArt;
         }
         catch (err) {
@@ -76,9 +106,15 @@ export class MyTeamService {
         }
     }
 
-    async createArttc(title: string, file: File, members: string[]) {
+    /**
+     * Create a new arttc
+     * @param {string} title - Arttc title
+     * @param {string[]} members - Team members
+     * @return {Promise<ArtManageProps>} Created arttc
+     */
+    async createArttc(title: string, members: string[], art_id: string) : Promise<string> {
         try {
-            const createdArt = await this.myTeamRepository.createArttc(title, file, members);
+            const createdArt = await this.myTeamRepository.createArttc(title, members, art_id);
             return createdArt;
         }
         catch (err) {
@@ -86,23 +122,19 @@ export class MyTeamService {
         }
     }
 
-    async uploadReportArt(artId: string, file: File): Promise<boolean> {
-        try {
-            const uploadResult = await this.myTeamRepository.uploadReportArt(artId, file);
-            return uploadResult;
-        }
-        catch (err) {
-            throw err;
-        }
-    }
 
     // ===========================================
     // ================== UPDATE =================
     // ===========================================
 
-    async putWarningUser(user_id: string) {
+    /**
+     * Put warning to user
+     * @param {string} team_id - Team ID
+     * @return {Promise<boolean>} Update status
+     */
+    async putWarningUser(team_id: string) {
         try {
-            const updatedMember = await this.myTeamRepository.putWarningUser(user_id);
+            const updatedMember = await this.myTeamRepository.putWarningUser(team_id);
             return updatedMember;
         }
         catch (err) {
@@ -110,9 +142,14 @@ export class MyTeamService {
         }
     }
 
-    async putBanUser(user_id: string) {
+    /**
+     * Ban a user
+     * @param {string} team_id - User ID
+     * @return {Promise<boolean>} Ban status
+     */
+    async putBanUser(team_id: string) {
         try {
-            const updatedMember = await this.myTeamRepository.putBanUser(user_id);
+            const updatedMember = await this.myTeamRepository.putBanUser(team_id);
             return updatedMember;
         }
         catch (err) {
@@ -120,9 +157,16 @@ export class MyTeamService {
         }
     }
 
-    async putUserNotes(user_id: TeamNotesHistory['id'], n_social: TeamNotesHistory['n_social'], n_tech: TeamNotesHistory['n_tech']) {
+    /**
+     * Update user notes
+     * @param {string} team_id - Team ID
+     * @param {number} n_social - Social note
+     * @param {number} n_tech - Technical note
+     * @return {Promise<boolean>} Update status
+     */
+    async putUserNotes(team_id: TeamNotesHistory['id'], n_social: TeamNotesHistory['n_social'], n_tech: TeamNotesHistory['n_tech']) {
         try {
-            const updatedMember = await this.myTeamRepository.putUserNotes(user_id, n_social, n_tech);
+            const updatedMember = await this.myTeamRepository.putUserNotes(team_id, n_social, n_tech);
             return updatedMember;
         }
         catch (err) {
@@ -134,19 +178,54 @@ export class MyTeamService {
     // ================== FILE ===================
     // ===========================================
 
-
-
-    // ===========================================
-    // =============== VALIDATION ================
-    // ===========================================
-
-    async handleValidationUploadReportArt(user_id: string): Promise<boolean> {
+    async uploadArtFile(artId: string, file: File): Promise<boolean> {
         try {
-            const isValid = await this.myTeamRepository.handleValidationUploadReportArt(user_id);
-            return isValid;
-        }
-        catch (err) {
+        
+            const uploaded_file_id = await CloudinaryService.upload(file, {
+                folder: 'art',
+                resourceType: 'raw',
+                uploadType: 'upload'
+            });
+
+            const uploadResult = await this.myTeamRepository.uploadArtFile(artId, uploaded_file_id.public_id);
+            return uploadResult;
+        }catch(err){
             throw err;
         }
     }
+    
+
+    async uploadArttcFile(arttcId: string, file: File): Promise<boolean> {
+        try {
+        
+            const uploaded_file_id = await CloudinaryService.upload(file, {
+                folder: 'arttc',
+                resourceType: 'raw',
+                uploadType: 'upload'
+            });
+
+            const uploadResult = await this.myTeamRepository.uploadArttcFile(arttcId, uploaded_file_id.public_id);
+            return uploadResult;
+        }catch(err){
+            throw err;
+        }
+    }
+
+     async uploadArttcReportFile(arttcId: string, file: File): Promise<boolean> {
+        try {
+        
+            const uploaded_file_id = await CloudinaryService.upload(file, {
+                folder: 'arttc/reports',
+                resourceType: 'raw',
+                uploadType: 'upload'
+            });
+
+            const uploadResult = await this.myTeamRepository.uploadArttcReportFile(arttcId, uploaded_file_id.public_id);
+            return uploadResult;
+        }catch(err){
+            throw err;
+        }
+    }
+    
+
 }

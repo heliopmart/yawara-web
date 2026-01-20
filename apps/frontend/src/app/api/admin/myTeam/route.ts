@@ -5,6 +5,7 @@ import { authService } from '@/lib/services/auth/auth.service'
 import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
+import { myTeamDataProps } from '@yawara/types';
 
 export async function GET(request: NextRequest) {
     try {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
         const res = await new MyTeamService(user_data).getMyTeamData();
        
-        return successResponse<any>(res, 200);
+        return successResponse<myTeamDataProps>(res, 200);
 
     } catch (error) {
         console.error('admin/nucleus/route.GET error:', error);

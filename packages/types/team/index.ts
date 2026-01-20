@@ -1,4 +1,4 @@
-import { Users } from '../index';
+import { Users, ArttcsGridProps, ArtsGridProps } from '../index';;
 
 // --------------------------------------------
 // ------------ TEAM INTERFACES --------------
@@ -50,6 +50,12 @@ export interface TeamNoteNTech {
 
 // ============== TEAM REPOSITORY =============
 
+export interface myTeamDataProps {
+    art: ArtsGridProps[];
+    arttc: ArttcsGridProps[];
+    news: [];
+    tasks: [];
+}
 
 // --------------------------------------------
 // ----------- FRONTEND INTERFACES ------------
@@ -64,6 +70,7 @@ export interface TeamMember {
     user : Pick<Users, 'id' | 'name'>;
     role: Team['role'];
     warnings: Team['warnings'];
+    posted_notes: Team['posted_notes']
 
     semester_id: TeamNotesHistory['semester_id'];
     n_social: TeamNoteNSocial;

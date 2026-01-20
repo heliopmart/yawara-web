@@ -6,7 +6,7 @@ import { createArttcSchema } from '@/lib/validations/myTeam.validation'
 import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
-import { TeamMember } from "@yawara/types"
+import { TeamMemberMinify } from "@yawara/types"
 
 export async function GET(request: NextRequest) {
     try {
@@ -18,9 +18,13 @@ export async function GET(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
+        if (user_data.role !== ALLOWED_ROLES[1]) {
+            throw 'FORBIDDEN_ERROR';
+        }
+
         const res = await new MyTeamService(user_data).getMyTeamDataForNote();
-       
-        return successResponse<any>(res, 200);
+
+        return successResponse<TeamMemberMinify[]>(res, 200);
 
     } catch (error) {
         console.error('myTeam/arttc/route.GET error:', error);
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
-        if (!ALLOWED_ROLES[1].includes(user_data.role)) {
+        if (user_data.role !== ALLOWED_ROLES[1]) {
             throw 'FORBIDDEN_ERROR';
         }
 
@@ -53,11 +57,11 @@ export async function POST(request: NextRequest) {
 
         const res = await new MyTeamService(user_data).createArttc(
             validatedData.title,
-            validatedData.file,
-            validatedData.members
+            validatedData.members,
+            validatedData.art_id
         );
 
-        return successResponse<boolean>(res, 200);
+        return successResponse<string>(res, 200);
 
     } catch (error) {
         console.error('team/score/route.PATCH error:', error);

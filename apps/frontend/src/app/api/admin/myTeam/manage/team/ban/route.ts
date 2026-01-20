@@ -18,17 +18,17 @@ export async function PATCH(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
-        if (!ALLOWED_ROLES[1].includes(user_data.role)) {
+        if (user_data.role !== ALLOWED_ROLES[1]) {
             throw 'FORBIDDEN_ERROR';
         }
 
-        const { user_id } = await request.json();
+        const { team_id } = await request.json();
 
-        const checkData = userIdSchema.parse({ user_id });
+        const checkData = userIdSchema.parse({ team_id: team_id });
 
-        const res = await new MyTeamService(user_data).putBanUser(checkData.user_id);
+        const res = await new MyTeamService(user_data).putBanUser(checkData.team_id);
 
-        return successResponse<TeamMember>(res, 200);
+        return successResponse<boolean>(res, 200);
 
     } catch (error) {
         console.error('team/manage/ban/route.PUT error:', error);

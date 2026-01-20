@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import { handle_error } from '@/utils/error'
 import { getCookie } from '@/utils/cookie'
 import { authService } from '@/lib/services/auth/auth.service'
-import { uploadReportArt } from '@/lib/validations/myTeam.validation'
 import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
@@ -20,13 +19,13 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         
         const file = formData.get('file') as File;
-        const art_id = formData.get('id') as string;
+        const arttc_id = formData.get('id') as string;
 
-        if (!file || !art_id) {
+        if (!file || !arttc_id) {
             throw new Error('MISSING_FIELDS_ERROR');
         }
 
-        const res = await myTeamService.uploadArtFile(art_id, file);
+        const res = await myTeamService.uploadArttcReportFile(arttc_id, file);
 
         return successResponse<boolean>(res, 200);
 

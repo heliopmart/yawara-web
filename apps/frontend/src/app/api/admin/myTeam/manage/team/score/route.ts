@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
-        if (!ALLOWED_ROLES[1].includes(user_data.role)) {
+        if (user_data.role !== ALLOWED_ROLES[1]) {
             throw 'FORBIDDEN_ERROR';
         }
 
@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest) {
         const validatedData = userNotesSchema.parse(data);
 
         const res = await new MyTeamService(user_data).putUserNotes(
-            validatedData.user_id,
+            validatedData.team_id,
             validatedData.n_social,
             validatedData.n_tech
         );

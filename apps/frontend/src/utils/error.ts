@@ -170,6 +170,10 @@ export const error_list = {
     'NUCLEI_CONFIG_UPDATE_FAILED': {
         message: 'Falha ao atualizar a configuração do núcleo.',
         statusCode: 500,
+    },
+    'FORBIDDEN_ERROR': {
+        message: 'Acesso proibido.',
+        statusCode: 403,
     }
 }
 

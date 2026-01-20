@@ -8,7 +8,7 @@ import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
 import {ArtManageProps} from '@yawara/types'
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     try {
         const user_token = await getCookie('user-session')
 

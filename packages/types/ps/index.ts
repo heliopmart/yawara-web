@@ -5,11 +5,23 @@ import { Users } from '../user';
 // --------------------------------------------
 
 export type EnumPsCardConfigState = 'COMPLETED' | 'FAILED' | 'PENDING_ACTION' | 'UNDER_REVIEW' | 'NOT_AVAILABLE';
-export type cards_progress = {
+
+type BaseCardProgress = {
     card_id: number;
     state: EnumPsCardConfigState;
-    file_id?: string | null
 }
+
+type FileProgress = BaseCardProgress & {
+    file_id: string;
+    notes?: never;   
+}
+
+type NotesProgress = BaseCardProgress & {
+    notes: Record<string, number>; 
+    file_id?: never;               
+}
+
+export type cards_progress = FileProgress | NotesProgress;
 
 export interface ps_editions {
     id: string;
@@ -186,4 +198,12 @@ export interface EditionData {
     name: ps_editions['name'];
     start_date: ps_editions['start_date'];
     finish_date: ps_editions['finish_date'];
+}
+
+export interface Candidate {
+    id: string;
+    edition_id: string;
+    cards_progress: cards_progress[];
+    is_eligible: boolean;
+    is_accepted: boolean
 }

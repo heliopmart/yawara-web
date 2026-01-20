@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { SubjectWeight, CycleData } from '@yawara/types';
+import { SubjectWeight, CycleData, NucleiShowProps } from '@yawara/types';
 
 export const useNucleusManagement = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -102,3 +102,19 @@ export const useNucleusManagement = () => {
         isSaving
     };
 };
+
+export const useNucleus = () => {
+    const [nucleus, setNucleus] = useState<NucleiShowProps[]>([]);
+
+    const handleGet = () => {
+        // TODO fetch nucleus data from API
+    }
+
+    useEffect(() => {
+        handleGet()
+    },[])
+
+    return {
+        nucleus
+    }
+}

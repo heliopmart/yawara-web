@@ -8,7 +8,6 @@ import { useCard } from '@/hooks/useCard';
 import { RecruitmentStep } from '@yawara/types';
 import { LoadingState } from './LoadingState';
 
-// Componente para cada "Nó" da Timeline
 export const TimelineStep = ({ step, index }: { step: RecruitmentStep; index: number }) => {
     const { status, handleFileChange } = useCard(step);
     const isActive = step.userState === "PENDING_ACTION";

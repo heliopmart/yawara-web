@@ -54,6 +54,7 @@ export interface AuthRespositoryUserDataByEmail {
     user_id: Auth['user_id'];
     is_active: Auth['is_active'];
     disabled_at: Auth['disabled_at'];
+    nuclei_id: string | null;
 }
 
 export interface AuthRespositoryInsertData {
@@ -72,6 +73,7 @@ export interface TokenPayload {
     role: Auth['role'];
     secret: Auth['secret'];
     supabaseToken?: string;
+    nuclei_id: string | null;
 }
 
 // --------------------------------------------

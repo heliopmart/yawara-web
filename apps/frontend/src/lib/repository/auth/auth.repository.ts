@@ -1,4 +1,4 @@
-import { getRows, insertRow, updateRow } from '@/utils/bd'
+import { getRows, insertRow, updateRow, callRpc } from '@/utils/bd'
 import { supabaseAdmin, create_rls_client } from '@/lib/db'
 import { AuthServiceLoginCredentials, AuthRespositoryUserDataByEmail, AuthRespositoryInsertData, TokenPayload } from '@yawara/types';
 
@@ -17,16 +17,24 @@ export class AuthRepository {
     static async getUserByEmail(email: AuthServiceLoginCredentials['email']): Promise<AuthRespositoryUserDataByEmail | null> {
         try {
             const bd = supabaseAdmin
-            const res = await getRows({
-                table: this.authTableName,
-                columns: `password, role, id, secret, user_id, is_active, disabled_at`,
+
+            // ---- not used anymore but kept for reference ----
+            // const res = await getRows({
+            //     table: this.authTableName,
+            //     columns: `password, role, id, secret, user_id, is_active, disabled_at, nuclei_id`,
+            //     bd: bd,
+            //     filters: [{ column: 'email', op: 'eq', value: email }],
+            //     single: true
+            // })
+
+            const res = await callRpc<AuthRespositoryUserDataByEmail | null>({
                 bd: bd,
-                filters: [{ column: 'email', op: 'eq', value: email }],
-                single: true
+                functionName: 'get_user_auth_data',
+                params: { email_param: email }
             })
 
             if (res) {
-                return res;
+                return res as unknown as AuthRespositoryUserDataByEmail ;
             }
 
             return null

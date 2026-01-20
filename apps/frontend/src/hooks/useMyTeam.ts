@@ -45,6 +45,14 @@ export const useManagerTeam = () => {
         setIsManager(role === 'ADMIN' || role === 'LEADER');
     }, [role]);
 
+    const handleFetchTeam = async () => {
+
+    }
+
+    const handleSubmitScores = async () => {
+        
+    }
+
     const handleScoreUpdate = (
         memberId: string,
         category: ScoreCategory,

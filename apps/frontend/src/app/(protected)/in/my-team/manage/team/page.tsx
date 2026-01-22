@@ -17,6 +17,7 @@ const TeamRosterPage = () => {
 
         team,
         handleScoreUpdate,
+        handleSubmitScores,
         banUser,
         createNewWarnings
     } = useManagerTeam()
@@ -104,6 +105,11 @@ const TeamRosterPage = () => {
                                 </td>
                                 <td className={styles.alignRight}>
                                     <div className={styles.actionGroup}>
+                                        {
+                                            isSemesterEnd && (
+                                                 <button className={styles.saveBtn} onClick={() => handleSubmitScores(member.id)}>Lançar Notas</button>
+                                            )
+                                        }
                                         {isManager && (
                                             <>
                                                 <button className={styles.warnBtn} onClick={() => createNewWarnings(member.id)} title="Advertência">⚠</button>

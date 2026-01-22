@@ -6,7 +6,7 @@ import { createArtSchema } from '@/lib/validations/myTeam.validation'
 import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
-import { TeamMemberMinify } from "@yawara/types"
+import { TeamMemberMinify, ArtMinify } from "@yawara/types"
 
 export async function GET(request: NextRequest) {
     try {
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
             throw 'FORBIDDEN_ERROR';
         }
 
-        const res = await new MyTeamService(user_data).getMyTeamDataForNote();
+        const res = await new MyTeamService(user_data).getMyTeamDataForNote('ART');
 
-        return successResponse<TeamMemberMinify[]>(res, 200);
+        return successResponse<{team: TeamMemberMinify[], arts: ArtMinify[]}>(res, 200);
 
     } catch (error) {
         console.error('myTeam/art/route.GET error:', error);

@@ -46,7 +46,7 @@ $card-dark: #0f0f0f;
     margin-bottom: 0.8rem;
     letter-spacing: 1px;
   }
-  input, .selectInput {
+  input, .selectInput, textarea {
     width: 100%;
     background: #000;
     border: 1px solid #1a1a1a;
@@ -55,6 +55,7 @@ $card-dark: #0f0f0f;
     font-family: 'JetBrains Mono', monospace;
     &:focus { border-color: $yawara-red; outline: none; box-shadow: 0 0 10px $yawara-glow; }
   }
+   
 }
 
 .searchBox {

@@ -11,7 +11,7 @@ interface Report {
     type: 'PARTIAL' | 'FINAL';
 }
 
-const ManageArtPage = ({ params }: { params: { id: string } }) => {
+const ManageArtPage = () => {
     const {
         router,
         art,
@@ -19,9 +19,9 @@ const ManageArtPage = ({ params }: { params: { id: string } }) => {
         loading,
         
         setFile,
-        handleDonwload,
+        handleDownload,
         handleUploadReport
-    } = useManageArt(params.id);
+    } = useManageArt();
 
     return (
         <main className={styles.container}>
@@ -41,8 +41,7 @@ const ManageArtPage = ({ params }: { params: { id: string } }) => {
                     <h3 className={styles.sectionTitle}>UPDATE DE PROGRESSO</h3>
                     <p className={styles.instructionText}>
                         Suba um novo relatório parcial ou a entrega final para revisão.
-                    </p>
-                    
+                    </p>                    
                     <div className={styles.uploadSection}>
                         <label className={styles.dropzone}>
                             <input 
@@ -71,8 +70,8 @@ const ManageArtPage = ({ params }: { params: { id: string } }) => {
                                         <span className={styles.reportDate}>{new Date(report.finish_at || '').toDateString()}</span>
                                         <span className={styles.reportAuthor}>Criado em: {new Date(report.created_at || '').toDateString()}</span>
                                     </div>
-                                    <button onClick={() => handleDonwload(report.file_id)} className={styles.reportLink}>
-                                       {report.code} <span>[DOWNLOAD]</span>
+                                    <button onClick={() => handleDownload(report.file_id)} className={styles.reportLink}>
+                                    {report.title} <span>[DOWNLOAD]</span>
                                     </button>
                                 </div>
                             </div>

@@ -77,8 +77,9 @@ export interface ArtManageProps {
     title: ART['title']
     status: ART['status'];
     arttc: {
+        title: ARTTC['title'];
         id: ARTTC['id'];
-        code: ARTTC['status'];
+        code: ARTTC['code'];
         file_id: ARTTC['file_id'];
         created_at: ARTTC['created_at'];
         finish_at: ARTTC['finish_at'];

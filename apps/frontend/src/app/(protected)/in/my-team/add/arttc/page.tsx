@@ -1,27 +1,28 @@
 'use client';
 
-import {useAddNote} from "@/hooks/useMyTeam";
+import { useAddNote } from "@/hooks/useMyTeam";
 import styles from '@/app/(protected)/in/my-team/arttc.module.scss';
 
 const AddArttcPage = () => {
     const {
-            router,
-            note,
-            filtered,
-            allocatedMembers,
-            filterText,
-            file,
-            arts,
-    
-            handleAllocateMember,
-            handleExcludeAllocatedMembers,
-            setFilterText,
-            setFile,
-            
-            handleSubmit,
-            handleArtChange
-        } = useAddNote('ARTTC');
-    
+        router,
+        note,
+        filtered,
+        allocatedMembers,
+        filterText,
+        file,
+        arts,
+
+
+        handleAllocateMember,
+        handleExcludeAllocatedMembers,
+        setFilterText,
+        setFile,
+        setNote,
+        handleSubmit,
+        handleArtChange
+    } = useAddNote('ARTTC');
+
     return (
         <main className={styles.container}>
             <header className={styles.header}>
@@ -38,13 +39,18 @@ const AddArttcPage = () => {
                 <div className={styles.fieldSection}>
                     <div className={styles.inputWrapper}>
                         <label>NOME DA ARTTC</label>
-                        <input type="text" placeholder="Ex: Algoritmo de Controle PID - Tração" />
+                        <input type="text" onChange={(e) => setNote(prev => ({...prev, title: e.target.value}))} value={note?.title} placeholder="Ex: Módulo de Gerenciamento de Células (BMS)" />
+                    </div>
+
+                    <div className={styles.inputWrapper}>
+                        <label>DESCRIÇÃO TÉCNICA E OBJETIVOS</label>
+                        <textarea placeholder="Descreva os requisitos de hardware..." rows={4} value={note?.description} onChange={(e) => setNote(prev => ({ ...prev, description: e.target.value }))} />
                     </div>
 
                     <div className={styles.inputWrapper}>
                         <label>ART DE REFERÊNCIA </label>
-                        <select 
-                            value={note?.type ==='ARTTC' ? note.art : ''} 
+                        <select
+                            value={note?.type === 'ARTTC' ? note.art : ''}
                             onChange={handleArtChange}
                             title='Selecione a ART vinculada'
                             className={styles.selectInput}
@@ -60,9 +66,9 @@ const AddArttcPage = () => {
                 <div className={styles.teamSection}>
                     <h3 className={styles.sectionTitle}>EQUIPE DE DESENVOLVIMENTO</h3>
                     <div className={styles.searchBox}>
-                        <input 
-                            type="text" 
-                            placeholder="Pesquisar membro por nome..." 
+                        <input
+                            type="text"
+                            placeholder="Pesquisar membro por nome..."
                             value={filterText}
                             onChange={(e) => setFilterText(e.target.value)}
                         />
@@ -96,7 +102,7 @@ const AddArttcPage = () => {
                     </div>
                 </div>
 
-                 <div className={styles.uploadSection}>
+                <div className={styles.uploadSection}>
                     <label className={styles.dropzone}>
                         <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
                         <span>{file ? `PDF PRONTO: ${file.name}` : 'ANEXAR DOCUMENTO DE REFERÊNCIA (.PDF)'}</span>

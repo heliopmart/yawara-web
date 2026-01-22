@@ -23,6 +23,9 @@ export async function PATCH(request: NextRequest) {
         }
 
         const data = await request.json();
+
+        console.log(data)
+
         const validatedData = userNotesSchema.parse(data);
 
         const res = await new MyTeamService(user_data).putUserNotes(

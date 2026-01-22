@@ -28,6 +28,7 @@ export const createArtSchema = zod.object({
 
 export const createArttcSchema = zod.object({
     title: zod.string().min(1).max(100),
+    description: zod.string().min(1).max(500),
     art_id: zod.string().uuid().min(1),
     members: zod.array(zod.string().uuid().min(1)).min(1)
 })

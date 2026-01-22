@@ -1,7 +1,6 @@
 import { create_rls_client } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps } from '@yawara/types'
-
+import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps, ArtMinify } from '@yawara/types'
 
 
 // TODO: Falta criar todas as RPCs necessárias e validar as implementações abaixo
@@ -48,7 +47,7 @@ export class MyTeamRepository {
         }
     }
 
-    async getMyTeamDataForNote(): Promise<TeamMemberMinify[]> {
+    async getMyTeamDataForNote(type:'ART' | 'ARTTC'): Promise<TeamMemberMinify[]> {
         try {
             const res = await getRows<TeamMemberMinify>({
                 table: 'team',
@@ -59,13 +58,26 @@ export class MyTeamRepository {
                     warnings
                 `,
                 bd: this.bd,
-                filters: [{ column: 'art_id', value: null, op: 'is' }, { column: 'nuclei_id', value: this.auth.nuclei_id ?? null, op: 'eq' }],
+                filters: [{ column: type === 'ART' ? 'art_id' : 'arttc_id', value: null, op: 'is' }, { column: 'nuclei_id', value: this.auth.nuclei_id ?? null, op: 'eq' }],
             })
-
-            console.log(res)
 
             return res as TeamMemberMinify[];
         } catch (err) {
+            throw err;
+        }
+    }
+
+    async getArtsActives(): Promise<ArtMinify[]> {
+        try {
+            const res = await getRows<ArtMinify[]>({
+                table: 'arts',
+                columns: `id, title`,
+                bd: this.bd,
+                filters: [{ column: 'status', value: 'ACTIVE', op: 'eq' }, { column: 'nuclei_id', value: this.auth.nuclei_id ?? null, op: 'eq' }],
+            })
+
+            return res as ArtMinify[];
+        }catch(err){
             throw err;
         }
     }
@@ -123,7 +135,7 @@ export class MyTeamRepository {
         }
     }
 
-    async createArttc(title: string, members: string[], art_id: string): Promise<string> {
+    async createArttc(title: string, members: string[], description: string, art_id: string): Promise<string> {
         try {
             const res = await callRpc<{ id: string }>({
                 bd: this.bd,
@@ -131,7 +143,7 @@ export class MyTeamRepository {
                 params: {
                     title,
                     members_team_ids: members,
-                    description: '',
+                    description: description,
                     art_id: art_id,
                 }
             });

@@ -354,6 +354,14 @@ $border-color: rgba(255, 255, 255, 0.05);
     font-weight: 600;
     display: flex;
     justify-content: space-between;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    text-align: left;
+    gap: 9px;
+    font-size: 11px;
     
     span { color: $yawara-red; font-size: 0.7rem; }
     &:hover { text-decoration: underline; }

@@ -1,9 +1,11 @@
 import React from 'react';
+import Link from 'next/link' 
 import styles from './ArtGrid.module.scss'
 
 import { ArttcsGridProps, ArtsGridProps } from '@yawara/types'; 
 
 export const ArtGrid = ({data, title, type}: {data: ArttcsGridProps[] | ArtsGridProps[], title: string, type: string}) => {
+
     return (
         <div className={styles.sectionWrapper}>
             <h3 className={styles.sectionTitle}>{title}</h3>
@@ -19,13 +21,13 @@ export const ArtGrid = ({data, title, type}: {data: ArttcsGridProps[] | ArtsGrid
                         
                         <div className={styles.cardFooter}>
                             <div className={styles.memberList}>
-                                {item.members?.map((m: any) => (
+                                {item.members?.map((m) => (
                                     <span key={m.id} className={styles.memberName}>
-                                        {`${m.name.split(' ')[0]} | ${m.role}`} 
+                                        {`${m.user_id.name.split(' ')[0]}`} 
                                     </span>
                                 ))}
                             </div>
-                            <button className={styles.viewButton}>Ver Detalhes</button>
+                            <Link href={`/in/my-team/manage/art/${item.id}`}><button className={styles.viewButton}>Ver Detalhes</button></Link>
                         </div>
                     </div>
                 ))}

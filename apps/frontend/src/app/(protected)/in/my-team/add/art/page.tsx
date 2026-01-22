@@ -67,6 +67,8 @@ const AddArtPage = () => {
                     <div className={styles.teamGrid}>
                         <div className={styles.memberList}>
                             <p className={styles.listLabel}>DISPONÍVEIS NO NÚCLEO</p>
+                            {filtered?.length === 0 && <span className={styles.emptyMsg}>Nenhum membro disponivel</span>}
+
                             {filtered?.map(member => (
                                 <div key={member.id} className={styles.memberCard}>
                                     <div className={styles.memberInfo}>

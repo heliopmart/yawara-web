@@ -1,6 +1,6 @@
 import { TokenPayload } from '@yawara/types';
 import { MyTeamRepository } from '@/lib/repository/myTeam/myTeam.repository'
-import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify } from "@yawara/types"
+import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify, ArtMinify } from "@yawara/types"
 import {CloudinaryService} from '@/lib/services/cloudinary/cloudinary.service'
 
 export class MyTeamService {
@@ -44,12 +44,18 @@ export class MyTeamService {
 
     /**
      * Get my team data for notes, only user dont have art assigned
-     * @return {Promise<TeamMemberMinify[]>} My team data for notes
+     * @return {Promise<{team: TeamMemberMinify[], arts: ArtMinify[]}>} My team data for notes
      */
-    async getMyTeamDataForNote() : Promise<TeamMemberMinify[]> {
+    async getMyTeamDataForNote(type:'ART' | 'ARTTC') : Promise<{team: TeamMemberMinify[], arts: ArtMinify[]}> {
         try {
-            const teamData = await this.myTeamRepository.getMyTeamDataForNote(); // RPC call
-            return teamData;
+            const teamData = await this.myTeamRepository.getMyTeamDataForNote(type);
+
+            if(type === 'ARTTC'){
+                const arts = await this.myTeamRepository.getArtsActives();
+                return { team: teamData, arts };
+            }
+
+            return { team: teamData, arts: [] };
         } catch (err) {
             throw err;
         }
@@ -112,9 +118,9 @@ export class MyTeamService {
      * @param {string[]} members - Team members
      * @return {Promise<ArtManageProps>} Created arttc
      */
-    async createArttc(title: string, members: string[], art_id: string) : Promise<string> {
+    async createArttc(title: string, members: string[], description: string, art_id: string) : Promise<string> {
         try {
-            const createdArt = await this.myTeamRepository.createArttc(title, members, art_id);
+            const createdArt = await this.myTeamRepository.createArttc(title, members, description, art_id);
             return createdArt;
         }
         catch (err) {

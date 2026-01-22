@@ -247,7 +247,7 @@ it('deve lançar notas do semestre e marcar como postado na tabela team', async 
     const social_notes = { proactivity: 10, participation: 9 };
     const tech_notes = { reports: 8, delivery: 10 };
 
-    const response = await axios.post(`${PATH_API}/admin/myTeam/manage/team/score`, {
+    const response = await axios.patch(`${PATH_API}/admin/myTeam/manage/team/score`, {
         team_id: TEAM_ID,
         n_social: social_notes,
         n_tech: tech_notes

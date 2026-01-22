@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams} from 'next/navigation';
 import { ArtsGridProps, ArttcsGridProps, NoteState, TeamMemberMinify, ArtMinify, ArtManageProps } from '@yawara/types'
 import { useUserRole } from './useUserRole'
 
 import { TeamMember, ScoreCategory } from '@yawara/types';
-
-
 
 export const useMyTeam = () => {
     const { role, isLoading, user } = useUserRole();
@@ -16,8 +14,38 @@ export const useMyTeam = () => {
     const [artGrid, setArtGrid] = useState<ArtsGridProps[]>([]);
     const [arttcsGrid, setArttcsGrid] = useState<ArttcsGridProps[]>([]);
 
+    const handleFetchTeam = async () => {
+        try {
+            const res = await fetch('/api/admin/myTeam', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                return
+            }
+
+            const data = await res.json();
+            const payload = data.data.data;
+
+            setNewsWall(payload.newsWall || []);
+            setTaskWall(payload.taskWall || []);
+            setArtGrid(payload.art || []);
+            setArttcsGrid(payload.arttc || []);
+
+        } catch (error) {
+            console.error("Error fetching team data:", error);
+        }
+    }
+
     useEffect(() => {
-        setIsLeader(role === 'LEADER' || role === 'MODERATOR');
+        handleFetchTeam();
+    }, [])
+
+    useEffect(() => {
+        setIsLeader(role === 'LEADER' || role === 'MODERATOR' || role === 'DEVELOPER');
     }, [role]);
 
     return {
@@ -39,18 +67,78 @@ export const useManagerTeam = () => {
     const [isManager, setIsManager] = useState(false);
     const [team, setTeam] = useState<TeamMember[]>([]);
 
-    const [isSemesterEnd, setIsSemesterEnd] = useState(false);
+    const [isSemesterEnd, setIsSemesterEnd] = useState(true);
 
     useEffect(() => {
-        setIsManager(role === 'ADMIN' || role === 'LEADER');
+        setIsManager(role === 'ADMIN' || role === 'LEADER' || role === 'DEVELOPER');
     }, [role]);
 
     const handleFetchTeam = async () => {
+        try {
+            const res = await fetch('/api/admin/myTeam/manage/team', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
+            if (!res.ok) {
+                return;
+            }
+
+            const data = await res.json();
+            const payload = data.data.data;
+            setTeam(payload);
+
+            // ? Frontend viewer only, the backend has policies to block any requests
+            setIsSemesterEnd(handleSemesterEnd())
+        } catch (error) {
+            console.error("Error fetching team data:", error);
+        }
     }
 
-    const handleSubmitScores = async () => {
-        
+    const handleSemesterEnd = () => {
+        const data = new Date();
+        const month = data.getMonth() + 1;
+        if ([7, 11].includes(month)) {
+            return true;
+        }
+
+        return false
+    }
+
+    const handleSubmitScores = async (team_id: string) => {
+        try {
+            const member = team.find(m => m.id === team_id);
+
+            const res = await fetch('/api/admin/myTeam/manage/team/score', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    team_id: team_id,
+                    n_social: JSON.stringify(member?.n_social),
+                    n_tech: JSON.stringify(member?.n_tech)
+                })
+            });
+
+            if (!res.ok) {
+                alert("Erro ao atualizar nota do membro.")
+                return
+            }
+
+            const data = await res.json();
+
+            if (!data.sucess) {
+                alert("Permissão negada.")
+            }
+
+            alert("Notas atualizadas com sucesso.");
+            return data.status;
+        } catch (error) {
+            console.error("Error submitting scores:", error);
+        }
     }
 
     const handleScoreUpdate = (
@@ -75,13 +163,74 @@ export const useManagerTeam = () => {
         }));
     };
 
-    const createNewWarnings = (memberId: string) => {
-        // TODO: create alert and API call
+    const createNewWarnings = async (team_id: string) => {
+        try {
+            const res = await fetch('/api/admin/myTeam/manage/team/warning', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    team_id
+                })
+            });
+
+            if (!res.ok) {
+                alert("Erro ao criar novo aviso.");
+                return
+            }
+
+            const data = await res.json();
+            if (!data.sucess) {
+                alert("Permissão negada.")
+                return;
+            }
+
+            alert("Warning criado com sucesso.");
+        } catch (error) {
+            console.error("Error creating new warning:", error);
+        }
     }
 
-    const banUser = (memberId: string) => {
-        // TODO: create alert and API call
+    const banUser = async (team_id: string) => {
+        try {
+            const ok = confirm("Tem certeza que deseja banir este usuário? Essa ação é inreversivel!");
+            if (!ok) {
+                return
+            }
+
+            const res = await fetch('/api//admin/myTeam/manage/team/ban', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    team_id
+                })
+            });
+
+            if (!res.ok) {
+                alert("Erro Interno ao banir. Rollback.");
+                return
+            }
+
+            const data = await res.json();
+            if (!data.sucess) {
+                alert("Permissão negada.")
+                return;
+            }
+
+            alert("Warning criado com sucesso.");
+
+        } catch (error) {
+            console.error("Error banning user:", error);
+        }
     }
+
+
+    useEffect(() => {
+        handleFetchTeam()
+    }, [])
 
     return {
         role,
@@ -95,18 +244,21 @@ export const useManagerTeam = () => {
         setTeam,
 
         handleScoreUpdate,
+        handleSubmitScores,
         createNewWarnings,
         banUser
     }
 }
 
-export const useAddNote = (type: string) => {
+// TODO: Precisamos passar o documento em um verificador, para validar se o documento segue os padrões estabelecidos pelo YAWARA
+export const useAddNote = (type: NoteState['type']) => {
     const router = useRouter();
     const [note, setNote] = useState<NoteState>({
-        type: 'ART',
+        type: type,
         title: '',
         description: '',
-        members: []
+        members: [],
+        art: ''
     });
     const [arts, setArts] = useState<ArtMinify[]>([]);
     const [filterText, setFilterText] = useState<string>('');
@@ -118,14 +270,63 @@ export const useAddNote = (type: string) => {
     // ==================== HANDLE ====================
 
     const handleGet = async () => {
-        // TODO: API CALL to get team members
+        if (type == 'ART') {
+            try {
+                const res = await fetch('/api/admin/myTeam/art/create', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
+                if (!res.ok) {
+                    throw "INTERNAL_SERVER_ERROR"
+                }
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    throw "PERMISSION_DENIED"
+                }
+
+                setTeamMembers(data.data.team)
+                setFiltered(data.data.team)
+            } catch (error) {
+                console.error("Error fetching team members or arts:", error);
+            }
+        } else {
+            try {
+                const res = await fetch('/api/admin/myTeam/arttc/create', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!res.ok) {
+                    throw "INTERNAL_SERVER_ERROR"
+                }
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    throw "PERMISSION_DENIED"
+                }
+
+                setTeamMembers(data.data.team)
+                setFiltered(data.data.team)
+                setArts(data.data.arts)
+            } catch (error) {
+                console.error("Error fetching team members or arts:", error);
+            }
+        }
     }
 
     const handleAllocateMember = (memberId: TeamMemberMinify['id']) => {
         setAllocatedMembers(prev => {
             if (prev.find(member => member.id === memberId)) {
-                return prev.filter(member => member.id !== memberId);
+                const filtered = prev.filter(member => member.id !== memberId);
+                return filtered;
             } else {
                 const memberToAdd = teamMembers.find(member => member.id === memberId);
                 return memberToAdd ? [...prev, memberToAdd] : prev;
@@ -165,13 +366,9 @@ export const useAddNote = (type: string) => {
             if (note.art?.length === 0) {
                 return false;
             }
-        } else {
-            if (note.description?.length === 0) {
-                return false;
-            }
         }
 
-        if (note && (note.title?.length === 0)) {
+        if (note && (note.title?.length === 0 || note.description?.length === 0)) {
             alert("Por favor, preencha todos os campos obrigatórios.");
             return false;
         }
@@ -189,17 +386,130 @@ export const useAddNote = (type: string) => {
         return true
     }
 
+    // ================= FILE ====================
+
+    const handleUploadFile = async (note_id: string) => {
+        if (!file) {
+            return;
+        }
+
+        if (type === 'ART') {
+            try {
+                const formData = new FormData();
+                formData.append('id', note_id);
+                formData.append('file', file);
+
+                const res = await fetch('/api/admin/myTeam/art/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    throw data.error
+                }
+
+                return true
+            } catch (error) {
+                console.error("Error submitting ART:", error);
+            }
+        } else {
+            try {
+                const formData = new FormData();
+                formData.append('id', note_id);
+                formData.append('file', file);
+
+                const res = await fetch('/api/admin/myTeam/arttc/upload/file', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    throw data.error
+                }
+
+                return true
+            } catch (error) {
+                console.error("Error submitting ARTTC:", error);
+            }
+        }
+    }
+
     // ================= SUBMIT ===================
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if(!handleFormValidation()) return;
+        if (!handleFormValidation()) return;
 
+        if (type === 'ART') {
+            try {
+                const res = await fetch('/api/admin/myTeam/art/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title: note.title,
+                        description: note.description,
+                        members: allocatedMembers.map(m => m.id)
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
+                if (!res.ok) {
+                    throw "INTERNAL_SERVER_ERROR"
+                }
 
-        // TODO: API CALL
+                const data = await res.json()
+                if (!data.success) {
+                    throw "PERMISSION_DENIED"
+                }
 
+                const note_id = data.data;
+
+                await handleUploadFile(note_id)
+
+                alert("ART criada com sucesso!");
+                router.back()
+            } catch (error) {
+                console.error("Error submitting ART:", error);
+            }
+
+        } else {
+            try {
+                const res = await fetch('/api/admin/myTeam/arttc/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        title: note.title,
+                        description: note.description,
+                        members: allocatedMembers.map(m => m.id),
+                        art_id: note?.art
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!res.ok) {
+                    throw "INTERNAL_SERVER_ERROR"
+                }
+
+                const data = await res.json()
+                if (!data.success) {
+                    throw "PERMISSION_DENIED"
+                }
+
+                const note_id = data.data;
+
+                await handleUploadFile(note_id)
+
+                alert("ART criada com sucesso!");
+                router.back()
+            } catch (error) {
+                console.error("Error submitting ART:", error);
+            }
+        }
     };
 
     // ==================== USE EFFECT =====================
@@ -236,28 +546,63 @@ export const useAddNote = (type: string) => {
     }
 }
 
-export const useManageArt = (id : string) => {
+export const useManageArt = () => {
     const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
+
     const [art, setArt] = useState<ArtManageProps>();
     const [file, setFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false)
 
     // ==================== HANDLE ====================
 
-    const handleGet = () => {
+    const handleGet = async () => {
+        try{
+            setLoading(true)
+            const res = await fetch(`/api/admin/myTeam/art`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id
+                })
+            });
+
+            if(!res.ok){
+                throw "INTERNAL_SERVER_ERROR"
+            }
+
+            const data = await res.json()
+
+            if(!data.success){
+                throw data.error
+            }
+
+            setArt(data.data.data)
+        }catch(err){
+            console.error("Error fetching ART data:", err);
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    const handleDownload = (download_id: string) => {
+        // TODO: fazer o downlaod do FILE and REPORT, public download
+
 
     }
 
-    const handleDonwload = (download_id: string) => {
-
-    }
+    // TODO: NOTE. Para que serve enviar relatório da ART? Se quem envia report é a ARTTC?
+    // ? Talvez modificar o layout a fim de ter um select para selecionar a ART e enviar o report. 
 
     const handleUploadReport = (type: 'PARTIAL' | 'FINAL') => {
-        if(!file){
+        if (!file) {
             return;
         }
 
-
+        // 
     }
 
     // ==================== USE EFFECT =====================
@@ -273,7 +618,7 @@ export const useManageArt = (id : string) => {
         loading,
 
         setFile,
-        handleDonwload,
+        handleDownload,
         handleUploadReport
     }
 }

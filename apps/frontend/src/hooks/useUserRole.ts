@@ -16,8 +16,6 @@ export const useUserRole = () => {
                 const res = await fetch('/api/auth/role');
                 const data = await res.json();
                 
-                console.log(data)
-
                 if (isMounted) {
 
                     setRole(data.role as AuthRole);

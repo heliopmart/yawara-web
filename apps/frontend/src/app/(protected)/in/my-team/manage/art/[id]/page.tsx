@@ -1,27 +1,19 @@
 'use client';
 
-import {useManageArt} from "@/hooks/useMyTeam"
+import { useManageArt } from "@/hooks/useMyTeam";
 import styles from '@/app/(protected)/in/my-team/art.module.scss'; 
-
-interface Report {
-    id: string;
-    date: string;
-    author: string;
-    filename: string;
-    type: 'PARTIAL' | 'FINAL';
-}
+import Link from "next/link";
 
 const ManageArtPage = () => {
     const {
         router,
         art,
-        file,
         loading,
-        
-        setFile,
-        handleDownload,
-        handleUploadReport
+        handleDownload
     } = useManageArt();
+
+    const totalArttcs = art?.arttc?.length || 0;
+    const completedArttcs = art?.arttc?.filter(a => a.status === 'INACTIVE').length || 0;
 
     return (
         <main className={styles.container}>
@@ -30,54 +22,73 @@ const ManageArtPage = () => {
                     <span>←</span> VOLTAR
                 </button>
                 <div className={styles.titleInfo}>
-                    <span className={styles.statusBadge}>ACTIVE SYSTEM</span>
-                    <h1>Gerenciar: {!loading ? art?.title : "CARREGANDO..."}</h1>
-                    <p>Acompanhamento de progresso e validação de documentação técnica.</p>
+                    <span className={styles.statusBadge}>{art?.status === 'ACTIVE' ? 'NÚCLEO ATIVO' : 'ARQUIVADO'}</span>
+                    <h1>{!loading ? art?.title : "CARREGANDO..."}</h1>
+                    <p>Central de Governança e Histórico de Metas Técnicas (ARTTCs).</p>
                 </div>
             </header>
 
-            <div className={styles.manageGrid}>
-                <section className={styles.teamSection}>
-                    <h3 className={styles.sectionTitle}>UPDATE DE PROGRESSO</h3>
-                    <p className={styles.instructionText}>
-                        Suba um novo relatório parcial ou a entrega final para revisão.
-                    </p>                    
-                    <div className={styles.uploadSection}>
-                        <label className={styles.dropzone}>
-                            <input 
-                                type="file" 
-                                accept=".pdf" 
-                                onChange={(e) => setFile(e.target.files?.[0] || null)} 
-                            />
-                            <span>{file ? `CARREGADO: ${file.name}` : 'SELECIONAR RELATÓRIO (.PDF)'}</span>
-                        </label>
+            <div className={styles.governanceGrid}>
+                <section className={styles.historySection}>
+                    <div className={styles.sectionHeader}>
+                        <h3 className={styles.sectionTitle}>HISTÓRICO DE METAS TÉCNICAS (ARTTCs)</h3>
+                        <div className={styles.stats}>
+                            <span>{completedArttcs}/{totalArttcs} Metas Concluídas</span>
+                        </div>
                     </div>
 
-                    <div className={styles.actionButtons}>
-                        <button className={styles.submitBtn} onClick={() => handleUploadReport('PARTIAL')}>ENVIAR RELATÓRIO</button>
-                        <button className={styles.finalizeBtn} onClick={() => handleUploadReport('FINAL')}>FINALIZAR ART</button>
-                    </div>
-                </section>
+                    <div className={styles.arttcList}>
+                        {!loading && art?.arttc?.map((arttc) => (
+                            <div key={arttc.id} className={`${styles.arttcCard} ${arttc.status === 'INACTIVE' ? styles.finished : ''}`}>
+                                <div className={styles.cardHeader}>
+                                    <h4>{arttc.title}</h4>
+                                    <span className={styles.typeBadge}>{arttc.type}</span>
+                                </div>
+                                
+                                <div className={styles.cardBody}>
+                                    <p>Criada em: {new Date(arttc.created_at || '').toLocaleDateString('pt-BR')}</p>
+                                    {arttc.finish_at && (
+                                        <p>Finalizada em: {new Date(arttc.finish_at).toLocaleDateString('pt-BR')}</p>
+                                    )}
+                                </div>
 
-                <section className={styles.teamSection}>
-                    <h3 className={styles.sectionTitle}>LOG DE DOCUMENTAÇÃO</h3>
-                    <div className={styles.timeline}>
-                        {!loading && art?.arttc?.map((report) => (
-                            <div key={report.id} className={styles.timelineItem}>
-                                <div className={styles.timelinePoint} />
-                                <div className={styles.reportInfo}>
-                                    <div className={styles.reportMeta}>
-                                        <span className={styles.reportDate}>{new Date(report.finish_at || '').toDateString()}</span>
-                                        <span className={styles.reportAuthor}>Criado em: {new Date(report.created_at || '').toDateString()}</span>
-                                    </div>
-                                    <button onClick={() => handleDownload(report.file_id)} className={styles.reportLink}>
-                                    {report.title} <span>[DOWNLOAD]</span>
-                                    </button>
+                                <div className={styles.cardFooter}>
+                                    <Link 
+                                        href={`/in/my-team/manage/arttc/${arttc.id}`} 
+                                        className={styles.manageBtn}
+                                    >
+                                        GERENCIAR ARTTC <span>→</span>
+                                    </Link>
+                                    
+                                    {arttc.report_file_id && (
+                                        <button onClick={() => handleDownload(arttc.report_file_id, `${arttc.title}-report`, 'ARTTC')} className={styles.downloadBtn}>
+                                            BAIXAR REPORT
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
                     </div>
                 </section>
+
+                <aside className={styles.sidebarSection}>
+                    <h3 className={styles.sectionTitle}>FUNDAÇÃO DA ART</h3>
+                    <div className={styles.foundationCard}>
+                        <p>Documento original de planejamento do núcleo.</p>
+                        {art?.file_id ? (
+                            <button onClick={() => handleDownload(art.file_id, `${art.title}-plano-inicial`, 'ART')}>
+                                DOWNLOAD PLANO INICIAL
+                            </button>
+                        ) : (
+                            <span className={styles.noFile}>Sem documento de fundação</span>
+                        )}
+                    </div>
+
+                    <div className={styles.instructionCard}>
+                        <h4>Resumo do Núcleo</h4>
+                        <p>{art?.desctiption || "Nenhuma descrição detalhada fornecida."}</p>
+                    </div>
+                </aside>
             </div>
         </main>
     );

@@ -1,18 +1,21 @@
-import {FullMembers, ART} from '../index';
+import { FullMembers, ART } from '../index';
 
 // --------------------------------------------
 // ------------ ARTTC INTERFACES --------------
 // --------------------------------------------
 export type ArttcRole = 'MEMBER' | 'LEADER';
+export type ActivityStatus = 'ACTIVE' | 'INACTIVE';
 
 export interface ARTTC {
     id: string;
     title: string;
     description: string;
     art_id: string;
-    status:ArttcRole;
+    status: ActivityStatus;
     code: string,
     file_id: string;
+    report_file_id: string;
+    type: 'PARTIAL' | 'FINAL';
     updated_at: string;
     finish_at: string | null;
     created_at: string;
@@ -44,7 +47,7 @@ export interface ArttcsGridProps {
     id: ARTTC['id'];
     title: ARTTC['title'];
     description?: ARTTC['description'];
-    type: 'ARTTC'; 
+    type: 'ARTTC';
     members: Omit<FullMembers, 'role'>[];
 }
 
@@ -63,6 +66,18 @@ export interface CreateNoteBase {
     art?: string;
 }
 
-export type NoteState = 
-    | (CreateNoteBase & { type: 'ART' }) 
+export type NoteState =
+    | (CreateNoteBase & { type: 'ART' })
     | (CreateNoteBase & { type: 'ARTTC', art: string });
+
+export interface ArttcManageProps {
+    title: ARTTC['title'];
+    id: ARTTC['id'];
+    code: ARTTC['code'];
+    status: ARTTC['status'];
+    file_id: ARTTC['file_id'];
+    report_file_id: ARTTC['report_file_id'];
+    created_at: ARTTC['created_at'];
+    finish_at: ARTTC['finish_at'];
+    type: ARTTC['type'];
+}

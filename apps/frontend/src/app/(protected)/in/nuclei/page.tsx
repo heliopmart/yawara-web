@@ -1,11 +1,11 @@
 'use client';
 
-import {useNucleus} from '@/hooks/useNucleusManagement';
+import {useNuclei} from '@/hooks/useNucleusManagement';
 import styles from './nuclei.module.scss';
 
 
 const NucleiPage = () => {
-    const { nucleus } = useNucleus();
+    const { nuclei } = useNuclei();
 
     return (
         <main className={styles.container}>
@@ -17,7 +17,7 @@ const NucleiPage = () => {
             </header>
 
             <div className={styles.nucleiGrid}>
-                {nucleus.map((n) => (
+                {nuclei.map((n) => (
                     <section key={n.id} className={styles.nucleusCard}>
                         <div className={styles.cardHeader}>
                             <h2>{n.name}</h2>

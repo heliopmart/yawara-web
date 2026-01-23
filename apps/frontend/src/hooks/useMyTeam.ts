@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useRouter, useParams} from 'next/navigation';
-import { ArtsGridProps, ArttcsGridProps, NoteState, TeamMemberMinify, ArtMinify, ArtManageProps } from '@yawara/types'
+import { useRouter, useParams } from 'next/navigation';
+import { ArtsGridProps, ArttcsGridProps, NoteState, TeamMemberMinify, ArtMinify, ArtManageProps, ArttcManageProps } from '@yawara/types'
 import { useUserRole } from './useUserRole'
 
 import { TeamMember, ScoreCategory } from '@yawara/types';
@@ -558,7 +558,7 @@ export const useManageArt = () => {
     // ==================== HANDLE ====================
 
     const handleGet = async () => {
-        try{
+        try {
             setLoading(true)
             const res = await fetch(`/api/admin/myTeam/art`, {
                 method: 'POST',
@@ -570,40 +570,29 @@ export const useManageArt = () => {
                 })
             });
 
-            if(!res.ok){
+            if (!res.ok) {
                 throw "INTERNAL_SERVER_ERROR"
             }
 
             const data = await res.json()
 
-            if(!data.success){
+            if (!data.success) {
                 throw data.error
             }
 
             setArt(data.data.data)
-        }catch(err){
+        } catch (err) {
             console.error("Error fetching ART data:", err);
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
 
-    const handleDownload = (download_id: string) => {
-        // TODO: fazer o downlaod do FILE and REPORT, public download
+    // TODO Testar funcionalidade
+    const handleDownload = (public_id: string, title: string, type: 'ART' | 'ARTTC') => {
+        return handleDownloadFile(public_id, title)
+    };
 
-
-    }
-
-    // TODO: NOTE. Para que serve enviar relatório da ART? Se quem envia report é a ARTTC?
-    // ? Talvez modificar o layout a fim de ter um select para selecionar a ART e enviar o report. 
-
-    const handleUploadReport = (type: 'PARTIAL' | 'FINAL') => {
-        if (!file) {
-            return;
-        }
-
-        // 
-    }
 
     // ==================== USE EFFECT =====================
 
@@ -618,7 +607,120 @@ export const useManageArt = () => {
         loading,
 
         setFile,
+        handleDownload
+    }
+}
+
+export const useManageArttc = () => {
+    const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
+
+    const [arttc, setArttc] = useState<ArttcManageProps>();
+    const [uploading, setUploading] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false)
+
+    // ==================== HANDLE ====================
+
+    const handleGet = async () => {
+        try {
+            setLoading(true)
+            const res = await fetch(`/api/admin/myTeam/arttc`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id
+                })
+            });
+
+            if (!res.ok) {
+                throw "INTERNAL_SERVER_ERROR"
+            }
+
+            const data = await res.json()
+
+            if (!data.success) {
+                throw data.error
+            }
+
+            console.log(data.data)
+
+            setArttc(data.data.data)
+        } catch (err) {
+            console.error("Error fetching ART data:", err);
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleDownload = (download_id: string | undefined) => {
+        return handleDownloadFile(download_id, arttc?.title || 'relatorio_yawara');
+    }
+
+    const handleUploadReport = async () => {
+        if (!file) {
+            return;
+        }
+
+        setUploading(true)
+        try {
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('file', file);
+
+            const res = await fetch('/api/admin/myTeam/arttc/upload/report', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if(!res.ok) {
+                throw "INTERNAL_SERVER_ERROR"
+            }
+
+            const data = await res.json()
+            if(!data.success){
+                throw data.error
+            }
+
+            if(!data.data){
+                alert("Você não está alocado nessa ARTTC, não é possível enviar o relatório.");
+                return;
+            }
+
+            alert("Relatório enviado com sucesso!");
+        } catch (error) {
+            console.error("Error uploading report file:", error);
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    // ==================== USE EFFECT =====================
+
+    useEffect(() => {
+        handleGet()
+    }, []);
+
+    return {
+        router,
+        arttc,
+        file,
+        loading,
+        uploading,
+
+        setFile,
         handleDownload,
         handleUploadReport
     }
+}
+
+async function handleDownloadFile(public_id: string | undefined, title: string): Promise<void> {
+    if (!public_id) return;
+    
+    const safeName = encodeURIComponent(title.replace(/\s+/g, '_'));
+
+    window.location.href = `/api/admin/myTeam/file_download?publicId=${public_id}&name=${safeName}`;
 }

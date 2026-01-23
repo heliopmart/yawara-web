@@ -1,9 +1,6 @@
 import { create_rls_client } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps, ArtMinify } from '@yawara/types'
-
-
-// TODO: Falta criar todas as RPCs necessárias e validar as implementações abaixo
+import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps, ArtMinify, ArttcManageProps} from '@yawara/types'
 
 export class MyTeamRepository {
     private auth: TokenPayload;
@@ -97,14 +94,14 @@ export class MyTeamRepository {
         }
     }
 
-    async getArttc(arttcId: string): Promise<ArtManageProps> {
+    async getArttc(arttcId: string): Promise<ArttcManageProps> {
         try {
-            const res = await callRpc<ArtManageProps>({
+            const res = await callRpc<ArttcManageProps>({
                 bd: this.bd,
                 functionName: 'get_arttc_manage_props',
                 params: { arttc_id: arttcId }
             });
-            return res as unknown as ArtManageProps;
+            return res as unknown as ArttcManageProps;
         }
         catch (err) {
             throw err;
@@ -266,7 +263,7 @@ export class MyTeamRepository {
                 }
             })
 
-            return res.status;
+            return res.data as boolean;
         }
         catch (err) {
             throw err;

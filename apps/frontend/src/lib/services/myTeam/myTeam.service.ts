@@ -1,6 +1,6 @@
 import { TokenPayload } from '@yawara/types';
 import { MyTeamRepository } from '@/lib/repository/myTeam/myTeam.repository'
-import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify, ArtMinify } from "@yawara/types"
+import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify, ArtMinify, ArttcManageProps } from "@yawara/types"
 import {CloudinaryService} from '@/lib/services/cloudinary/cloudinary.service'
 
 export class MyTeamService {
@@ -79,9 +79,9 @@ export class MyTeamService {
     /**
      * Get arttc details by arttc ID
      * @param {string} arttcId - Arttc ID
-     * @return {Promise<ArtManageProps>} Arttc details
+     * @return {Promise<ArttcManageProps>} Arttc details
      */
-    async getArttc(arttcId: string): Promise<ArtManageProps> {
+    async getArttc(arttcId: string): Promise<ArttcManageProps> {
         try {
             const arttcData = await this.myTeamRepository.getArttc(arttcId);
             return arttcData;
@@ -190,7 +190,7 @@ export class MyTeamService {
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'art',
                 resourceType: 'raw',
-                uploadType: 'upload'
+                uploadType: 'private'
             });
 
             const uploadResult = await this.myTeamRepository.uploadArtFile(artId, uploaded_file_id.public_id);
@@ -207,7 +207,7 @@ export class MyTeamService {
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'arttc',
                 resourceType: 'raw',
-                uploadType: 'upload'
+                uploadType: 'private'
             });
 
             const uploadResult = await this.myTeamRepository.uploadArttcFile(arttcId, uploaded_file_id.public_id);
@@ -223,7 +223,7 @@ export class MyTeamService {
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'arttc/reports',
                 resourceType: 'raw',
-                uploadType: 'upload'
+                uploadType: 'private'
             });
 
             const uploadResult = await this.myTeamRepository.uploadArttcReportFile(arttcId, uploaded_file_id.public_id);

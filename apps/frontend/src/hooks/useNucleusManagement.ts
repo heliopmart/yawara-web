@@ -15,7 +15,7 @@ export const useNucleusManagement = () => {
         const loadInitialData = async () => {
             setIsLoading(true);
             try {
-                const res  = await fetch('/api/admin/nuclei', { method: 'GET' });
+                const res  = await fetch('/api/admin/nucleus', { method: 'GET' });
                 const data = await res.json()
 
                 if(!data.success){
@@ -63,7 +63,7 @@ export const useNucleusManagement = () => {
                 throw 'Preencha o nome de todas as disciplinas.'
             }
         
-            const res = await fetch('/api/admin/nuclei', {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
+            const res = await fetch('/api/admin/nucleus', {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
                 nuclei_id: nucleiId,
                 nuclei_config_id: nucleiConfigId,
                 open_vacancies: vacancies,
@@ -103,11 +103,27 @@ export const useNucleusManagement = () => {
     };
 };
 
-export const useNucleus = () => {
-    const [nucleus, setNucleus] = useState<NucleiShowProps[]>([]);
+export const useNuclei = () => {
+    const [nuclei, setNuclei] = useState<NucleiShowProps[]>([]);
 
-    const handleGet = () => {
-        // TODO fetch nucleus data from API
+    const handleGet = async () => {
+        try{
+            const res = await fetch('/api/admin/nuclei', { method: 'GET', headers: { 'Content-Type': 'application/json'} });
+
+            if(!res.ok){
+                throw 'Erro ao buscar núcleos';
+            }
+
+            const data = await res.json();
+
+            if(!data.success){
+                throw data.error.message
+            }
+
+            setNuclei(data.data);
+        }catch(error){
+            console.error('Erro ao buscar núcleos:', error);
+        }
     }
 
     useEffect(() => {
@@ -115,6 +131,6 @@ export const useNucleus = () => {
     },[])
 
     return {
-        nucleus
+        nuclei
     }
 }

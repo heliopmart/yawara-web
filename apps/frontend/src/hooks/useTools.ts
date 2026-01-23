@@ -1,19 +1,20 @@
 import {useState, useEffect, useCallback} from 'react';
-import {Tool} from '@yawara/types';
+import {Tool, ToolShowProps} from '@yawara/types';
 
 export const useTools = () => {
-    const [tools, setTools] = useState<Tool[]>([]);
-    const [filteredTools, setFilteredTools] = useState<Tool[]>([]);
+    const [tools, setTools] = useState<ToolShowProps[]>([]);
+    const [filteredTools, setFilteredTools] = useState<ToolShowProps[]>([]);
     const [search, setSearch] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
 
     const handleFetchTools = useCallback(async () => {
         try {
-            const response = await fetch('/api/tools');
+            const response = await fetch('/api/tool');
             if (!response.ok) {
                 throw new Error('Failed to fetch tools');
             }
-            const data: Tool[] = await response.json();
+            const data: ToolShowProps[] = (await response.json()).data;
+
             setTools(data);
             setFilteredTools(data);
         } catch (error) {
@@ -37,14 +38,14 @@ export const useTools = () => {
         }
     }
 
-    const handleAllocateTool = async (toolId: string) => {
+    const handleAllocateTool = async (id: string) => {
         try {
-            const response = await fetch(`/api/tools/allocate`, {
-                method: 'POST',
+            const response = await fetch(`/api/tool/allocate`, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({toolId}),
+                body: JSON.stringify({id}),
             });
             if (!response.ok) {
                 throw new Error('Failed to allocate tool');
@@ -55,10 +56,29 @@ export const useTools = () => {
         }
     }
 
+    const handleDeallocateTool = async (id: string, quantity: number) => {
+        try {
+            const response = await fetch(`/api/tool/deallocate`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({id, quantity}),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to deallocate tool');
+            }
+            await handleFetchTools();
+        } catch (error) {
+            console.error('Error allocating tool:', error);
+        }
+    }
+
+
     useEffect(() => {
         handleFetchTools();
     }, []);
 
     return {
-        tools, filteredTools, search, loading, handleSearch, handleAllocateTool}
+        tools, filteredTools, search, loading, handleSearch, handleAllocateTool, handleDeallocateTool}
 }

@@ -4,7 +4,7 @@ import { getAuthCookie } from '../helpers/auth.setup';
 
 import { myTeamDataProps, TeamMember, TeamMemberMinify, ArtManageProps } from "@yawara/types"
 
-const PATH_API = process.env.PATH_API || 'http://localhost:3000/api';
+const PATH_API = process.env.PATH_API || 'http://localhost:3000/api'; 
 
 it('deve carregar os dados do time usando o cookie de sessão', async () => {
     const cookie = await getAuthCookie();

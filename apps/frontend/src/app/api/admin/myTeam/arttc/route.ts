@@ -6,8 +6,9 @@ import { artIdSchema } from '@/lib/validations/myTeam.validation'
 import { ALLOWED_ROLES } from '@/lib/validations/auth.validation'
 import { successResponse, errorResponse } from '@/lib/helpers/response';
 import { MyTeamService } from '@/lib/services/myTeam/myTeam.service';
+import { ArttcManageProps } from '@yawara/types'
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     try {
         const user_token = await getCookie('user-session')
 
@@ -21,8 +22,8 @@ export async function GET(request: NextRequest) {
         const validatedData = artIdSchema.parse(data);
 
         const res = await new MyTeamService(user_data).getArttc(validatedData.id);
-       
-        return successResponse<any>(res, 200);
+
+        return successResponse<ArttcManageProps>(res, 200);
 
     } catch (error) {
         console.error('myTeam/arttc/route.GET error:', error);

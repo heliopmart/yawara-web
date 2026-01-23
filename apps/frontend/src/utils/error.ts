@@ -174,6 +174,10 @@ export const error_list = {
     'FORBIDDEN_ERROR': {
         message: 'Acesso proibido.',
         statusCode: 403,
+    },
+    'NUCLEI_FETCH_FAILED': {
+        message: 'Falha ao buscar núcleos.',
+        statusCode: 500,
     }
 }
 

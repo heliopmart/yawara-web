@@ -60,14 +60,6 @@ export interface ArtsGridProps {
     members: FullMembers[];
 }
 
-// export interface createArtProps<T extends 'ART' | 'ARTTC' = 'ART'> {
-//     title: ART['title'];
-//     art: T extends 'ARTTC' ? ART['id'] : undefined;
-//     type: T;
-//     description: ART['description'];
-//     members: UsersArts['user_id'][];
-// }
-
 export interface ArtMinify {
     id: ART['id'];
     title: ART['title'];
@@ -75,14 +67,18 @@ export interface ArtMinify {
 
 export interface ArtManageProps {
     title: ART['title']
+    desctiption: ART['description'];
+    file_id: ART['file_id'];
     status: ART['status'];
     arttc: {
         title: ARTTC['title'];
         id: ARTTC['id'];
         code: ARTTC['code'];
+        status: ARTTC['status'];
         file_id: ARTTC['file_id'];
+        report_file_id: ARTTC['report_file_id'];
         created_at: ARTTC['created_at'];
         finish_at: ARTTC['finish_at'];
-        type: 'PARTIAL' | 'FINAL';
+        type: ARTTC['type'];
     }[]
 }

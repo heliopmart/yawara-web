@@ -72,7 +72,17 @@
   }
 }
 
+.techLink{
+    display: inline-block;
+    color: $color-primary;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
 
+    &:hover{
+        color: lighten($color-primary, 10%);
+    }
+}
 
 // --- 1. HERO / HEADLINE ---
 .heroSection {
@@ -88,7 +98,6 @@
 }
 
 // --- 2. TIMELINE ---
-// Ajuste geral dos títulos para que não quebrem feio em mobile
 .timelineTitle {
     font-size: 1.8rem; 
     margin-bottom: $spacing-lg;
@@ -103,7 +112,6 @@
     }
 }
 
-// ...
 
 .timelineSection{
     width: 100%;
@@ -164,7 +172,7 @@
 
 .stepMarker {
     @include flex-center;
-    width: 25px; // Aumentando um pouco o marcador para melhor visualização
+    width: 25px; 
     height: 25px;
     background-color: $color-primary;
     border-radius: 50%;
@@ -172,17 +180,17 @@
     font-size: 0.8em;
     font-weight: bold;
     position: absolute;
-    top: -13px; // Ajuste para o novo tamanho
+    top: -13px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .timelineLabel {
     display: block;
-    font-size: 0.75em; // CRÍTICO: Reduzindo o tamanho da fonte para caber
+    font-size: 0.75em; 
     color: $color-text-light;
     white-space: normal;
-    text-align: center; // Centralizando o label do passo
+    text-align: center; 
 }
 
 // --- 3. TECNOLOGIA E REDE NEURAL ---
@@ -245,11 +253,11 @@
     margin-bottom: $spacing-md;
     
     strong {
-        color: $color-text-light; // Destaque em branco/claro
+        color: $color-text-light;
     }
 }
 
-// --- 4. FAQ (Acordeão Interativo) ---
+// --- 4. FAQ ---
 .faqSection {
     width: 100%;
     display: flex;
@@ -272,7 +280,7 @@
 .faqItem {
     border-top: 1px solid $color-dark-surface;
     cursor: pointer;
-    background-color: $color-dark-surface; // Cor de fundo do item FAQ
+    background-color: $color-dark-surface; 
     margin-bottom: 2px;
     padding: $spacing-md;
 }
@@ -287,18 +295,18 @@
 
 .faqIcon {
     font-size: 1.5em;
-    color: $color-primary; // Ícone em vermelho
+    color: $color-primary;
 }
 
 .faqAnswer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out; // Transição para animação suave
+    transition: max-height 0.3s ease-in-out;
     padding: 0 $spacing-md 0 0;
     color: $color-text-light
 }
 
 .faqAnswerOpen {
-    max-height: 200px; // Altura máxima para a transição
+    max-height: 200px; 
     padding-top: $spacing-md;
 }

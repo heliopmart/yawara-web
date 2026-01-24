@@ -6,14 +6,14 @@ import { jwtVerify  } from 'jose'
 const SECRET = process.env.JWT_SECRET_USER_ROLE || ''
 
 const ROLE_ROUTES = {
-    ADMIN_ROUTES: ['/account/admin', '/account/certificates', '/account/allocation'],
-    MEMBER_ROUTES: ['/account/my-team', '/account/nuclei', '/account/ferramentas', '/account/requests', '/account/docs'],
-    CANDIDATE_ROUTES: ['/account/processo-seletivo']
+    ADMIN_ROUTES: ['/in/admin', '/in/certificates', '/in/allocation'],
+    MEMBER_ROUTES: ['/in/my-team', '/in/nuclei', '/in/ferramentas', '/in/requests', '/in/docs'],
+    CANDIDATE_ROUTES: ['/in/processo-seletivo']
 };
 
 export async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
-    const isProtectedRoute = path.startsWith('/account');
+    const isProtectedRoute = path.startsWith('/in');
 
     if (!isProtectedRoute) {
         return NextResponse.next();
@@ -44,21 +44,21 @@ export async function middleware(req: NextRequest) {
     // --- REGRA 1: Proteção de Líder/Admin ---
     if (ROLE_ROUTES.ADMIN_ROUTES.some(route => path.startsWith(route))) {
         if (userRole !== 'LEADER' && userRole !== 'ADMIN') {
-            return NextResponse.redirect(new URL('/account', req.url));
+            return NextResponse.redirect(new URL('/in', req.url));
         }
     }
 
     // --- REGRA 2: Proteção de Processo Seletivo ---
-    if (path.startsWith('/account/processo-seletivo')) {
+    if (path.startsWith('/in/processo-seletivo')) {
         if (userRole === 'MEMBER' || userRole === 'LEADER') {
-            return NextResponse.redirect(new URL('/account/my-team', req.url));
+            return NextResponse.redirect(new URL('/in/my-team', req.url));
         }
     }
 
     // --- REGRA 3: Candidato tentando ver coisas de Membro ---
     if (ROLE_ROUTES.MEMBER_ROUTES.some(route => path.startsWith(route))) {
         if (userRole === 'USER') {
-            return NextResponse.redirect(new URL('/account/processo-seletivo', req.url));
+            return NextResponse.redirect(new URL('/in/selection-process', req.url));
         }
     }
 

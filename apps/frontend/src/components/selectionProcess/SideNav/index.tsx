@@ -35,7 +35,7 @@ const SideNav: React.FC<SideNavProps> = ({ links, isOpen, onClose }) => {
         <ul className={styles.navList}>
           {links.map((link) => {
             const isActive = pathname.startsWith(link.href) && 
-                             (pathname === link.href || link.href !== '/account/processo-seletivo');
+                             (pathname === link.href || link.href !== '/in/selection-process');
 
             return (
               <li key={link.href} className={styles.navItem}>

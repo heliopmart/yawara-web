@@ -1,0 +1,319 @@
+$yawara-red: #e60000;
+$bg-dark: #050505;
+$border-color: rgba(255, 255, 255, 0.1);
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1300px;
+
+@mixin up($bp) {
+  @media (min-width: $bp) { @content; }
+}
+
+.container {
+  color: #fff;
+  max-width: 100%; 
+  margin: 0;
+  padding: 1.5rem;
+  overflow-x: hidden; 
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  h1 { font-size: 1.4rem; text-transform: uppercase; font-weight: 900; }
+}
+
+.filterBar {
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+  padding: 12px;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  
+  select {
+    width: 100%;
+    background: #000;
+    border: 1px solid #222;
+    color: $yawara-red;
+    padding: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    @include up($bp-md) { width: 300px; }
+  }
+}
+
+.tableContainer {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  thead th {
+    background: #111;
+    padding: 12px 6px;
+    font-size: 0.55rem; 
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 900;
+    border-bottom: 2px solid #1a1a1a;
+    text-align: center;
+    
+    &:first-child { 
+      width: 25%; 
+      text-align: left;
+      padding-left: 1rem;
+    }
+    
+    &:last-child { 
+      width: auto;
+      min-width: 120px;
+      max-width: 300px; 
+    }
+  }
+
+  tbody td {
+    padding: 10px 4px;
+    border-bottom: 1px solid #111;
+    text-align: left;
+    padding: 15px;
+    font-size: 0.8rem;
+
+    &:first-child {
+      text-align: left;
+      padding-left: 1rem;
+      font-weight: 700;
+      color: #eee;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; 
+    }
+  }
+}
+
+.scoreInput {
+  width: 42px;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 6px 2px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  
+  &:focus {
+    border-color: $yawara-red;
+    outline: none;
+    background: #0a0000;
+  }
+}
+
+.saveBtn {
+  background: $yawara-red;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+  
+  &:hover { filter: brightness(1.2); }
+}
+
+.submitChanges{
+  @extend .saveBtn;
+  max-width: 300px;
+  width: auto;
+  margin: 20px 0px 20px auto;
+}
+
+.viewToggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    button {
+        background: transparent;
+        border: 1px solid #222;
+        color: #444;
+        padding: 5px 12px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        cursor: pointer;
+        &.active {
+            color: $yawara-red;
+            border-color: $yawara-red;
+        }
+    }
+}
+
+/* =============================================
+   TABLE SYSTEM (A MÁGICA DA RESPONSIVIDADE)
+   ============================================= */
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto; 
+  border-radius: 4px;
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+
+  
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 100%; 
+
+  thead {
+    display: none; 
+    @include up($bp-lg) {
+      display: table-header-group;
+      background: #111;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      font-size: 0.55rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      border-bottom: 2px solid #1a1a1a;
+    }
+  }
+
+  tbody tr {
+    display: block;
+    padding: 1.2rem;
+    border-bottom: 1px solid $border-color;
+    transition: background 0.2s;
+
+    &:hover { background: rgba(255,255,255,0.02); }
+
+    @include up($bp-md) {
+      display: table-row;
+      padding: 0;
+    }
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    font-size: 0.9rem;
+
+
+    &:first-child {
+      font-weight: 900;
+      color: $yawara-red;
+      font-size: 1rem;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.8rem;
+
+      &::before { content: none; } 
+    }
+
+    &::before {
+      content: attr(data-label);
+      font-size: 0.6rem;
+      color: #444;
+      text-transform: uppercase;
+      font-weight: 800;
+      @include up($bp-lg) { display: none; }
+    }
+
+    @include up($bp-lg) {
+      display: table-cell;
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid #111;
+      white-space: nowrap; 
+      
+      &:first-child {
+        color: #fff;
+        border-bottom: 1px solid #111;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.scoreInput {
+  width: 60px;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 8px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  border-radius: 2px;
+
+  &:focus {
+    border-color: $yawara-red;
+    outline: none;
+  }
+}
+
+.saveBtn {
+  background: $yawara-red;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 900;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
+  transition: 0.2s;
+
+  &:hover { 
+    transform: translateY(-1px);
+    filter: brightness(1.2); 
+  }
+
+  &:disabled {
+    background: #222;
+    color: #444;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: $bp-lg) {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+.done { 
+    color: #00ff88; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono'; 
+    background: rgba(0, 255, 136, 0.05);
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.pending { 
+    color: #ffaa00; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono';
+    background: rgba(255, 170, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.alignRight {
+  @include up($bp-lg) {
+    text-align: right;
+  }
+}

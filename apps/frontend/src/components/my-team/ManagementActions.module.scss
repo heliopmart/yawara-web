@@ -43,4 +43,16 @@ $border-tech: rgba(255, 255, 255, 0.03);
       color: #000;
     }
   }
+
+  .thirdBtn {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+
+    &:hover {
+      background: #fff;
+      color: #000;
+    }
+  }
 }

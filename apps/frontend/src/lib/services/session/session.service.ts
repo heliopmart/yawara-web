@@ -14,6 +14,7 @@ export class SessionService {
                 user_id: data.user_id,
                 role: data.role,
                 secret: data.secret,
+                nuclei_id: data.nuclei_id,
             })
 
             return token;
@@ -84,6 +85,7 @@ export class SessionService {
                 user_id: payload.user_id,
                 role: payload.role,
                 secret: payload.secret,
+                nuclei_id: payload.nuclei_id,
             });
             return newToken;
         } catch (error) {

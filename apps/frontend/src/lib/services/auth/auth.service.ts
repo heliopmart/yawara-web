@@ -28,6 +28,8 @@ export class authService {
         try {
             const userData = await AuthRepository.getUserByEmail(email);
 
+            console.log(userData)
+
             if (!userData) {
                 throw 'USER_NOT_FOUND'
             }

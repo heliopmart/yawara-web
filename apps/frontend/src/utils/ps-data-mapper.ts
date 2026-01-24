@@ -8,7 +8,7 @@ const STATIC_CARD_CONFIGS: Record<number, Omit<RecruitmentStep, 'state' | 'userS
     1: {
         id: 1,
         title: 'Envie seu histórico acadêmico',
-        description: '1. Faça login no SIGECAD \n 2. Acesse a pagina do Academico \n 2. Clique no menu superior "Documentos" \n 3. Baixe o arquivo em PDF \n 4. Envie o arquivo aqui',
+        description: '1. Faça login no SIGECAD <br/> 2. Acesse a pagina do Academico <br/> 2. Clique no menu superior "Documentos" <br/> 3. Baixe o arquivo em PDF <br/> 4. Envie o arquivo aqui',
         actionButton: { text: 'ENVIAR HISTÓRICO (.PDF)', href: '#' },
     },
     2: {
@@ -67,7 +67,7 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
         // .filter(config => config.card_id != 5)
         .map(config => {
 
-            const staticData = STATIC_CARD_CONFIGS[config.card_id] || { id: config.card_id, title: `Card ${config.card_id} (NOVO)`, description: 'Nova etapa sem descrição estática.' };
+            const staticData = STATIC_CARD_CONFIGS[config.card_id] || { id: config.card_id, title: config.title, description: config.description };
 
             const progressData = userProgress.find(p => p.card_id === config.card_id);
             const userState = progressData?.state || 'NOT_AVAILABLE';
@@ -79,31 +79,45 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
             let description = staticData.description;
             let deadlineStr: string | undefined = undefined;
 
-            if (config.limit_date) {
-                const datePart = config.limit_date.split('T')[0];
-                const d = new Date(config.limit_date);
+            if (config.deadline) {
+                const datePart = config.deadline.split('T')[0];
+                const d = new Date(datePart);
 
-                const date = d.toLocaleDateString('pt-BR', { dateStyle: 'short' });
-                const time = d.toLocaleTimeString('pt-BR', { timeStyle: 'short' });
+                const date = d.toLocaleTimeString('pt-BR', {
+                    timeStyle: 'short',
+                    timeZone: 'UTC'
+                });
+                const time = d.toLocaleTimeString('pt-BR', {
+                    timeStyle: 'short',
+                    timeZone: 'UTC'
+                });
 
                 deadlineStr = `${date} ${time}`;
                 description = description.replace('{deadline_placeholder}', deadlineStr);
             }
 
-            if (config.event_date && config.event_times && config.event_location) {
+            if (config.event_date && config.start_time && config.end_time && config.location) {
                 const date = new Date(config.event_date).toLocaleDateString('pt-BR');
-                const timeStart = config.event_times[0];
-                const timeEnd = config.event_times[1];
+                const timeStart = new Date(config.start_time).toLocaleTimeString('pt-BR', {
+                    timeStyle: 'short',
+                    timeZone: 'UTC'
+                });
+                const timeEnd = new Date(config.end_time).toLocaleTimeString('pt-BR', {
+                    timeStyle: 'short',
+                    timeZone: 'UTC'
+                });
 
                 description = description
                     .replace('{date_placeholder}', date)
                     .replace('{time_start}', timeStart)
                     .replace('{time_end}', timeEnd)
-                    .replace('{location_placeholder}', config.event_location);
+                    .replace('{location_placeholder}', config.location);
             }
+
 
             return {
                 ...staticData,
+                title: config.title,
                 description: description,
                 state: config.state,
                 userState: userState as EnumPsCardConfigState,
@@ -141,7 +155,7 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
         finalResult: {
             show: finalResultShow,
             message: (userApplication.nuclei_chosen && userApplication.nuclei_chosen.length > 0)
-                ? `Parabéns! Você foi selecionado para fazer parte do Yawara Motorsports no semestre ${rawBackendData.name}! Seu núcleo será o de ${userApplication.nuclei_chosen.join(' e ')}.`
+                ? `Parabéns! Você foi selecionado para fazer parte do Yawara no semestre ${rawBackendData.name}! Seu núcleo será o de ${userApplication.nuclei_chosen.join(' e ')}.`
                 : 'Embora você não tenha sido classificado, seus resultados são ótimos! Esperamos que participe novamente no próximo semestre.',
             evaluationPdfLink: userApplication.final_result_doc || '#',
         },

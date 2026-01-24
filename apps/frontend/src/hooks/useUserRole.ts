@@ -15,12 +15,12 @@ export const useUserRole = () => {
             try {
                 const res = await fetch('/api/auth/role');
                 const data = await res.json();
-
+                
                 if (isMounted) {
+
                     setRole(data.role as AuthRole);
                 }
             } catch (error) {
-                console.error("Erro ao buscar role:", error);
                 if (isMounted) setRole('GUEST');
             } finally {
                 if (isMounted) setIsLoading(false);

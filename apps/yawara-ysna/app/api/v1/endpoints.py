@@ -14,6 +14,20 @@ logger = logging.getLogger("yawara.api.endpoints")
 
 router = APIRouter()
 
+
+@router.post("/ysna/preview", summary="Preview Y-SNA PDF", description="Processa um PDF via Y-SNA e retorna o PDF gerado.")
+async def previewYsna(file: UploadFile = File(...)):
+    pdf_bytes = tents = await file.read()
+    
+    raise NotImplementedError("Endpoint de preview Y-SNA ainda não implementado.")
+
+    # TODO: precisa enviar o pdf xai
+    
+    # return Response(
+    #     content=contents, 
+    #     media_type="application/pdf"
+    # )
+
 @router.post(
     "/upload/academic_history", 
     response_model=AcademicRecord,

@@ -9,7 +9,7 @@ export const useEditionCreate = () => {
   });
 
   const [cards, setCards] = useState<CardConfig[]>([
-    { card_id: 1, limit_date: '', event_date: '', event_location: '', event_times: ['', '']}
+    { card_id: 1, deadline: '', event_date: '', event_location: '', event_times: ['', '']}
   ]);
 
   const [loading, setLoading] = useState(false);
@@ -69,7 +69,7 @@ export const useEditionCreate = () => {
       const cleanCards = cards.map(card => {
         const cleaned: Partial<CardConfig> = { card_id: card.card_id };
 
-        if (card.limit_date && card.limit_date.trim() !== '') cleaned.limit_date = card.limit_date;
+        if (card.deadline && card.deadline.trim() !== '') cleaned.deadline = card.deadline;
         if (card.event_date && card.event_date.trim() !== '') cleaned.event_date = card.event_date;
         if (card.event_location && card.event_location.trim() !== '') cleaned.event_location = card.event_location;
 

@@ -11,14 +11,12 @@ import { NucleiShowProps } from '@yawara/types';
 export async function GET(request: NextRequest) {
     try {
         const user_token = await getCookie('user-session')
-
-        if (!user_token) {
-            throw 'UNAUTHORIZED_ERROR';
+        let user_data = null;
+        if (user_token) {
+            user_data = await authService.getSession(user_token)
         }
 
-        const user_data = await authService.getSession(user_token)
-
-        const res = await new NucleiService(user_data).getNuclei();
+        const res = await new NucleiService(user_data || undefined).getNuclei();
        
         return successResponse<NucleiShowProps[]>(res, 200);
 

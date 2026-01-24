@@ -1,0 +1,94 @@
+$red-yawara: #e31e24;
+$black-pure: #000000;
+$gray-dark: #0a0a0a;
+$white: #ffffff;
+$border-soft: #1a1a1a;
+
+.techWrapper {
+  background-color: $black-pure;
+  color: $white;
+  font-family: 'Inter', sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero {
+  padding: 8rem 0 5rem;
+  .topLabel {
+    color: $red-yawara;
+    letter-spacing: 3px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.5rem; }
+  p { font-size: 1.2rem; color: #999; max-width: 700px; }
+}
+
+.highlightSection {
+  padding: 2rem 0;
+  .techCardMain {
+    background: $gray-dark;
+    border: 1px solid $border-soft;
+    border-left: 5px solid $red-yawara;
+    padding: 3.5rem;
+    
+    .mainIcon { font-size: 3.5rem; color: $red-yawara; margin-bottom: 1.5rem; }
+    h2 { font-size: 2.2rem; margin-bottom: 1.5rem; }
+    p { font-size: 1.15rem; color: #ccc; line-height: 1.8; max-width: 900px; }
+  }
+}
+
+.gridSection {
+  padding: 6rem 0;
+  .sectionTitle { text-align: center; margin-bottom: 4rem; font-size: 2rem; }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+
+  .compactCard {
+    background: #050505;
+    padding: 2.5rem;
+    border: 1px solid $border-soft;
+    text-align: center;
+    transition: border-color 0.2s;
+
+    &:hover { border-color: $red-yawara; }
+
+    svg { font-size: 2.5rem; color: $red-yawara; margin-bottom: 1.5rem; }
+    h3 { font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; }
+    p { color: #777; font-size: 0.95rem; line-height: 1.6; }
+  }
+}
+
+.managementSection {
+  padding: 6rem 0;
+  background-color: #050505;
+  .sectionTitle { text-align: center; margin-bottom: 4rem; font-size: 2rem; }
+}
+
+.managementGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+
+  .infoBox {
+    padding: 3rem;
+    border: 1px solid $border-soft;
+    background: $black-pure;
+
+    svg { font-size: 2rem; color: $red-yawara; margin-bottom: 1.5rem; }
+    h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+    p { color: #aaa; line-height: 1.7; }
+  }
+}

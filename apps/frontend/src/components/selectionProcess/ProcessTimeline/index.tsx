@@ -29,7 +29,7 @@ export const TimelineStep = ({ step, index }: { step: RecruitmentStep; index: nu
 
                 {(step.state !== 'NOT_AVAILABLE' && step.userState !== 'NOT_AVAILABLE') ? (
                     <>
-                        <p>{step.description}</p>
+                        <p dangerouslySetInnerHTML={{__html: step.description}}/>
                         {
                             step.helpLinks?.map((link, idx) => (
                                 <p key={idx}>Entenda sobre: <Link href={link.href}>{link.text}</Link></p>

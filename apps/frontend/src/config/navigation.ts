@@ -41,6 +41,9 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'REQUISIÇÕES', href: '/in/requests' },
         { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/ps/create' },
         { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
+
+        // REMOVE
+        { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },
         ...COMMON_LINKS
     ],
 

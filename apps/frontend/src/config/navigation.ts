@@ -39,7 +39,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'MINHA EQUIPE', href: '/in/my-team' },
         { label: 'FERRAMENTAS', href: '/in/tools' },
         { label: 'REQUISIÇÕES', href: '/in/requests' },
-        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/create' },
+        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/ps/create' },
         { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
         ...COMMON_LINKS
     ],
@@ -63,7 +63,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'REQUISIÇÕES', href: '/in/requests' },
         { label: 'DOCUMENTOS', href: '/in/admin/docs' },
         { label: 'GERENCIAR NÚCLEO', href: '/in/admin/nucleusManager' },
-        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/create' },
+        { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/ps/create' },
         { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
         { label: 'EVENTOS', href: '/in/events' },
         { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },

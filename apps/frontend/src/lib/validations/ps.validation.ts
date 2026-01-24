@@ -50,18 +50,26 @@ export const updateCardUserSchema = zod.object({
 })
 
 export const postPsEditionSchema = zod.object({
-  name: zod.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-  start_date: zod.string(),
-  finish_date: zod.string(),
-  registration_closing: zod.string(),
-  cards_config: zod.array(zod.object({
-    card_id: zod.number(),
-    limit_date: zod.string().optional(),
-    event_date: zod.string().optional(),
-    event_times: zod.array(zod.string()).optional(),
-    event_location: zod.string().optional(),
-    state: zod.enum(['COMPLETED', 'FAILED', 'PENDING_ACTION', 'UNDER_REVIEW', 'NOT_AVAILABLE']).optional()
-  })).min(1, "Deve haver ao menos uma configuração de card.")
+  name : zod.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  start_date : zod.string(),
+  finish_date : zod.string(),
+  registration_closing : zod.string(),
+  cards_config : zod.array(
+    zod.object({
+      title: zod.string().min(1, "O título é obrigatório."),
+      type: zod.enum(['DOCUMENT_SUBMISSION', 'PRESENCE_EVALUATION']),
+      description: zod.string().optional(),
+      state: zod.enum(['COMPLETED', 'FAILED', 'PENDING_ACTION', 'UNDER_REVIEW', 'NOT_AVAILABLE']),
+      card_id: zod.number(),
+      // optional fields for presence event
+      start_time: zod.string().optional(),
+      end_time: zod.string().optional(),
+      location: zod.string().optional(),
+      event_date: zod.string().optional(),
+      // optional fields for document submission
+      deadline: zod.string().optional(),
+    })
+  ).min(1, "Deve haver ao menos uma configuração de card.")
 })
 
 export const putUserPresenceSchema = zod.object({
@@ -73,5 +81,18 @@ export const putUserPresenceSchema = zod.object({
     })
   )
 });
+
+export const putUserScoreSchema = zod.object({
+  updates: zod.array(
+    zod.object({
+      user_card_id: zod.string().uuid(),
+      card_id: zod.number(),
+      notes: zod.record(zod.string(), zod.number())
+    })
+  )
+});
+
+// TODO: Converter zod para interface, talvez uma refatoração futura seja necessária
+// export type PutUserScoreInput = zod.infer<typeof putUserScoreSchema>;
 
 export const uidSchema = zod.string().uuid()

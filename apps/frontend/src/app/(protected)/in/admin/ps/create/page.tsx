@@ -1,41 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCreatePs } from '@/hooks/useManagePs'
 import styles from './psConfig.module.scss';
 
-interface StepConfig {
-    id: number;
-    title: string;
-    type: 'DOCUMENT_SUBMISSION' | 'PRESENCE_EVALUATION';
-    // Campos para PRESENÇA
-    startTime?: string;
-    endTime?: string;
-    location?: string;
-    eventDate?: string;
-    // Campos para DOCUMENTO
-    deadline?: string;
-}
-
 const CreatePsPage = () => {
-    const router = useRouter();
-    const [psName, setPsName] = useState('');
-    const [globalStart, setGlobalStart] = useState('');
-    const [globalEnd, setGlobalEnd] = useState('');
-    const [steps, setSteps] = useState<StepConfig[]>([]);
-
-    const addStep = () => {
-        const newId = Date.now();
-        setSteps([...steps, { 
-            id: newId, 
-            title: '', 
-            type: 'PRESENCE_EVALUATION' 
-        }]);
-    };
-
-    const updateStep = (id: number, fields: Partial<StepConfig>) => {
-        setSteps(steps.map(s => s.id === id ? { ...s, ...fields } : s));
-    };
+    const {
+        psName, setPsName,
+        globalStart, setGlobalStart,
+        globalEnd, setGlobalEnd,
+        steps, addStep, updateStep, setSteps,
+        handleSubmitPs,
+        router
+    } = useCreatePs()
 
     return (
         <main className={styles.container}>
@@ -45,9 +21,9 @@ const CreatePsPage = () => {
                 <div className={styles.psGlobalInfo}>
                     <div className={styles.inputGroup}>
                         <label>NOME DA EDIÇÃO (PS)</label>
-                        <input 
-                            type="text" 
-                            placeholder="Ex: Yawara 2026.1" 
+                        <input
+                            type="text"
+                            placeholder="Ex: Yawara 2026.1"
                             value={psName}
                             onChange={(e) => setPsName(e.target.value)}
                         />
@@ -67,28 +43,28 @@ const CreatePsPage = () => {
 
             <div className={styles.setupFlow}>
                 {steps.map((step, index) => (
-                    <div key={step.id} className={styles.stepRow}>
+                    <div key={step.card_id} className={styles.stepRow}>
                         <div className={styles.stepHeader}>
                             <div className={styles.stepNumber}>0{index + 1}</div>
-                            <select 
+                            <select
                                 value={step.type}
                                 title='Tipo de Card'
-                                onChange={(e) => updateStep(step.id, { type: e.target.value as any })}
+                                onChange={(e) => updateStep(step.card_id, { type: e.target.value as any })}
                                 className={styles.typeSelector}
                             >
                                 <option value="PRESENCE_EVALUATION">AVALIAÇÃO PRESENCIAL</option>
                                 <option value="DOCUMENT_SUBMISSION">SUBMISSÃO DE DOCUMENTO</option>
                             </select>
                         </div>
-                        
+
                         <div className={styles.mainFields}>
                             <div className={styles.inputGroup}>
                                 <label>NOME DA ETAPA</label>
-                                <input 
-                                    type="text" 
-                                    placeholder="Ex: A Forja" 
+                                <input
+                                    type="text"
+                                    placeholder="Ex: A Forja"
                                     value={step.title}
-                                    onChange={(e) => updateStep(step.id, { title: e.target.value })}
+                                    onChange={(e) => updateStep(step.card_id, { title: e.target.value })}
                                 />
                             </div>
 
@@ -97,19 +73,19 @@ const CreatePsPage = () => {
                                 <div className={styles.dynamicFields}>
                                     <div className={styles.inputGroup}>
                                         <label>DATA DO EVENTO</label>
-                                        <input title='Data do Evento' type="date" onChange={(e) => updateStep(step.id, { eventDate: e.target.value })} />
+                                        <input title='Data do Evento' type="date" onChange={(e) => updateStep(step.card_id, { event_date: e.target.value })} />
                                     </div>
                                     <div className={styles.inputGroup}>
                                         <label>LOCAL</label>
-                                        <input type="text" placeholder="Ex: Bloco B, Lab 10" onChange={(e) => updateStep(step.id, { location: e.target.value })} />
+                                        <input type="text" placeholder="Ex: Bloco B, Lab 10" onChange={(e) => updateStep(step.card_id, { location: e.target.value })} />
                                     </div>
                                     <div className={styles.inputGroup}>
                                         <label>INÍCIO</label>
-                                        <input title='Inicio' type="time" onChange={(e) => updateStep(step.id, { startTime: e.target.value })} />
+                                        <input title='Inicio' type="time" onChange={(e) => updateStep(step.card_id, { start_time: e.target.value })} />
                                     </div>
                                     <div className={styles.inputGroup}>
                                         <label>TÉRMINO</label>
-                                        <input title='Término' type="time" onChange={(e) => updateStep(step.id, { endTime: e.target.value })} />
+                                        <input title='Término' type="time" onChange={(e) => updateStep(step.card_id, { end_time: e.target.value })} />
                                     </div>
                                 </div>
                             )}
@@ -119,13 +95,13 @@ const CreatePsPage = () => {
                                 <div className={styles.dynamicFields}>
                                     <div className={styles.inputGroup}>
                                         <label>PRAZO LIMITE (DEADLINE)</label>
-                                        <input type="datetime-local" title='Prazo Limite' onChange={(e) => updateStep(step.id, { deadline: e.target.value })} />
+                                        <input type="datetime-local" title='Prazo Limite' onChange={(e) => updateStep(step.card_id, { deadline: e.target.value })} />
                                     </div>
                                 </div>
                             )}
                         </div>
-                        
-                        <button className={styles.removeStep} onClick={() => setSteps(steps.filter(s => s.id !== step.id))}>
+
+                        <button className={styles.removeStep} onClick={() => setSteps(steps.filter(s => s.card_id !== step.card_id))}>
                             ELIMINAR ETAPA
                         </button>
                     </div>
@@ -137,7 +113,7 @@ const CreatePsPage = () => {
             </div>
 
             <footer className={styles.footer}>
-                <button className={styles.submitBtn}>INICIALIZAR PROCESSO SELETIVO</button>
+                <button className={styles.submitBtn} onClick={() => handleSubmitPs()}>INICIALIZAR PROCESSO SELETIVO</button>
             </footer>
         </main>
     );

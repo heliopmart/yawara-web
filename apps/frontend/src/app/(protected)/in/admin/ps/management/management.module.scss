@@ -1,10 +1,9 @@
 $yawara-red: #e60000;
 $bg-dark: #050505;
-$border-color: rgba(255, 255, 255, 0.05);
-
+$border-color: rgba(255, 255, 255, 0.1);
 $bp-sm: 480px;
 $bp-md: 768px;
-$bp-lg: 1024px;
+$bp-lg: 1300px;
 
 @mixin up($bp) {
   @media (min-width: $bp) { @content; }
@@ -12,229 +11,309 @@ $bp-lg: 1024px;
 
 .container {
   color: #fff;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: clamp(1rem, 2.2vw, 2rem);
+  max-width: 100%; 
+  margin: 0;
+  padding: 1.5rem;
+  overflow-x: hidden; 
 }
 
 .header {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: clamp(1.2rem, 3vw, 3rem);
-  border-bottom: 1px solid $border-color;
-  padding-bottom: 1rem;
-
-  @include up($bp-md) {
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 1.5rem;
-  }
+  margin-bottom: 1.5rem;
+  h1 { font-size: 1.4rem; text-transform: uppercase; font-weight: 900; }
 }
 
-.viewToggle {
-  display: flex;
-  width: 100%;
-  gap: 6px;
-
-  @include up($bp-md) {
-    width: auto;
-    gap: 10px;
-  }
-
-  button {
-    flex: 1;
-    background: transparent;
-    border: 1px solid #333;
-    color: #666;
-    padding: 10px 8px;
-    font-weight: 800;
-    font-size: clamp(0.62rem, 2.2vw, 0.75rem);
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.25s ease;
-    white-space: nowrap;
-
-    &.active {
-      border-color: $yawara-red;
-      color: $yawara-red;
-      background: rgba($yawara-red, 0.05);
-    }
-
-    @include up($bp-md) {
-      flex: 0 0 auto;
-      padding: 8px 16px;
-    }
-  }
-}
-
-/* =========================
-   FILTER BAR (ESTILIZADA)
-   ========================= */
 .filterBar {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 1.2rem;
-
   background: #0d0d0d;
   border: 1px solid $border-color;
-  border-radius: 6px;
   padding: 12px;
-
-  @include up($bp-md) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 14px 16px;
-  }
-
-  label {
-    color: #777;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-
-    @include up($bp-md) {
-      font-size: 0.72rem;
-      white-space: nowrap;
-    }
-  }
-
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  
   select {
     width: 100%;
-    min-height: 42px;
-
-    background: #111;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #000;
+    border: 1px solid #222;
     color: $yawara-red;
-
-    padding: 10px 12px;
-    border-radius: 6px;
-
+    padding: 8px;
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 800;
-    text-align: left;
-    outline: none;
-
-    transition: 0.2s ease;
-
-    &:focus {
-      border-color: rgba($yawara-red, 0.85);
-      box-shadow: 0 0 0 3px rgba($yawara-red, 0.15);
-    }
-
-    @include up($bp-md) {
-      width: auto;
-      min-width: 320px;
-    }
+    @include up($bp-md) { width: 300px; }
   }
 }
 
 .tableContainer {
+  width: 100%;
   background: #0d0d0d;
   border: 1px solid $border-color;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 6px;
-
-  &::-webkit-scrollbar { height: 6px; }
-  &::-webkit-scrollbar-thumb {
-    background: #222;
-    border-radius: 10px;
-  }
+  border-radius: 4px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: clamp(0.78rem, 2vw, 0.9rem);
+  table-layout: fixed;
 
-  /* scroll horizontal quando tiver muitas colunas (NOTAS DINÂMICAS) */
-  min-width: 560px;
-  @include up($bp-md) { min-width: 700px; }
-
-  th {
-    text-align: left;
-    padding: 0.9rem;
-    color: #444;
+  thead th {
+    background: #111;
+    padding: 12px 6px;
+    font-size: 0.55rem; 
+    color: #555;
     text-transform: uppercase;
-    font-size: 0.65rem;
-    letter-spacing: 1px;
-    border-bottom: 1px solid $border-color;
-    white-space: nowrap;
+    font-weight: 900;
+    border-bottom: 2px solid #1a1a1a;
+    text-align: center;
+    
+    &:first-child { 
+      width: 25%; 
+      text-align: left;
+      padding-left: 1rem;
+    }
+    
+    &:last-child { 
+      width: auto;
+      min-width: 120px;
+      max-width: 300px; 
+    }
+  }
 
-    @media (max-width: $bp-sm) {
-      padding: 0.75rem;
-      font-size: 0.62rem;
+  tbody td {
+    padding: 10px 4px;
+    border-bottom: 1px solid #111;
+    text-align: left;
+    padding: 15px;
+    font-size: 0.8rem;
+
+    &:first-child {
+      text-align: left;
+      padding-left: 1rem;
+      font-weight: 700;
+      color: #eee;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; 
+    }
+  }
+}
+
+.scoreInput {
+  width: 42px;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 6px 2px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  
+  &:focus {
+    border-color: $yawara-red;
+    outline: none;
+    background: #0a0000;
+  }
+}
+
+.saveBtn {
+  background: $yawara-red;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+  
+  &:hover { filter: brightness(1.2); }
+}
+
+.submitChanges{
+  @extend .saveBtn;
+  max-width: 300px;
+  width: auto;
+  margin: 20px 0px 20px auto;
+}
+
+.viewToggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    button {
+        background: transparent;
+        border: 1px solid #222;
+        color: #444;
+        padding: 5px 12px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        cursor: pointer;
+        &.active {
+            color: $yawara-red;
+            border-color: $yawara-red;
+        }
+    }
+}
+
+/* =============================================
+   TABLE SYSTEM (A MÁGICA DA RESPONSIVIDADE)
+   ============================================= */
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto; 
+  border-radius: 4px;
+  background: #0d0d0d;
+  border: 1px solid $border-color;
+
+  
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 100%; 
+
+  thead {
+    display: none; 
+    @include up($bp-lg) {
+      display: table-header-group;
+      background: #111;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      font-size: 0.55rem;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      border-bottom: 2px solid #1a1a1a;
+    }
+  }
+
+  tbody tr {
+    display: block;
+    padding: 1.2rem;
+    border-bottom: 1px solid $border-color;
+    transition: background 0.2s;
+
+    &:hover { background: rgba(255,255,255,0.02); }
+
+    @include up($bp-md) {
+      display: table-row;
+      padding: 0;
     }
   }
 
   td {
-    padding: 0.9rem;
-    border-bottom: 1px solid rgba(255,255,255,0.02);
-    white-space: nowrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    font-size: 0.9rem;
 
-    @media (max-width: $bp-sm) {
-      padding: 0.75rem;
+
+    &:first-child {
+      font-weight: 900;
+      color: $yawara-red;
+      font-size: 1rem;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.8rem;
+
+      &::before { content: none; } 
+    }
+
+    &::before {
+      content: attr(data-label);
+      font-size: 0.6rem;
+      color: #444;
+      text-transform: uppercase;
+      font-weight: 800;
+      @include up($bp-lg) { display: none; }
+    }
+
+    @include up($bp-lg) {
+      display: table-cell;
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid #111;
+      white-space: nowrap; 
+      
+      &:first-child {
+        color: #fff;
+        border-bottom: 1px solid #111;
+        font-size: 0.9rem;
+      }
     }
   }
 }
 
-.scoreInputWrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.scoreInput {
+  width: 60px;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 8px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  border-radius: 2px;
 
-  input {
-    width: 52px;
-    background: #000;
-    border: 1px solid #222;
-    color: $yawara-red;
-    padding: 6px;
-    font-family: 'JetBrains Mono', monospace;
-    text-align: center;
-    font-size: 0.85rem;
-
-    &:focus {
-      border-color: $yawara-red;
-      outline: none;
-      box-shadow: 0 0 10px rgba($yawara-red, 0.2);
-    }
-
-    @media (max-width: $bp-sm) {
-      width: 46px;
-      font-size: 0.8rem;
-    }
-  }
-
-  .maxLabel {
-    font-size: 0.65rem;
-    color: #444;
-    font-weight: 800;
+  &:focus {
+    border-color: $yawara-red;
+    outline: none;
   }
 }
 
-.presentBtn, .saveBtn {
+.saveBtn {
   background: $yawara-red;
   color: #fff;
   border: none;
-  padding: 9px 12px;
+  padding: 10px 20px;
   font-weight: 900;
-  font-size: clamp(0.62rem, 1.8vw, 0.7rem);
+  font-size: 0.7rem;
+  text-transform: uppercase;
   cursor: pointer;
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-  white-space: nowrap;
-  transition: 0.2s ease;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
+  transition: 0.2s;
 
-  &:hover { filter: brightness(1.15); }
+  &:hover { 
+    transform: translateY(-1px);
+    filter: brightness(1.2); 
+  }
 
-  @media (max-width: $bp-sm) {
-    padding: 10px 12px;
+  &:disabled {
+    background: #222;
+    color: #444;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: $bp-lg) {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+.done { 
+    color: #00ff88; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono'; 
+    background: rgba(0, 255, 136, 0.05);
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.pending { 
+    color: #ffaa00; 
+    font-weight: bold; 
+    font-family: 'JetBrains Mono';
+    background: rgba(255, 170, 0, 0.05);
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.alignRight {
+  @include up($bp-lg) {
+    text-align: right;
   }
 }

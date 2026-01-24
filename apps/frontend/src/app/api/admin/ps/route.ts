@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
         const user_data = await authService.getSession(user_token)
 
-        if (ALLOWED_ROLES.includes(user_data.role) === false) {
+        if (ALLOWED_ROLES[0] !== user_data.role) {
             throw 'UNAUTHORIZED_ERROR';
         }
 
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         return successResponse<boolean>(response, 200);
 
     } catch (error) {
-        console.error('admin/ps/route.PATCH error:', error);
+        console.error('admin/ps/route.POST error:', error);
 
         const errorDetail = handle_error(error);
         return errorResponse(

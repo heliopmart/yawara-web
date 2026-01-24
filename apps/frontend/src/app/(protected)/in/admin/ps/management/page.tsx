@@ -1,19 +1,21 @@
 'use client';
 
-import { useManagementPs } from '@/hooks/usePresenceList';
+import { useManagementPs } from '@/hooks/useManagePs';
 import { isEventWindowOpen } from '@/utils/dateUtils';
 import styles from './management.module.scss';
 
-export const PsManagementPage = () => {
+const PsManagementPage = () => {
     const {
         view, setView,
         selectedCard, setSelectedCard,
         candidates, configs,
-        handleScoreUpdate, handlePresenceToggle
+        handleScoreUpdate, handlePresenceToggle,
+        handleSubmitChanges
     } = useManagementPs();
 
     const templateProgress = candidates[0]?.cards_progress as unknown as any[];
     const cardTemplate = templateProgress?.find(p => p.card_id === selectedCard);
+    
     const currentCriteria = (cardTemplate && 'notes' in cardTemplate) 
         ? Object.keys(cardTemplate.notes) 
         : [];
@@ -32,9 +34,12 @@ export const PsManagementPage = () => {
 
             <section className={styles.filterBar}>
                 <select value={selectedCard} onChange={(e) => setSelectedCard(Number(e.target.value))} title='Cards'>
-
-                    <option value={2}>CARD 02 - DINÂMICA</option>
-                    <option value={3}>CARD 03 - ENTREVISTA</option>
+                    <option value="none" disabled>Selecione um card</option>
+                    {
+                        configs.map((config) => (
+                            <option key={config.card_id} value={config.card_id}>{config.title}</option>
+                        ))
+                    }
                 </select>
             </section>
 
@@ -43,11 +48,15 @@ export const PsManagementPage = () => {
                     <tr>
                         <th>CANDIDATO</th>
                         {view === 'PRESENCE' ? (
-                            <><th>STATUS</th><th className={styles.alignRight}>AÇÃO</th></>
+                            <>
+                                <th>STATUS</th>
+                                {currentCardConfig?.type === 'PRESENCE_EVALUATION' && (
+                                    <th className={styles.alignRight}>AÇÃO</th>
+                                )}
+                            </>
                         ) : (
                             <>
-                                {currentCriteria.map(key => <th key={key}>{key.toUpperCase()}</th>)}
-                                <th className={styles.alignRight}>AÇÃO</th>
+                                {currentCriteria.map(key => <th key={key}>{key.toUpperCase().split("_").join(" ")}</th>)}
                             </>
                         )}
                     </tr>
@@ -57,25 +66,32 @@ export const PsManagementPage = () => {
                         const progressArr = candidate.cards_progress as unknown as any[];
                         const prog = progressArr.find(p => p.card_id === selectedCard);
                         const isLocked = currentCardConfig ? !isEventWindowOpen(currentCardConfig) : false;
+                        const card_config = configs.find(c => c.card_id === selectedCard);
+                        const state_view = prog?.state === 'COMPLETED' ? card_config?.type === 'PRESENCE_EVALUATION' ? 'Presente' : 'Avaliado' : 'Pendente';
 
                         return (
                             <tr key={candidate.id}>
-                                <td>{candidate.id.split('-')[0]}...</td>
+                                <td>{candidate.name}</td>
 
                                 {view === 'PRESENCE' ? (
                                     <>
                                         <td>
                                             <span className={prog?.state === 'COMPLETED' ? styles.done : styles.pending}>
-                                                {prog?.state}
+                                                {state_view}
                                             </span>
                                         </td>
                                         <td className={styles.alignRight}>
-                                            <button 
-                                                disabled={isLocked}
-                                                onClick={() => handlePresenceToggle(candidate.id, selectedCard)}
-                                            >
-                                                {prog?.state === 'COMPLETED' ? 'Remover' : 'Confirmar'}
-                                            </button>
+                                            {
+                                                card_config?.type === 'PRESENCE_EVALUATION' && (
+                                                    <button 
+                                                        className={styles.saveBtn}
+                                                        disabled={isLocked}
+                                                        onClick={() => handlePresenceToggle(candidate.id, selectedCard)}
+                                                    >
+                                                        {isLocked ? "Indisponivel" : prog?.state === 'COMPLETED' ? 'Ausente' : 'Presença'}
+                                                    </button>
+                                                )
+                                            }
                                         </td>
                                     </>
                                 ) : (
@@ -83,16 +99,17 @@ export const PsManagementPage = () => {
                                         {currentCriteria.map(key => (
                                             <td key={key}>
                                                 <input 
+                                                    className={styles.scoreInput}
                                                     title='Nota'
                                                     type="number" 
+                                                    disabled={(prog?.state !== 'COMPLETED' || isLocked)}
+                                                    min={0}
+                                                    max={5}
                                                     value={prog?.notes?.[key] || 0}
                                                     onChange={(e) => handleScoreUpdate(candidate.id, selectedCard, key, Number(e.target.value))}
                                                 />
                                             </td>
                                         ))}
-                                        <td className={styles.alignRight}>
-                                            <button className={styles.saveBtn}>Salvar</button>
-                                        </td>
                                     </>
                                 )}
                             </tr>
@@ -100,6 +117,17 @@ export const PsManagementPage = () => {
                     })}
                 </tbody>
             </table>
+
+            <button
+                title={'Enviar Lista de Presença'}
+                type='submit'
+                className={styles.submitChanges}
+                onClick={() => handleSubmitChanges()}
+            >
+                Salvar Alterações
+            </button>
         </main>
     );
 };
+
+export default PsManagementPage;

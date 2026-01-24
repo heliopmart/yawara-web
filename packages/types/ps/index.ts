@@ -11,18 +11,22 @@ type BaseCardProgress = {
     state: EnumPsCardConfigState;
 }
 
-type FileProgress = BaseCardProgress & {
+type FileOnlyProgress = BaseCardProgress & {
     file_id: string;
-    notes?: never;   
-}
+    notes?: never;
+};
 
-type NotesProgress = BaseCardProgress & {
-    notes: Record<string, number>; 
-    file_id?: never;               
-}
+type NotesOnlyProgress = BaseCardProgress & {
+    notes: Record<string, number>;
+    file_id?: never;
+};
 
-export type cards_progress = FileProgress | NotesProgress;
+type FullProgress = BaseCardProgress & {
+    file_id: string;
+    notes: Record<string, number>;
+};
 
+export type cards_progress = FileOnlyProgress | NotesOnlyProgress | FullProgress;
 export interface ps_editions {
     id: string;
     name: string;
@@ -33,19 +37,32 @@ export interface ps_editions {
     final_result_doc?: string;
     created_at: string;
     is_completed: boolean
-    registration_closing: string;
+    registration_closing: string; // prazo final de inscrição
 }
 
+export type ps_card_config_type = 'DOCUMENT_SUBMISSION' | 'PRESENCE_EVALUATION';
 export interface ps_card_configs {
+    // card display
     id: string;
+    title: string;
+    type: ps_card_config_type;
+    description?: string;
+    // card config
+    state: EnumPsCardConfigState
     edition_ps: string;
     card_id: number;
-    limit_date?: string;
+    // optional fields for presence event
+    start_time?: string;
+    end_time?: string;
+    location?: string;
     event_date?: string;
-    event_times?: string[];
-    event_location?: string;
-    state: EnumPsCardConfigState
+    // optional fields for document submission
+    deadline?: string;
+
+    updated_at: string;
+    created_at: string;
 }
+
 
 export interface ps_user_cards {
     id: string;
@@ -90,13 +107,19 @@ export interface createPsEdition {
     start_date: ps_editions['start_date'];
     finish_date: ps_editions['finish_date'];
     registration_closing: ps_editions['registration_closing'];
-    cards_config: CardConfigParams[];
+    cards_config: Omit<ps_card_configs, 'id' | 'edition_ps' | 'updated_at' | 'created_at'>[];
 }
 
 export interface BatchPresenceItem {
     user_card_id: string;
     card_id: number;
     is_presence: boolean;
+}
+
+export interface BatchNotesItem {
+    user_card_id: string;
+    card_id: number;
+    notes: Record<string, number>;
 }
 
 export interface downloadChanllengeData extends Challenges {
@@ -143,10 +166,10 @@ export interface PsEditionAvailable {
 
 export interface CardConfigParams {
     card_id: ps_card_configs['card_id'];
-    limit_date?: ps_card_configs['limit_date'];
+    deadline?: ps_card_configs['deadline'];
     event_date?: ps_card_configs['event_date'];
-    event_times?: ps_card_configs['event_times'];
-    event_location?: ps_card_configs['event_location'];
+    event_times?: ps_card_configs['start_time' | 'end_time'][];
+    event_location?: ps_card_configs['location'];
     state?: ps_card_configs['state'];
 }
 
@@ -161,25 +184,30 @@ export interface PsUserPresence {
     }[];
 }
 
-// Adicione em seus types
+// export interface DashboardPresenceResponse {
+//     id: ps_editions['id'];
+//     in_person_cards: {
+//         card_id: ps_card_configs['card_id'];
+//         location: ps_card_configs['location'];
+//         date: ps_card_configs['event_date'];
+//         times: NonNullable<ps_card_configs['start_time' | 'end_time']>[];
+//     }[];
+//     participants: {
+//         id: ps_user_cards['id'];
+//         user_id: ps_user_cards['user_id'];
+//         name: Users['name'];
+//         progress: {
+//             card_id: cards_progress['card_id'];
+//             state: EnumPsCardConfigState
+//             file_id?: cards_progress['file_id'];
+//         }[];
+//     }[];
+// }
+
 export interface DashboardPresenceResponse {
     id: ps_editions['id'];
-    in_person_cards: {
-        card_id: ps_card_configs['card_id'];
-        location: ps_card_configs['event_location'];
-        date: ps_card_configs['event_date'];
-        times: NonNullable<ps_card_configs['event_times']>;
-    }[];
-    participants: {
-        id: ps_user_cards['id'];
-        user_id: ps_user_cards['user_id'];
-        name: Users['name'];
-        progress: {
-            card_id: cards_progress['card_id'];
-            state: EnumPsCardConfigState
-            file_id?: cards_progress['file_id'];
-        }[];
-    }[];
+    candidates: Candidate[];
+    ps_card_configs: ps_card_configs[];
 }
 
 // --------------------------------------------
@@ -188,10 +216,10 @@ export interface DashboardPresenceResponse {
 
 export interface CardConfig {
     card_id: ps_card_configs['card_id'];
-    limit_date: ps_card_configs['limit_date'];
+    deadline?: ps_card_configs['deadline'];
     event_date: ps_card_configs['event_date'];
-    event_location: ps_card_configs['event_location'];
-    event_times: NonNullable<ps_card_configs['event_times']>;
+    event_location: ps_card_configs['location'];
+    event_times: NonNullable<ps_card_configs['start_time' | 'end_time']>[];
 }
 
 export interface EditionData {
@@ -202,6 +230,7 @@ export interface EditionData {
 
 export interface Candidate {
     id: string;
+    name: string;
     edition_id: string;
     cards_progress: cards_progress[];
     is_eligible: boolean;

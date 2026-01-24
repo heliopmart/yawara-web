@@ -23,7 +23,6 @@ from app.schemas.candidate import CandidateInput
 from app.schemas.report import CandidateReportBundle
 
 logger = logging.getLogger("yawara.services.base_engine_service")
-
 class BaseEngineService:
     """
     Classe base que gerencia o ciclo de vida do processamento em lote.
@@ -33,10 +32,21 @@ class BaseEngineService:
     def __init__(self, max_concurrent_tasks: int = 3):
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
-    async def run_single(self, candidate_id: str, ps_edition_id: Optional[str] = None) -> Dict[str, Any]:
+    async def run_single(
+            self, 
+            candidate_id: Optional[str], 
+            ps_edition_id: Optional[str] = None,
+
+            # Create Example Y_SNA
+            task: Optional[Dict[str, Any]] = None,
+            pdf_bytes_example: Optional[bytes] = None,
+            is_example: bool = False
+        ) -> Dict[str, Any]:
         """
         Processa um candidato específico sob demanda (Modo 'Uber').
         """
+        self.is_example = is_example
+
         if not ps_edition_id:
             ps_edition_id = data_service.get_ps_edition_active()
         
@@ -46,13 +56,14 @@ class BaseEngineService:
         if context is None:
              raise ValueError("Contexto de avaliação não carregado.")
 
-        task = data_service.get_candidate_task_data(candidate_id)
+        if (task is None) and (self.is_example is False):
+            task = data_service.get_candidate_task_data(candidate_id)
         
         if not task:
             logger.warning(f"Candidato {candidate_id} não encontrado ou sem dados pendentes.")
             return {"status": "error", "message": "Candidate data not found"}
 
-        result = await self._process_single_candidate(task, context, ps_edition_id)
+        result = await self._process_single_candidate(task, context, ps_edition_id, pdf_bytes_example)
         
         if result.get("success"):
              result = self._handle_xai_processing(result, task)
@@ -63,11 +74,11 @@ class BaseEngineService:
         pdf_bytes = await self._generate_report_bundle(result)
 
         upload_success = False
-        if pdf_bytes:
+        if pdf_bytes and self.is_example is False:
             upload_success = await self._upload_report_pdf(candidate_id,  task.get("user_id", None), pdf_bytes)
 
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
-        return {"processed": 1, "success": upload_success, "xai": result, "candidate_id": candidate_id}
+        return {"processed": 1, "success": upload_success, "xai": result, "pdf_bytes": pdf_bytes, "candidate_id": candidate_id}
 
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """
@@ -202,7 +213,7 @@ class BaseEngineService:
            await self._trigger_management_alert(edition_id, result)
            return result
 
-    async def _process_single_candidate(self, task, context, edition_id):
+    async def _process_single_candidate(self, task, context, edition_id, pdf_bytes_example: Optional[bytes] = None):
         """
         Realiza o trabalho pesado comum (I/O) e chama o método de avaliação específico.
         """
@@ -214,11 +225,15 @@ class BaseEngineService:
         semester = extra_data.get("semester")
 
         try:
-            if not file_id:
-                logger.warning(f"User {user_id} sem arquivo associado.")
-                return False
+            if(self.is_example and pdf_bytes_example):
+                pdf_bytes = pdf_bytes_example
+            else:
+                if not file_id:
+                    logger.warning(f"User {user_id} sem arquivo associado.")
+                    return False
 
-            pdf_bytes = storage_service.get_file_bytes(file_id)
+                pdf_bytes = storage_service.get_file_bytes(file_id)
+
             if not pdf_bytes:
                 return False
 
@@ -236,7 +251,8 @@ class BaseEngineService:
 
             result = await self.evaluate_candidate(user_id, candidate_input, record.subjects, context, edition_id)
             
-            await self._trigger_management_alert(user_id, result)
+            if(self.is_example is False):
+                await self._trigger_management_alert(user_id, result)
 
             return result
 

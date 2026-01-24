@@ -122,12 +122,13 @@ class EngineV2Service(BaseEngineService):
             recommended = result.get("recommended_nuclei", [])
 
             # 2. Persistência (Não bloqueante)
-            await run_in_threadpool(
-                save_classification_result,
-                user_id, 
-                edition_id, 
-                recommended
-            )
+            if(self.is_example is False):
+                await run_in_threadpool(
+                    save_classification_result,
+                    user_id, 
+                    edition_id, 
+                    recommended
+                )
             
             logger.info(f"[V2] Classificação OK. Recomendados: {len(recommended)}")
 

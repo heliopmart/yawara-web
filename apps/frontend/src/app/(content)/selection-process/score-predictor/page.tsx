@@ -1,28 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useYsaPreview } from '@/hooks/useYsaPreview';
 import Link from 'next/link';
 import styles from './predictor.module.scss';
 
 const SnaPredictor = () => {
-    const [file, setFile] = useState<File | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [progress, setProgress] = useState(0);
-
-    const handleStartAnalysis = () => {
-        setIsAnalyzing(true);
-        // Simulação de animação de "pensamento" da rede
-        let p = 0;
-        const interval = setInterval(() => {
-            p += Math.random() * 15;
-            if (p >= 100) {
-                p = 100;
-                clearInterval(interval);
-                setTimeout(() => setIsAnalyzing(false), 500);
-            }
-            setProgress(Math.floor(p));
-        }, 300);
-    };
+    const { 
+        file, setFile, 
+        isAnalyzing, 
+        progress, 
+        handleStartAnalysis, 
+        
+        router 
+    } = useYsaPreview();
 
     return (
         <div className={styles.pageWrapper}>

@@ -102,6 +102,30 @@ export class CloudinaryService {
         );
     }
 
+    static async getDownloadUrl(
+        public_id: string,
+        fileName: string,
+        resourceType: 'raw' | 'image' | 'video'
+    ): Promise<string> {
+        try {
+            const finalFileName = fileName.toLowerCase().endsWith('.pdf')
+                ? fileName
+                : `${fileName}.pdf`;
+
+            const url = cloudinary.url(public_id, {
+                resource_type: resourceType,
+                type: 'upload',
+                sign_url: true,
+                content_disposition: `attachment; filename="${finalFileName}"`,
+                expires_at: Math.floor(Date.now() / 1000) + 3600
+            });
+            return url;
+        } catch (error) {
+            console.error('Failed to generate signed URL:', error);
+            throw error;
+        }
+    }
+
     /**
      * Deletes multiple resources from Cloudinary using their public IDs.
      * @param publicIds - An array of public IDs to delete.

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './selectionProcessLanding.module.scss';
 import { TimelineStep, FAQItem } from "@yawara/types"
-import { SP_LANDING_MOCK } from '@/mocks/spLanding.mock'; // Importando o novo mock
+import { SP_LANDING_MOCK } from '@/mocks/spLanding.mock'; 
 
 // --- Componentes Auxiliares ---
 
@@ -135,6 +135,7 @@ const SelectionProcessLanding: React.FC = () => {
                         <p className={styles.techDescription}>
                             {renderDescription(data.techBlock.description, data.techBlock.highlightedTerms)}
                         </p>
+                        <Link className={styles.techLink} href='/selection-process/score-predictor'>Entenda melhor a Y-SNA e faça um teste com seu histórico.</Link>
                     </div>
                 </div>
                 <div className={styles.techContent}>

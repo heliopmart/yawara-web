@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "vitest"
   },
   "overrides": {
     "outlayer": "2.1.1"
@@ -28,6 +28,7 @@
     "cloudinary": "^2.8.0",
     "cookie": "^1.0.2",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "html5-qrcode": "^2.3.8",
     "jose": "^6.1.2",
     "js-cookie": "^3.0.5",
@@ -45,6 +46,7 @@
     "sass": "^1.90.0",
     "streamifier": "^0.1.1",
     "swr": "^2.3.5",
+    "vitest": "^4.0.17",
     "zod": "^4.1.12"
   },
   "devDependencies": {

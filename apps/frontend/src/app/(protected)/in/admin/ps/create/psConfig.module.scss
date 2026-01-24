@@ -1,0 +1,140 @@
+$yawara-red: #e60000;
+$border-color: rgba(255, 255, 255, 0.05);
+
+.container {
+    padding: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    color: #fff;
+    @media (min-width: 768px) { padding: 3rem; }
+}
+
+.backBtn {
+    background: transparent;
+    border: 1px solid #222;
+    color: #666;
+    padding: 8px 14px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    &:hover { border-color: #fff; color: #fff; }
+  }
+
+.psGlobalInfo {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: #0d0d0d;
+    padding: 2rem;
+    border: 1px solid $border-color;
+    border-top: 4px solid $yawara-red;
+
+    .dateRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        @media (min-width: 768px) { grid-template-columns: 1fr 1fr; }
+    }
+}
+
+.stepRow {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: #0a0a0a;
+    border: 1px solid $border-color;
+    margin-bottom: 2rem;
+    transition: 0.3s;
+
+    &:hover { border-color: rgba($yawara-red, 0.3); }
+}
+
+.stepHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #111;
+    padding-bottom: 1rem;
+}
+
+.typeSelector {
+    background: #000;
+    color: $yawara-red;
+    border: 1px solid $yawara-red;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 5px 10px;
+}
+
+.dynamicFields {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #222;
+
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    label { font-size: 0.65rem; font-weight: 800; color: #555; text-transform: uppercase; }
+    input {
+        background: #000;
+        border: 1px solid #222;
+        color: #fff;
+        padding: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        &:focus { border-color: $yawara-red; outline: none; }
+    }
+}
+
+.submitBtn {
+    width: 100%;
+    background: $yawara-red;
+    color: #fff;
+    padding: 1.5rem;
+    font-weight: 900;
+    border: none;
+    clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+    cursor: pointer;
+    &:hover { filter: brightness(1.2); }
+}
+.setupFlow {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.removeStep {
+    background: transparent;
+    border: none;
+    color: #900;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    align-self: flex-end;
+    &:hover { text-decoration: underline; }
+}
+
+.addStepBtn {
+    background: transparent;
+    border: 2px dashed #333;
+    color: #666;
+    padding: 2rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+    &:hover { border-color: $yawara-red; color: #fff; }
+}

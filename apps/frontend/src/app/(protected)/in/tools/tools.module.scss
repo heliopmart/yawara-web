@@ -1,0 +1,143 @@
+$yawara-red: #e60000;
+$bg-dark: #050505;
+
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.cardHeader{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    margin-bottom: 1rem;
+
+    h3 {
+        font-size: 1.5rem;
+        font-weight: 800;
+    }
+
+    .id{
+        opacity: 60%;
+        font-size: 0.7rem;
+    }
+}
+
+.header {
+    margin-bottom: 3rem;
+    .badge { color: $yawara-red; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; }
+    h1 { font-size: 2rem; font-weight: 900; text-transform: uppercase; }
+}
+
+.toolsGrid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.toolCard {
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    transition: 0.3s;
+    
+    &.allocated { border-left: 4px solid $yawara-red; }
+    &.available { border-left: 4px solid #00ff00; }
+
+    &:hover { background: #111; transform: translateY(-3px); }
+}
+
+.actionBtn {
+    width: 100%;
+    margin-top: 1.5rem;
+    background: transparent;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    &:hover { border-color: $yawara-red; background: $yawara-red; }
+}
+
+.searchBar {
+  margin-bottom: 1.5rem;
+  input {
+    width: 100%;
+    background: rgba(255,255,255,0.02);
+    border: none;
+    border-bottom: 2px solid #222;
+    padding: 0.8rem;
+    color: #fff;
+    font-size: 0.9rem;
+    &:focus { outline: none; border-color: $yawara-red; }
+  }
+}
+
+.layoutGrid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+    @media (min-width: 992px) { grid-template-columns: 1fr 1fr; }
+}
+
+.uploadArea {
+    border: 1px dashed #333;
+    padding: 1.5rem;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    input { display: none; }
+    &:hover { border-color: $yawara-red; color: $yawara-red; }
+}
+
+.allocationInfo {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    p {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        justify-content: space-between;
+
+        strong, span { color: #fff; font-weight: 600; }
+    }
+}
+
+.description {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 1rem 0;
+    line-height: 1.4;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 0.8rem;
+}
+
+.timestampInfo {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+
+    .label {
+        display: block;
+        font-size: 0.6rem;
+        color: $yawara-red;
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 2px;
+    }
+
+    .value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #aaa;
+    }
+}

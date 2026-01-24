@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
             const apiResponse = await response.json();
 
             if (apiResponse.success) {
-                router.push('/account');
+                router.push('/in');
             } else {
                 setError({ message: apiResponse.error.message });
             }

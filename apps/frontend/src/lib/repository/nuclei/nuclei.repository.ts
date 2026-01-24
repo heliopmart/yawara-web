@@ -1,15 +1,10 @@
 import { create_rls_client, supabaseAdmin } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory} from '@yawara/types'
-
-
+import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps} from '@yawara/types'
 
 export class NucleiRepository {
     private auth: TokenPayload;
     private TablePsEditionsName = 'ps_editions';
-    private TableNucleiName = 'nuclei';
-    private TableNucleiConfigName = 'nuclei_configs';
-    private TableNucleiSubjectWeightsName = 'nuclei_subject_weights';
     private bd: ReturnType<typeof create_rls_client>;
 
     constructor(auth: TokenPayload) {
@@ -24,6 +19,7 @@ export class NucleiRepository {
         =========================================================
     */
 
+    // ? it would be better to update this function to RPC later
     async getActivePsEditionAndNucleiConfigs() : Promise<PsEditionAndNucleiConfigs> {
         try{
             const res = await getRows({
@@ -45,6 +41,24 @@ export class NucleiRepository {
             }
 
             return res;
+        }catch(err){
+            throw err;
+        }
+    }
+
+    async getNuclei() : Promise<NucleiShowProps[]> {
+        try{
+            const res = await callRpc({
+                bd: this.bd,
+                functionName: 'get_nuclei',
+                params: {}
+            })
+
+            if(!res.status){
+                throw 'NUCLEI_FETCH_FAILED';
+            }
+
+            return (res.data || []) as NucleiShowProps[];
         }catch(err){
             throw err;
         }

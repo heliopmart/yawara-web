@@ -109,12 +109,13 @@ class EngineV1Service(BaseEngineService):
             # Filtra aprovados
             approved_nuclei = [r.nucleus_name for r in eligibility_results if r.is_eligible]
             
-            await run_in_threadpool(
-                save_classification_result,
-                user_id, 
-                edition_id, 
-                approved_nuclei
-            )
+            if(self.is_example is False):
+                await run_in_threadpool(
+                    save_classification_result,
+                    user_id, 
+                    edition_id, 
+                    approved_nuclei
+                )
             
             logger.info(f"V1 Verdict | User {user_id} | Approved: {len(approved_nuclei)} nuclei.")
         

@@ -21,6 +21,8 @@ def db_select(
     table: str, 
     columns: str = "*", 
     filters: Optional[Dict[str, Any]] = None,
+    order_by: Optional[str] = None, 
+    desc: bool = False,   
     single: bool = False
 ) -> Union[List[Dict], Dict, None]:
     """
@@ -45,6 +47,9 @@ def db_select(
             for column, value in filters.items():
                 query = query.eq(column, value)
 
+        if order_by:
+            query = query.order(order_by, desc=desc)
+
         # Executa a query
         response = query.execute()
         data = response.data
@@ -56,8 +61,6 @@ def db_select(
 
     except Exception as e:
         logger.error(f"DB SELECT Error | Table: {table} | Filters: {filters} | Error: {str(e)}")
-        # Em produção, podemos decidir se lançamos o erro ou retornamos vazio. 
-        # Para resiliência, retornaremos estrutura vazia ou None.
         return None if single else []
 
 

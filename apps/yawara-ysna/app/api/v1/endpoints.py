@@ -9,24 +9,31 @@ from app.ml.pipeline import selection_pipeline
 from app.schemas.report import CandidateReportBundle
 from app.services.html_report_service import html_report_service
 
-# Configuração de Logs
 logger = logging.getLogger("yawara.api.endpoints")
 
 router = APIRouter()
 
-
 @router.post("/ysna/preview", summary="Preview Y-SNA PDF", description="Processa um PDF via Y-SNA e retorna o PDF gerado.")
 async def previewYsna(file: UploadFile = File(...)):
-    pdf_bytes = tents = await file.read()
-    
-    raise NotImplementedError("Endpoint de preview Y-SNA ainda não implementado.")
+    try:
+        pdf_bytes = await file.read()
+            
+        analysis_result = await selection_pipeline.execute_preview(pdf_bytes) 
+        
+        report_bytes = analysis_result.get('pdf_bytes')
 
-    # TODO: precisa enviar o pdf xai
+        return Response(
+            content=report_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=preview_yawara_ysna.pdf",
+                "Content-Length": str(len(report_bytes)) 
+            }
+        )
+    except Exception as e:
+        logger.error(f"Erro no endpoint /ysna/preview: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erro interno ao processar o PDF: {str(e)}")
     
-    # return Response(
-    #     content=contents, 
-    #     media_type="application/pdf"
-    # )
 
 @router.post(
     "/upload/academic_history", 

@@ -26,7 +26,6 @@ export const usePs = () => {
             if (apiResponse.success) {
                 try {
                     const data = mapBackendDataToFrontend(apiResponse.data)
-
                     setRawData(apiResponse.data)
                     setData(data)
                 } catch (e : any) {

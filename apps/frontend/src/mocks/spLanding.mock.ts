@@ -18,13 +18,13 @@ export const SP_LANDING_MOCK: SelectionProcessLandingData = {
     techBlock: {
         title: "YAWARA INVESTE EM TECNOLOGIA",
         intro: "O processo seletivo do yawara é recheado de tecnologias.",
-        description: "Umas delas e a Rede Neural carinhosamente chamada de Rede Neural de Classificação de Base Line ou RNCBL. Ela é responsável por classificar os candidatos de acordo com as métricas que o Líder de cada núcleo precisa, porém de forma muito mais eficiente. Um candidato não é desclassificado porque não atingiu um base-line fixo igual outros processos. Porque o nosso base-line é dinâmico!",
-        highlightedTerms: ["Rede Neural de Classificação de Base Line", "RNCBL"],
+        description: "Umas delas e a Rede Neural carinhosamente chamada de YAWARA SYSTEM NEURAL ARCHITECTURE ( Y-SNA ). Ela é responsável por classificar os candidatos de acordo com as métricas que o Líder de cada núcleo precisa, porém de forma muito mais eficiente. Um candidato não é desclassificado porque não atingiu um base-line fixo igual outros processos. Porque o nosso base-line é dinâmico!",
+        highlightedTerms: ["Rede Neural de Classificação de Base Line", "Y-SNA", "YAWARA SYSTEM NEURAL ARCHITECTURE"],
     },
     processBlock: {
         title: "APENAS OS MELHORES",
         intro: "Nosso processo seletivo é um dos mais inovadores e desafiadores da UFGD!",
-        description: "Umas delas e a Rede Neural carinhosamente chamada de Rede Neural de Classificação de Base Line ou RNCBL. Ela é responsável por classificar os candidatos de acordo com as métricas que o Líder de cada núcleo precisa, porém de forma muito mais eficiente. Um candidato não é desclassificado porque não atingiu um base-line fixo igual outros processos. Porque o nosso base-line é dinâmico!",
+        description: "Umas delas e a Rede Neural carinhosamente chamada de YAWARA SYSTEM NEURAL ARCHITECTURE ( Y-SNA ). Ela é responsável por classificar os candidatos de acordo com as métricas que o Líder de cada núcleo precisa, porém de forma muito mais eficiente. Um candidato não é desclassificado porque não atingiu um base-line fixo igual outros processos. Porque o nosso base-line é dinâmico!",
         highlightedTerms: ["UFGD", "Processo Seletivo", "YAWARA", "Melhor projeto da UFGD", "Projeto de extensão"],
     },
     faq: [

@@ -1,7 +1,7 @@
 import styles from './NewsWall.module.scss'
 
 
-export const NewsWall = () => {
+export const NewsWall = (  ) => {
     return (
         <div className={styles.newsWall}>
             <h3 className={styles.sectionTitle}>Mural de Notícias</h3>

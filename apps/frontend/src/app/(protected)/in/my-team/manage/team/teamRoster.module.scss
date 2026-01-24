@@ -1,0 +1,174 @@
+$yawara-red: #e60000;
+$bg-dark: #050505;
+$border-color: rgba(255, 255, 255, 0.05);
+
+.container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.semesterToggle {
+    background: #0d0d0d;
+    padding: 1rem;
+    border: 1px solid #222;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: #555;
+    }
+
+    button {
+        background: transparent;
+        border: 1px solid #333;
+        color: #444;
+        padding: 5px 15px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        cursor: pointer;
+
+        &.active {
+            border-color: $yawara-red;
+            color: $yawara-red;
+            box-shadow: 0 0 10px rgba($yawara-red, 0.2);
+        }
+    }
+}
+
+.saveBtn {
+    background: $yawara-red;
+    color: #fff;
+    border: none;
+    width: auto !important;
+    height: auto !important;
+    padding: 9px 12px;
+    font-weight: 900;
+    font-size: clamp(0.62rem, 1.8vw, 0.7rem);
+    cursor: pointer;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+    white-space: nowrap;
+    transition: 0.2s ease;
+
+    &:hover {
+        filter: brightness(1.15);
+    }
+
+    @media (max-width: 500px) {
+        padding: 10px 12px;
+    }
+}
+
+    .tableWrapper {
+        background: #080808;
+        border: 1px solid $border-color;
+        overflow-x: auto;
+    }
+
+    .rosterTable {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            text-align: left;
+            padding: 1.5rem;
+            background: #0c0c0c;
+            font-size: 0.65rem;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+    }
+
+    .scoreGrid {
+        display: flex;
+        gap: 8px;
+    }
+
+    .scoreInput {
+        width: 45px;
+        background: #000;
+        border: 1px solid #222;
+        color: #fff;
+        text-align: center;
+        padding: 5px;
+        font-family: 'JetBrains Mono', monospace;
+
+        &:focus:not(:disabled) {
+            border-color: $yawara-red;
+            outline: none;
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+    }
+
+    .leaderTag {
+        background: $yawara-red;
+        font-size: 0.5rem;
+        padding: 2px 4px;
+        margin-left: 10px;
+        font-weight: 900;
+    }
+
+    .actionGroup {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+
+        button {
+            background: #111;
+            border: 1px solid #222;
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            transition: 0.3s;
+
+            &.warnBtn:hover {
+                border-color: #ffaa00;
+                color: #ffaa00;
+            }
+
+            &.banBtn:hover {
+                border-color: $yawara-red;
+                color: $yawara-red;
+            }
+
+            &.reallocateBtn:hover {
+                border-color: #0088ff;
+                color: #0088ff;
+            }
+        }
+    }
+
+    .warningActive {
+        color: #ffaa00;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .cleanRecord {
+        color: #444;
+        font-size: 0.75rem;
+    }

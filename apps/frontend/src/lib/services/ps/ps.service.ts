@@ -1,4 +1,4 @@
-import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UploadFileResponse, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, checkAndProcessClosingResponse } from '@yawara/types'
+import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UploadFileResponse, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, checkAndProcessClosingResponse, BatchNotesItem} from '@yawara/types'
 import { PsRepository } from '@/lib/repository/ps/ps.repository'
 import { CloudinaryService } from '@/lib/services/cloudinary/cloudinary.service'
 import { EmailService } from '@/lib/services/email/email.service'
@@ -147,6 +147,16 @@ export class PsService {
         }
     }
 
+    async updatePsUserScore(data: BatchNotesItem[]): Promise<boolean> {
+        try{
+            const response = await this.psRepository.updateBatchScores(data);
+            return response;
+        }catch(error){
+            console.error('PsService.updatePsUserScore error:', error);
+            throw error;
+        }
+    }
+
     async checkAndProcessClosing(): Promise<checkAndProcessClosingResponse> {
         const activeEdition = await this.psRepository.getPsEditions();
 
@@ -210,27 +220,45 @@ export class PsService {
                 {
                     card_id: 1,
                     state: 'NOT_AVAILABLE',
-                    file_id: null
+                    file_id: '',
                 },
                 {
                     card_id: 2,
                     state: 'NOT_AVAILABLE',
-                    file_id: null
+                    file_id: '',
+                    notes: {
+                        technical_content: 0,
+                        context_applicability: 0,
+                        language_style: 0,
+                        metacognitive_reflection: 0,
+                        write_quality: 0
+                    }
                 },
                 {
                     card_id: 3,
                     state: 'NOT_AVAILABLE',
-                    file_id: null
+                    notes: {
+                        communication: 0,
+                        proactivily: 0,
+                        collaboration: 0,
+                        adaptability: 0,
+                        leadership: 0
+                    }
                 },
                 {
                     card_id: 4,
                     state: 'NOT_AVAILABLE',
-                    file_id: null
+                    notes: {
+                        technique: 0,
+                        resilience: 0,
+                        flexibility: 0,
+                        self_criticism: 0
+                    }
                 },
                 {
                     card_id: 5,
                     state: 'NOT_AVAILABLE',
-                    file_id: null
+                    notes: {}
                 }
             ];
 

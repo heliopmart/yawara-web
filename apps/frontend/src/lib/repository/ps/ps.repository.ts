@@ -1,7 +1,6 @@
 import { create_rls_client, supabaseAdmin } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, ps_full_data, ps_user_cards, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, processRegistrationClosingResponse, downloadChanllengeData } from '@yawara/types'
-import { generateCardConfigs } from "@/utils/mock_card_config"
+import { TokenPayload, ps_full_data, ps_user_cards, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, processRegistrationClosingResponse, downloadChanllengeData, BatchNotesItem} from '@yawara/types'
 
 export class PsRepository {
     private TablePsEditionName = 'ps_editions';
@@ -116,7 +115,7 @@ export class PsRepository {
     async getPsUserPresence(): Promise<DashboardPresenceResponse> {
         try {
             const res = await callRpc<DashboardPresenceResponse>({
-                functionName: "get_presence_dashboard",
+                functionName: "get_ps_candidate_data",
                 params: {},
                 bd: this.bd
             })
@@ -260,6 +259,23 @@ export class PsRepository {
         }
     }
 
+    
+    async updateBatchScores(updates: BatchNotesItem[]): Promise<boolean> {
+        try{
+            const res = await callRpc({
+                functionName: "update_batch_notes",
+                params: {
+                    p_updates: updates
+                },
+                bd: this.bd
+            })
+            return res.status
+        }catch(error){
+            console.error('PsRepository.updateBatchScores error:', error);
+            throw error;
+        }
+    }
+
     async processRegistrationClosing(edition_id: string, difficulty: string): Promise<processRegistrationClosingResponse[]> {
         try {
             const res = await callRpc<processRegistrationClosingResponse[]>({
@@ -322,7 +338,7 @@ export class PsRepository {
                     p_start_date: data.start_date,
                     p_finish_date: data.finish_date,
                     p_registration_closing: data.registration_closing,
-                    p_cards_list: generateCardConfigs(data.cards_config)
+                    p_cards_list: data.cards_config
                 },
                 bd: this.bd
             })

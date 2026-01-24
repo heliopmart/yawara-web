@@ -1,3 +1,4 @@
+import { ART } from "../art";
 import { ps_editions } from "../ps";
 
 // --------------------------------------------
@@ -86,3 +87,17 @@ export interface UpdateNucleiConfigData {
     subject_weights: SubjectWeight[]
 }
 
+
+// --------------------------------------------
+// ----------------- FRONTEND -----------------
+// --------------------------------------------
+
+export interface NucleiShowProps {
+    id: Nuclei['id'];
+    name: Nuclei['name']
+    nucleiConfig: {
+        totalMembers: number;
+        open_vacancies: number;
+    }
+    activeArts: Pick<ART, 'id' | 'title'>[]
+}

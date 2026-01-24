@@ -42,6 +42,70 @@ class SelectionPipeline:
             logger.error(f"Erro ao contar processos seletivos: {e}")
             return 0
 
+    def get_latest_ps_edition(self):
+        res = db_select("ps_editions", "id", filters={"is_active": False}, order_by="created_at", desc=True, single=True)
+        return res['id'] if res else None
+
+    async def execute_preview(self, pdf_bytes: bytes) -> Any:
+        """
+        Executa o pipeline completo para gerar o PDF de preview.
+
+        Args:
+            pdf_bytes (bytes): Bytes do PDF de entrada.
+
+        Returns:
+            Any: Objeto PDF gerado (dependente da implementação do serviço).
+        """
+        config = get_active_config()
+        mode = config.engineMode or "V1"
+        
+        logger.info(f"[Pipeline] Iniciando avaliação para PREVIEW_USER. Modo Configurado: {mode}")
+
+        # TODO: REFATORAR PARA DDD
+        # ------- INITIAL DATA FOR PREVIEW Y-SNA -------
+        ps_edition_id = self.get_latest_ps_edition()
+        task = {
+            "user_id": 'PREVIEW_USER',
+            "file_id": None,
+            "data": {
+                "name": "Preview User",
+                "course": "N/A",
+                "semester": 1
+            }
+        }
+
+        use_neural = False
+    
+        # 1. Decisão de Roteamento
+        if mode == "V2":
+            use_neural = True
+        elif mode == "V1":
+            use_neural = False
+        elif mode == "AUTO":
+            ps_count = await run_in_threadpool(self.get_count_completed_ps)
+            min_cycles = config.minCyclesForNeural or 4
+            
+            if ps_count >= min_cycles:
+                use_neural = True
+                logger.info(f"ℹ️ Modo AUTO: {ps_count} ciclos encontrados (Meta: {min_cycles}). Usando Neural (V2).")
+            else:
+                use_neural = False
+                logger.info(f"ℹ️ Modo AUTO: {ps_count}/{min_cycles} ciclos. Dados insuficientes. Usando Determinístico (V1).")
+
+        if use_neural:
+            try:
+                logger.info("🧠 Acionando Engine V2 (Rede Neural)...")
+                result = await engine_v2_service.run_single(None, ps_edition_id=ps_edition_id, task=task, pdf_bytes_example=pdf_bytes, is_example=True)
+                return result
+
+            except Exception as e:
+                logger.error(f"🚨 Falha Crítica na Engine V2: {e}. Iniciando Fallback para V1...", exc_info=True)
+                return await engine_v1_service.run_single(None, ps_edition_id=ps_edition_id, task=task, pdf_bytes_example=pdf_bytes, is_example=True)
+        else:
+            logger.info("📐 Acionando Engine V1 (Algoritmo Determinístico)...")
+            return await engine_v1_service.run_single(None, ps_edition_id=ps_edition_id, task=task, pdf_bytes_example=pdf_bytes, is_example=True)
+        
+
     async def process_candidate(self, candidate_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Método Mestre: Avalia um candidato usando a estratégia ativa.

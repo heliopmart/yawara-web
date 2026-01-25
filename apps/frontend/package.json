@@ -33,7 +33,7 @@
     "jose": "^6.1.2",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
-    "next": "^15.4.6",
+    "next": "15.4.10",
     "next-cloudinary": "^6.17.5",
     "next-seo": "^7.0.0-alpha.0",
     "postgres": "^3.4.7",

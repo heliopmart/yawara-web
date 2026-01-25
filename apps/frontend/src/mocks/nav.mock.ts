@@ -6,7 +6,7 @@ import { NavItem, NucleoItem } from '@yawara/types';
 export const HEADER_LINKS: NavItem[] = [
   { label: 'Quem Somos', href: '/aboutUs' }, //
   { label: 'Sustentabilidade', href: '/sustainability' }, //
-  { label: 'Inovação', href: '/innovation' }, //
+  { label: 'Inovação', href: '/innovations' }, //
   { label: 'Transparência', href: '/transparency' }, //
   { label: 'Patrocinadores', href: '/sponsors' }, //
   { label: 'Processo Seletivo', href: '/selection-process' }, //

@@ -1,0 +1,202 @@
+$red-yawara: #e31e24;
+$black-pure: #000000;
+$white: #ffffff;
+$bg-gray: #f9f9f9;
+$border: #eeeeee;
+
+.transparencyWrapper {
+  background-color: $white;
+  color: $black-pure;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 5rem;
+}
+
+.hero {
+  background-color: $black-pure;
+  color: $white;
+  padding: 7rem 0px 4rem 0px;
+  text-align: center;
+  h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
+  p { color: #888; font-size: 1.1rem; }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section {
+  margin-top: 4rem;
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    svg { color: $red-yawara; }
+  }
+}
+
+.cashFlowGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  .cardFinance {
+    padding: 2rem;
+    border: 1px solid $border;
+    span { display: block; color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    strong { font-size: 1.8rem; }
+    .green { color: #28a745; }
+    .red { color: $red-yawara; }
+  }
+}
+
+.artCard {
+  border: 1px solid $border;
+  margin-bottom: 2rem;
+  .artHeader {
+    background: $bg-gray;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid $border;
+  }
+}
+
+.arttBox {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    a {
+      font-size: 0.85rem;
+      color: $red-yawara;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid $red-yawara;
+      padding: 0.4rem 0.8rem;
+      &:hover { background: $red-yawara; color: white; }
+    }
+  }
+}
+
+.nucleoGroup {
+  margin-bottom: 4rem;
+  
+  .nucleoName {
+    font-size: 1.5rem;
+    color: $red-yawara;
+    text-transform: uppercase;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.artCard {
+  border: 1px solid #eee;
+  margin-bottom: 2rem;
+  background: #fff;
+
+  .artHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+
+    h4 { margin: 0; font-size: 1.2rem; }
+    
+    .btnMainFile {
+      background: $black-pure;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      &:hover { opacity: 0.8; }
+    }
+  }
+}
+
+.arttcBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f5f5f5;
+  
+  &:last-child { border-bottom: none; }
+
+  .arttcInfo {
+    p { margin: 0.2rem 0; font-size: 0.95rem; }
+    .resp { color: #888; font-size: 0.85rem; }
+  }
+
+  .arttcActions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    a {
+      font-size: 0.8rem;
+      color: $black-pure;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      padding: 0.4rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      &:hover { border-color: $red-yawara; color: $red-yawara; }
+    }
+
+    .reportLink {
+      color: $red-yawara;
+      border-color: $red-yawara;
+    }
+
+    .pendingReport {
+      font-size: 0.75rem;
+      color: #ccc;
+      font-style: italic;
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  th, td {
+    padding: 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid $border;
+  }
+  th { background: $bg-gray; font-size: 0.9rem; text-transform: uppercase; }
+}
+
+.btnDownload {
+  background: $black-pure;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 600;
+  &:hover { background: #222; }
+}

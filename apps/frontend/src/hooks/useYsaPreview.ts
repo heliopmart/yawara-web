@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export const useYsaPreview = () => {
     const router = useRouter();
@@ -39,17 +39,21 @@ export const useYsaPreview = () => {
                 throw 'INTERNAL_SERVER_ERROR';
             }
 
+            setProgress(75);
+
             const blob = await res.blob();
-
             const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `Resultado_YSNA_${Date.now()}.pdf`);
-            document.body.appendChild(link);
-            link.click();
 
-            link.parentNode?.removeChild(link);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Y-SNA_Report_PREVIEW_${new Date().getTime()}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+
             window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            setProgress(100);
         } catch (error) {
             console.error('Error uploading file:', error);
         } finally {

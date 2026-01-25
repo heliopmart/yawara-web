@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
       
       <div className={styles.copyrightBar}>
           <p className={styles.copyrightText}>
-              Team Yawara MotoStudent © Todos os direitos e programação é propriedade intelectual da comunidade acadêmica.
+              Team Yawara MotoStudent © Todos os direitos e programação é propriedade intelectual da comunidade acadêmica, sob licença MIT.
           </p>
       </div>
     </footer>

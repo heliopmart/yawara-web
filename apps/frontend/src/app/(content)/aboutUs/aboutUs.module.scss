@@ -1,0 +1,166 @@
+$red-yawara: #e31e24;
+$black-pure: #000000;
+$gray-dark: #0a0a0a;
+$white: #ffffff;
+
+.wrapper {
+  background-color: $black-pure;
+  color: $white;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.hero {
+  height: 60vh;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/images/hero-yawara.jpg'); // Adicione sua imagem de fundo
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 2px solid $red-yawara;
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 4px;
+  }
+
+  .subtitle {
+    color: $red-yawara;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+}
+
+.section {
+  padding: 6rem 1rem;
+}
+
+.darkBg {
+  background-color: $gray-dark;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.accentTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 60px;
+    height: 4px;
+    background-color: $red-yawara;
+  }
+}
+
+.gridTwoCols {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 4rem;
+  align-items: center;
+
+  p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #ccc;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  
+  .statItem {
+    text-align: center;
+    span {
+      display: block;
+      font-size: 3rem;
+      font-weight: 800;
+      color: $red-yawara;
+    }
+    p { font-size: 0.9rem; text-transform: uppercase; }
+  }
+}
+
+.artsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+
+  .artCard {
+    background: #151515;
+    padding: 2rem;
+    border: 1px solid #222;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      border-color: $red-yawara;
+    }
+
+    h3 {
+      color: $red-yawara;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #aaa;
+    }
+  }
+}
+
+.centerTitle {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.description {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  color: #888;
+}
+
+.competitionBox {
+  background-color: $red-yawara;
+  padding: 4rem;
+  text-align: center;
+  color: $white;
+
+  h2 { font-size: 2rem; margin-bottom: 1.5rem; font-weight: 800; }
+  p { font-size: 1.2rem; max-width: 800px; margin: 0 auto; }
+}
+
+.foundersList {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  span {
+    border: 1px solid #444;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: #eee;
+  }
+}

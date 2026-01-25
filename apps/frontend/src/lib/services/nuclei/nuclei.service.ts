@@ -2,10 +2,10 @@ import { NucleiRepository } from '@/lib/repository/nuclei/nuclei.repository'
 import { TokenPayload , PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps} from '@yawara/types'
 
 export class NucleiService {
-    private auth: TokenPayload;
+    private auth?: TokenPayload;
     private nucleiRepository: NucleiRepository;
 
-    constructor(auth: TokenPayload) {
+    constructor(auth?: TokenPayload) {
         this.auth = auth;
         this.nucleiRepository = new NucleiRepository(this.auth);
 

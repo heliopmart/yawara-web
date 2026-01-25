@@ -7,13 +7,13 @@ const SECRET = process.env.JWT_SECRET_USER_ROLE || ''
 
 const ROLE_ROUTES = {
     ADMIN_ROUTES: ['/in/admin', '/in/certificates', '/in/allocation'],
-    MEMBER_ROUTES: ['/in/my-team', '/in/nuclei', '/in/ferramentas', '/in/requests', '/in/docs'],
+    MEMBER_ROUTES: ['/in/my-team', '/in/nuclei', '/in/tools', '/in/requests', '/in/docs'],
     CANDIDATE_ROUTES: ['/in/processo-seletivo']
 };
 
 export async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
-    const isProtectedRoute = path.startsWith('/in');
+    const isProtectedRoute = path.startsWith('/in/');
 
     if (!isProtectedRoute) {
         return NextResponse.next();

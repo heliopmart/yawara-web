@@ -94,7 +94,8 @@ export interface UpdateNucleiConfigData {
 
 export interface NucleiShowProps {
     id: Nuclei['id'];
-    name: Nuclei['name']
+    name: Nuclei['name'];
+    description: string;
     nucleiConfig: {
         totalMembers: number;
         open_vacancies: number;

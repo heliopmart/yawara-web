@@ -1,0 +1,273 @@
+$red-yawara: #e31e24;
+$black-pure: #000000;
+$white: #ffffff;
+$gray-dark: #1a1a1a;
+$gray-light: #f0f0f0;
+
+.homeWrapper {
+  background-color: $white;
+  color: $black-pure;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden; // Previne scroll horizontal em transições
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.hero {
+  background-color: $black-pure;
+  color: $white;
+  padding: 10rem 0 8rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  // Efeito de fundo sutil (pode ser uma imagem de turbina ou chip)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('/images/hero_bg_pattern.png') no-repeat center center; // Substitua pelo seu asset
+    background-size: cover;
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  .tagline {
+    color: $red-yawara;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 1rem;
+    position: relative; z-index: 1;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 900;
+    margin: 1.5rem 0 2rem;
+    max-width: 900px;
+    margin-inline: auto;
+    line-height: 1.1;
+    position: relative; z-index: 1;
+  }
+
+  .description {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: #bbb;
+    max-width: 750px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+
+  .ctaButtons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    position: relative; z-index: 1;
+
+    .btnPrimary, .btnSecondary {
+      padding: 1rem 2.5rem;
+      border: 2px solid $red-yawara;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+
+    .btnPrimary {
+      background-color: $red-yawara;
+      color: $white;
+      &:hover {
+        background-color: darken($red-yawara, 10%);
+        border-color: darken($red-yawara, 10%);
+      }
+    }
+
+    .btnSecondary {
+      background-color: transparent;
+      color: $white;
+      &:hover {
+        background-color: rgba($white, 0.1);
+        color: $red-yawara;
+      }
+    }
+  }
+}
+
+.keyFeatures {
+  padding: 6rem 0;
+  background-color: $gray-light;
+  text-align: center;
+
+  .featuresGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  .featureCard {
+    background-color: $white;
+    padding: 3rem 2rem;
+    border-top: 4px solid $red-yawara;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-10px);
+    }
+
+    .icon {
+      font-size: 3rem;
+      color: $red-yawara;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: $black-pure;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.6;
+    }
+  }
+}
+
+.innovationHighlight {
+  padding: 8rem 0;
+  background-color: $black-pure;
+  color: $white;
+
+  .highlightContent {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
+    align-items: center;
+
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+  }
+
+  .textSide {
+    h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      color: $red-yawara;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1.15rem;
+      color: #ccc;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .learnMore {
+      color: $white;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $red-yawara;
+      }
+    }
+  }
+
+  .imageSide {
+    .placeholderImage {
+      background-color: $gray-dark;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: #444;
+    }
+  }
+}
+
+.callToAction {
+  padding: 8rem 0;
+  text-align: center;
+  background-color: $white;
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+  }
+
+  p {
+    font-size: 1.15rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+
+  .ctaButtonsSmall {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+
+    .btnPrimary, .btnSecondary {
+      padding: 0.8rem 2rem;
+      border: 2px solid $black-pure;
+      font-weight: 600;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+    }
+
+    .btnPrimary {
+      background-color: $black-pure;
+      color: $white;
+      border-color: $black-pure;
+      &:hover {
+        background-color: $red-yawara;
+        border-color: $red-yawara;
+      }
+    }
+
+    .btnSecondary {
+      background-color: transparent;
+      color: $black-pure;
+      &:hover {
+        background-color: $black-pure;
+        color: $white;
+      }
+    }
+  }
+}

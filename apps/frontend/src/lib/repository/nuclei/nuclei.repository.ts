@@ -3,11 +3,11 @@ import { getRows, updateRow, callRpc } from '@/utils/bd'
 import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps} from '@yawara/types'
 
 export class NucleiRepository {
-    private auth: TokenPayload;
+    private auth?: TokenPayload;
     private TablePsEditionsName = 'ps_editions';
     private bd: ReturnType<typeof create_rls_client>;
 
-    constructor(auth: TokenPayload) {
+    constructor(auth?: TokenPayload) {
         this.auth = auth;
         this.bd = create_rls_client(this.auth?.supabaseToken ?? null);
     }
@@ -25,7 +25,7 @@ export class NucleiRepository {
             const res = await getRows({
                 bd: this.bd,
                 table: this.TablePsEditionsName,
-                filters: [{ column: 'is_active', op: 'eq', value: true }, { column: 'nuclei_configs.nuclei.leader', op: 'eq', value: this.auth.user_id }],
+                filters: [{ column: 'is_active', op: 'eq', value: true }, { column: 'nuclei_configs.nuclei.leader', op: 'eq', value: this.auth?.user_id }],
                 columns: `
                     id, name, 
                     nuclei_configs: nuclei_configs!nuclei_configs_ps_edition_id_fkey ( id, open_vacancies, 

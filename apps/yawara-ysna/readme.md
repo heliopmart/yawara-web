@@ -1,3 +1,12 @@
+---
+title: Y-SNA
+emoji: 🧠
+colorFrom: red
+colorTo: black
+sdk: docker
+app_port: 8000
+---
+
 # 🧠 Yawara System Neural Architecture (Y-SNA)
 
 > **Microsserviço de Inteligência Artificial para Triagem Adaptativa e Seleção de Talentos.**

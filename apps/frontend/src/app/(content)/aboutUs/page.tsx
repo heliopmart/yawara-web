@@ -1,5 +1,5 @@
 'use client'
-import styles from './AboutUs.module.scss';
+import styles from './aboutUs.module.scss';
 import { useAboutUs } from "@/hooks/aboutUs";
 
 const AboutUs = () => {

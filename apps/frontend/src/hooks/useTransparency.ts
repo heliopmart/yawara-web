@@ -33,7 +33,7 @@ export interface ItemInventario {
   id: string;
   nome: string;
   comQuem: string; // Rastreabilidade do ativo
-  status: 'Operacional' | 'Em Manutenção' | 'Necessita Calibração';
+  status: 'Operacional' | 'Em Manutenção' | 'Necessita Calibração' | 'Em Aquisição';
   ultimaManutencao: string;
   proximaRevisao?: string;
 }
@@ -124,7 +124,7 @@ export const useTransparency = () => {
           { 
             id: "INV-001", 
             nome: "Analisador de Espectro", 
-            comQuem: "Lab Elétrica (Ramon Silva)", 
+            comQuem: "Lab Elétrica", 
             status: "Operacional", 
             ultimaManutencao: "10/12/2025" 
           },
@@ -132,18 +132,17 @@ export const useTransparency = () => {
             id: "INV-042", 
             nome: "Bancada de Teste Hidrogênio", 
             comQuem: "Oficina Mecânica", 
-            status: "Em Manutenção", 
+            status: "Em Aquisição", 
             ultimaManutencao: "15/01/2026",
             proximaRevisao: "30/01/2026"
           }
         ]);
 
-        // 3. Financeiro [cite: 137, 138, 171]
+        // 3. Financeiro
         setFinanceiro({
-          saldo: 25750.80,
+          saldo: 3000,
           historico: [
-            { id: "M-01", descricao: "Patrocínio Empresa X", valor: 10000, tipo: "Entrada", categoria: "Privado", data: "05/01/2026" },
-            { id: "M-02", descricao: "Compra de Sensores I2C", valor: 1250.40, tipo: "Saída", categoria: "Insumos", data: "12/01/2026" }
+            { id: "M-01", descricao: "Submissão Edital Interno da UFGD ", valor: 3000, tipo: "Entrada", categoria: "Publico", data: "10/07/2025" },
           ]
         });
 

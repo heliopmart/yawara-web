@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { FaFilePdf, FaSearch, FaQrcode, FaCheckCircle, FaReadme } from 'react-icons/fa';
-import styles from './certificate.module.scss';
+import styles from './Certificate.module.scss';
 import { useCertificate } from '@/hooks/useCertificate';
 
 function CertificateContent() {

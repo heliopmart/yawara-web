@@ -1,4 +1,3 @@
-// --- Variáveis ---
 $bg-color: #0a0a0a;
 $card-bg: #141414;
 $text-primary: #ffffff;
@@ -39,7 +38,6 @@ $mobile-breakpoint: 768px;
       color: $accent-color;
     }
 
-    // Ajuste Mobile: Fonte um pouco menor para não quebrar feio
     @media (max-width: $mobile-breakpoint) {
       font-size: 1.75rem;
     }
@@ -59,16 +57,15 @@ $mobile-breakpoint: 768px;
   background-color: $card-bg;
   border: 1px solid $border-color;
   border-radius: 8px;
-  padding: 2.5rem; // Padding generoso no Desktop
+  padding: 2.5rem; 
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
-  // Ajuste Mobile: Card ocupa a largura quase total e tem menos padding interno
   @media (max-width: $mobile-breakpoint) {
     padding: 1.5rem;
-    border: none; // Opcional: em mobile muito pequeno, as vezes removemos a borda para parecer nativo
-    background-color: transparent; // Ou mantém a cor, dependendo do gosto. Aqui vou manter transparente pra limpar o visual
+    border: none;
+    background-color: transparent; 
     box-shadow: none;
   }
 
@@ -92,9 +89,9 @@ $mobile-breakpoint: 768px;
       border-radius: 4px;
       padding: 0.75rem 1rem;
       color: $text-primary;
-      font-size: 1rem; // IMPORTANTE: 16px evita que o iOS dê zoom automático ao focar
+      font-size: 1rem; 
       transition: all 0.2s ease;
-      width: 100%; // Garante largura total
+      width: 100%;
 
       &:focus {
         outline: none;
@@ -121,9 +118,9 @@ $mobile-breakpoint: 768px;
     transition: background-color 0.2s;
     margin-top: 1rem;
     
-    // Ajuste Mobile: Área de toque maior e feedback visual de toque
+    
     @media (max-width: $mobile-breakpoint) {
-      padding: 1.2rem; // Mais fácil de acertar com o dedo
+      padding: 1.2rem;
     }
 
     &:hover:not(:disabled) {

@@ -4,6 +4,8 @@ emoji: 🤖
 colorFrom: red
 colorTo: black
 sdk: docker
+app_file: app/main.py
+python_version: "3.11"
 pinned: false
 ---
 

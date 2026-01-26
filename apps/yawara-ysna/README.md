@@ -2,7 +2,7 @@
 title: Y-SNA
 emoji: 🤖
 colorFrom: red
-colorTo: black
+colorTo: gray
 sdk: docker
 app_file: app/main.py
 python_version: "3.11"

@@ -1,10 +1,10 @@
 ---
 title: Y-SNA
-emoji: 🧠
+emoji: 🤖
 colorFrom: red
 colorTo: black
 sdk: docker
-app_port: 8000
+pinned: false
 ---
 
 # 🧠 Yawara System Neural Architecture (Y-SNA)

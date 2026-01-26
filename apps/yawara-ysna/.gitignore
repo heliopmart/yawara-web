@@ -1,7 +1,8 @@
-# Não subir artefatos de modelo
-app/resources/*.keras
-app/resources/*.npz
-app/resources/*.h5
+# binaries (HF blocks)
+app/resources/**/*.keras
+app/resources/**/*.h5
+app/resources/**/*.npz
+docs/assets/**/*.pdf
 
-# Não subir testes
+# tests
 app/tests/

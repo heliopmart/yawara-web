@@ -1,15 +1,12 @@
-# Base Image: Python 3.11 Slim (Leve e segura) [cite: 59]
 FROM python:3.11-slim
 
-# Variáveis de ambiente para otimizar o Python no Docker
+# AMBIENT VARIABLES
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Define diretório de trabalho
+# WORK DIRECTORY
 WORKDIR /app
 
-# Instala dependências do sistema necessárias para compilar certas libs
-# (gcc e python3-dev às vezes são necessários para bibliotecas matemáticas)    
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
@@ -24,16 +21,34 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-# Copia e instala as dependências Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# Copia o restante do código
-COPY . .
 
-# Expõe a porta que o FastAPI usa
-EXPOSE 8000
+# CREATE A NON-ROOT USER
+RUN useradd -m -u 1000 user
 
-# Comando de inicialização (Uvicorn)
-# O host 0.0.0.0 permite acesso externo ao container
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN chown user:user /app 
+
+# SWITCH TO NON-ROOT USER
+USER user
+ENV PATH="/home/user/.local/bin:${PATH}"
+
+# INSTALL DEPENDENCIES AS NON-ROOT USER
+COPY --chown=user:user requirements.txt .
+RUN pip install --no-cache-dir --user --upgrade -r requirements.txt
+
+# RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# COPY . .
+COPY --chown=user:user . .
+
+# DEV CONFIG
+# EXPOSE 8000
+
+# HUGGIN SPACE CONFIG
+EXPOSE 7860
+
+# DEFAULT DEV CONFIG
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# HUGGIN SPACE CONFIG
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]

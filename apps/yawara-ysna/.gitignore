@@ -3,6 +3,7 @@ app/resources/**/*.keras
 app/resources/**/*.h5
 app/resources/**/*.npz
 docs/assets/**/*.pdf
+site/assets/**/*.pdf
 
 # tests
 app/tests/

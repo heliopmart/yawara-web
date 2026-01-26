@@ -1,5 +1,6 @@
 ---
 title: Y-SNA
+<<<<<<< HEAD:apps/yawara-ysna/README.md
 emoji: 🤖
 colorFrom: red
 colorTo: gray
@@ -7,6 +8,13 @@ sdk: docker
 app_file: app/main.py
 python_version: "3.11"
 pinned: false
+=======
+emoji: 🧠
+colorFrom: red
+colorTo: black
+sdk: docker
+app_port: 8000
+>>>>>>> d5f8d5ddee28bffb4a160ebfed7d26cba51df9dc:apps/yawara-ysna/readme.md
 ---
 
 # 🧠 Yawara System Neural Architecture (Y-SNA)

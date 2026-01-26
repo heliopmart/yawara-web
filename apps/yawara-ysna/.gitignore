@@ -1,0 +1,7 @@
+# Não subir artefatos de modelo
+app/resources/*.keras
+app/resources/*.npz
+app/resources/*.h5
+
+# Não subir testes
+app/tests/

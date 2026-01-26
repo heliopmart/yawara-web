@@ -1,17 +1,16 @@
-import { FullMembers, ART } from '../index';
+import { FullMembers } from '../index';
 
 // --------------------------------------------
 // ------------ ARTTC INTERFACES --------------
 // --------------------------------------------
 export type ArttcRole = 'MEMBER' | 'LEADER';
-export type ActivityStatus = 'ACTIVE' | 'INACTIVE';
-
+export type ArttcActivityStatus = 'ACTIVE' | 'INACTIVE';
 export interface ARTTC {
     id: string;
     title: string;
     description: string;
     art_id: string;
-    status: ActivityStatus;
+    status: ArttcActivityStatus;
     code: string,
     file_id: string;
     report_file_id: string;

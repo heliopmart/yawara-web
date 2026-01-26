@@ -59,11 +59,8 @@ const FAQ: React.FC<{ faq: FAQItem[] }> = ({ faq }) => {
 };
 
 
-// --- Componente Principal ---
 const SelectionProcessLanding: React.FC = () => {
     const data = SP_LANDING_MOCK;
-
-    // Substitui os termos destacados (RNCBL)
     const renderDescription = (text: string, highlights: string[]) => {
         let content: React.ReactNode[] = [text];
         highlights.forEach(term => {
@@ -121,7 +118,7 @@ const SelectionProcessLanding: React.FC = () => {
                 <div className={styles.techContent}>
                     <div className={styles.techImageBlock}>
                         <Image
-                            src={''}
+                            src={'/images/castle-image-ps.png'}
                             alt='Image tec'
                             width={400}
                             height={300}
@@ -147,7 +144,7 @@ const SelectionProcessLanding: React.FC = () => {
                     </div>
                     <div className={styles.techImageBlock}>
                         <Image
-                            src={''}
+                            src={'/images/forge-image-ps.png'}
                             alt='Image tec'
                             width={400}
                             height={300}

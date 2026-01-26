@@ -1,4 +1,4 @@
-import { create_rls_client, supabaseAdmin } from "@/lib/db"
+import { create_rls_client, supabase } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
 import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps} from '@yawara/types'
 
@@ -9,7 +9,11 @@ export class NucleiRepository {
 
     constructor(auth?: TokenPayload) {
         this.auth = auth;
-        this.bd = create_rls_client(this.auth?.supabaseToken ?? null);
+        if(auth){
+            this.bd = create_rls_client(this.auth?.supabaseToken ?? null);
+        }else{
+            this.bd = supabase;
+        }
     }
 
 

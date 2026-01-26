@@ -199,13 +199,17 @@ $gray-light: #f0f0f0;
 
   .imageSide {
     .placeholderImage {
-      background-color: $gray-dark;
-      min-height: 300px;
+      min-height: 400px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 5rem;
       color: #444;
+
+      background-image: url("/images/ysna-image-index-without-background.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
   }
 }

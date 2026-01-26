@@ -3,28 +3,6 @@ import styles from './index.module.scss';
 import { FaPlay, FaMicrochip, FaLeaf, FaTrophy, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link'; 
 
-import { NucleoItem } from '@yawara/types'; 
-import { NUCLEOS_MOCK } from '@/mocks/nav.mock';
-
-import HeroSection from '@/components/home/HeroSection';
-import NucleosSection from '@/components/home/NucleosSection';
-import SustentabilidadeSection from '@/components/home/SustentabilidadeSection';
-
-// const HomePage: React.FC = () => {
-//     const nucleos: NucleoItem[] = NUCLEOS_MOCK; 
-
-//     return (
-//         <main>
-//             <HeroSection /> 
-
-//             <NucleosSection nucleos={nucleos} />
-
-//             <SustentabilidadeSection />
-            
-//         </main>
-//     );
-// };
-
 const HomePage = () => {
   return (
     <div className={styles.homeWrapper}>
@@ -88,9 +66,8 @@ const HomePage = () => {
               </Link>
             </div>
             <div className={styles.imageSide}>
-              {/* Espaço para uma imagem ilustrativa do Y-SNA ou de um chip */}
-              <div className={styles.placeholderImage}>
-                <FaMicrochip /> {/* Placeholder visual */}
+              <div className={styles.placeholderImage} >
+                {/* <FaMicrochip />  */}
               </div>
             </div>
           </div>

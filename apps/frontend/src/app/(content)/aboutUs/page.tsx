@@ -6,6 +6,7 @@ const AboutUs = () => {
     const {
         nuclei
     } = useAboutUs()
+
     return (
         <div className={styles.wrapper}>
             {/* Hero Section - O Impacto Visual */}
@@ -57,7 +58,8 @@ const AboutUs = () => {
                             nuclei.map((nucleus) => (
                                 <div key={nucleus.id} className={styles.artCard}>
                                     <h3>{nucleus.name}</h3>
-                                    <p>{nucleus.description ?? ""}</p>
+                                    <p>Total de Membros: {nucleus.nucleiConfig.totalMembers}</p>
+                                    <p>Vagas Abertas: {nucleus.nucleiConfig.open_vacancies}</p>
                                 </div>
                             ))
                         }

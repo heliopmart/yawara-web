@@ -1,11 +1,11 @@
 import re
-import unicodedata
-
 from typing import Optional, List
 from datetime import datetime
+import asyncio
 
 # HANDLES IMPORT ----------------------------------------------
 from app.utils.text import try_parse_float
+from app.utils.text import normalize_text_strict
 
 # SERVICE IMPORT ----------------------------------------------
 from app.services.neural_resolver import get_resolver, DynamicNeuralResolver
@@ -35,18 +35,6 @@ def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
     except Exception as e:
         print(f"[Y-CSNN] Error: Resolver Neural indisponível ({e}). Usando fallback.")
         return None
-
-def normalize_name_for_neural_search(text: str) -> str:
-    """
-    Remove acentos e caracteres especiais para compatibilidade com o vocabulário
-    da rede neural (normalmente A-Z, 0-9).
-    Ex: "CÁLCULO I" -> "CALCULO I"
-    """
-    if not text:
-        return ""
-    # Normalize for unicode (NFKD) and remove non-ASCII characters (accents)
-    normalized = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
-    return normalized.strip().upper()
 
 # REGEX TYPING ----------------------------------------------------
 
@@ -102,7 +90,7 @@ PERIOD_LINE_REGEX = re.compile(
     re.VERBOSE
 )
 
-def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
+async def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     """
         Processa uma linha de texto crua e a converte em um registro de disciplina estruturado.
 
@@ -161,10 +149,10 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
     
     if _resolver:
         try:
-            search_term = normalize_name_for_neural_search(name_raw)
+            search_term = normalize_text_strict(name_raw)
 
             # Call the neural resolver to get the canonical name. Return { "canonical", "confidence", ... }
-            resolution_result = _resolver.resolve(search_term)
+            resolution_result = await _resolver.resolve(search_term)
 
             # Extract fields from the result
             subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")
@@ -188,7 +176,7 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
         confidence=confidence if _resolver else None,
     )
 
-def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+async def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
     """
         Orquestra o parsing completo do texto de um histórico escolar.
 
@@ -229,7 +217,7 @@ def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source:
             continue
 
         # Try to parse the line as a subject
-        subj = parse_subject_line(raw_line, current_period)
+        subj = await parse_subject_line(raw_line, current_period)
         
         # Filter subjects with irrelevant status
         if subj is not None:
@@ -249,7 +237,7 @@ def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source:
         subjects=subjects,
     )
 
-def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+async def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
     """
         Ponto de entrada principal para a ingestão de históricos escolares em PDF.
 
@@ -268,10 +256,10 @@ def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_
     """
 
     # Extract text from the PDF
-    text = extract_text_from_pdf(pdf_bytes)
+    text = await asyncio.to_thread(extract_text_from_pdf, pdf_bytes)
     
     # Delegate to the main parser
-    return parse_academic_history(
+    return await parse_academic_history(
         text=text,
         candidate_id=candidate_id,
         cycle_id=cycle_id,

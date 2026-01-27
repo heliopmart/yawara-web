@@ -237,7 +237,7 @@ class BaseEngineService:
             if not pdf_bytes:
                 return False
 
-            record = ingest_academic_record_from_pdf(pdf_bytes, user_id, edition_id) 
+            record = await ingest_academic_record_from_pdf(pdf_bytes, user_id, edition_id) 
             if not record:
                 return False
 

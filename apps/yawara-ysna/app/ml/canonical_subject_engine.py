@@ -11,6 +11,7 @@ from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
 # TRAINING IMPORT -----------------------------------------
 from app.training.train_canonical_subject_ml import TRAINING_SEEDS
 from app.services.dataset_service import dataset_service
+from app.utils.text import normalize_text_strict
 
 # STORAGE MANAGE ------------------------------------------
 from app.services.storage import storage_service
@@ -66,7 +67,7 @@ class CanonicalSubjectEngine:
             np.ndarray: O vetor denso normalizado representando o texto.
         """
         # Basic Normalize 
-        clean_text = text.strip().upper()
+        clean_text = normalize_text_strict(text)
         return self.nn.embed_single(clean_text)
 
     def search_nearest(self, vector: np.ndarray, top_k: int = 5) -> List[Tuple[str, float]]:

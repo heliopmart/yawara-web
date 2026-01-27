@@ -2,6 +2,7 @@ import logging
 import json
 from typing import List, Dict, Optional
 from app.utils.db import db_select
+from app.utils.text import normalize_text_strict
 from app.schemas.engine_v1 import NucleusRequirementsInput
 from app.services.neural_resolver import get_resolver, DynamicNeuralResolver
 
@@ -80,7 +81,7 @@ class SelectionDataService:
                     
                     if raw_name and _resolve:
                         # O resolve retorna um DICT, pegamos só a chave 'canonical'
-                        res =  await _resolve.resolve(raw_name)
+                        res =  await _resolve.resolve(normalize_text_strict(raw_name))
                         canonical_name = res.get("canonical")
                     else:
                         # Fallback do Fallback: Se não tem IA e não tem coluna, usa o cru mesmo

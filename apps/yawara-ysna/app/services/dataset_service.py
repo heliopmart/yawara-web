@@ -11,9 +11,9 @@ class DatasetService:
     def append_new_var(self, raw_input: str, canonical_target: str):
         """
         Salva um novo aprendizado de forma atômica (Thread-safe/Process-safe).
-        Formato JSONL: {"target": "CALCULO_I", "var": "CALC 1"}
+        Formato JSONL: {"canonical": "CALCULO_I", "vars": ["CALC 1"]}
         """
-        entry = json.dumps({"target": canonical_target, "var": raw_input.upper()}) + "\n"
+        entry = json.dumps({"canonical": canonical_target, "vars": [raw_input.upper()]}) + "\n"
         
         os.makedirs(os.path.dirname(LEARNED_DATA_PATH), exist_ok=True)
         

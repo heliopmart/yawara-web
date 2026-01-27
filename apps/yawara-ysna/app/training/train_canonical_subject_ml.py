@@ -60,8 +60,8 @@ def load_dataset_merged() -> List[Dict[str, Any]]:
                 if not line.strip(): continue
                 try:
                     record = json.loads(line)
-                    target = record["target"]
-                    new_var = record["var"]
+                    target = record["canonical"]
+                    new_var = record["vars"]
                     
                     if target in canonical_map:
                         if "vars" not in canonical_map[target]:

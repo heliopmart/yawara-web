@@ -51,7 +51,7 @@ class SelectionDataService:
         
         return edition["id"]
 
-    def get_nuclei_configuration(self, ps_edition_id: str) -> List[NucleusRequirementsInput]:
+    async def get_nuclei_configuration(self, ps_edition_id: str) -> List[NucleusRequirementsInput]:
         """
         Busca as regras do jogo: Quais núcleos existem e o que eles pedem.
         """
@@ -80,7 +80,7 @@ class SelectionDataService:
                     
                     if raw_name and _resolve:
                         # O resolve retorna um DICT, pegamos só a chave 'canonical'
-                        res = _resolve.resolve(raw_name)
+                        res =  await _resolve.resolve(raw_name)
                         canonical_name = res.get("canonical")
                     else:
                         # Fallback do Fallback: Se não tem IA e não tem coluna, usa o cru mesmo

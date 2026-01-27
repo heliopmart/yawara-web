@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Dict, List, Any, Optional
 from functools import lru_cache 
 
@@ -45,8 +46,8 @@ class DynamicNeuralResolver:
         self.engine = CanonicalSubjectEngine(path)
         self.llm_client = GeminiClient()
 
-    @lru_cache(maxsize=4096) 
-    def resolve(self, raw_input: str, threshold: float = 0.77) -> Dict[str, Any]:
+    # @lru_cache(maxsize=4096) 
+    async def resolve(self, raw_input: str, threshold: float = 0.61) -> Dict[str, Any]:
         """
         Resolve o nome da disciplina usando estratégia em cascata (Cache -> Neural -> LLM).
 
@@ -80,7 +81,7 @@ class DynamicNeuralResolver:
         # Scenario A: Cold Start (Empty Memory) -> LLM
         if not top_candidates:
             logger.info(f"Cold Start for '{raw_input}'. Triggering LLM.")
-            return self._resolve_via_llm(raw_input, input_vec, [])
+            return await self._resolve_via_llm(raw_input, input_vec, [])
 
         best_match_name, best_match_score = top_candidates[0]
         
@@ -97,34 +98,40 @@ class DynamicNeuralResolver:
         # Scenario C: Ambiguity (Slow Path) -> LLM
         logger.info(f"Ambiguity: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Triggering LLM.")
         print(f"Ambiguity: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Triggering LLM.")
-        return self._resolve_via_llm(raw_input, input_vec, top_candidates)
+        return await self._resolve_via_llm(raw_input, input_vec, top_candidates)
 
-    def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:
+    async def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:
         """
-        Slow Path: Usa IA Generativa para raciocinar sobre o termo e atualiza a memória vetorial.
+        Slow Path: Usa IA Generativa para desambiguar e ensina o Motor (Active Learning).
         """
         try:
-            # Async Search could be implemented here for performance improvements.
-            decision = self.llm_client.check_concept_ambiguity(raw_input, candidates)
+            decision = await asyncio.to_thread(
+                self.llm_client.check_concept_ambiguity, 
+                raw_input, 
+                candidates
+            )
             
-            canonical = decision.get("canonical", "UNKNOWN").upper().replace(" ", "_")
+            canonical = decision.get("canonical", "UNKNOWN").upper().strip().replace(" ", "_")
             is_new = decision.get("is_new", False)
+            reasoning = decision.get("reasoning", "LLM Decision")
 
-            # Auto-Learning: If the LLM is confident, teach the vector engine
-            # so that next time it falls into the Fast Path.
             if canonical != "UNKNOWN":
-                self.engine.memorize(canonical, vector)
-                logger.info(f"🧠 Self-Supervised Learning: '{raw_input}' mapped to '{canonical}'")
+                self.engine.memorize(raw_input, canonical)
+                
+                logger.info(f"🧠 Aprendido: '{raw_input}' mapeado para '{canonical}'")
+            else:
+                pass
+
             return {
                 "canonical": canonical,
-                "confidence": 1.0, # LLM is the ultimate authority
+                "confidence": 1.0,
                 "source": "LLM_GENERATION",
                 "new_concept": is_new,
-                "reasoning": decision.get("reasoning")
+                "reasoning": reasoning
             }
 
         except Exception as e:
-            logger.error(f"Error in LLM for '{raw_input}': {e}")
+            logger.error(f"Erro no Resolver LLM para '{raw_input}': {e}")
             return self._fallback_response(raw_input, "LLM_ERROR", candidates)
 
     def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:

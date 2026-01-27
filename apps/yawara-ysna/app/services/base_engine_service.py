@@ -52,7 +52,7 @@ class BaseEngineService:
         
         logger.info(f"--- INICIANDO SINGLE RUN ({self.__class__.__name__}) para {candidate_id} ---")
 
-        context = self.load_context(ps_edition_id)
+        context = await self.load_context(ps_edition_id)
         if context is None:
              raise ValueError("Contexto de avaliação não carregado.")
 
@@ -203,7 +203,7 @@ class BaseEngineService:
             logger.error(f"Erro ao fazer upload do PDF para {candidate_id}: {e}")
             return False
 
-    def load_context(self, ps_edition_id: str) -> Any:
+    async def load_context(self, ps_edition_id: str) -> Any:
         """Pode ser sobrescrito para carregar regras ou pesos."""
         return {}
 

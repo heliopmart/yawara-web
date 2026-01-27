@@ -10,11 +10,11 @@ from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
 
 # TRAINING IMPORT -----------------------------------------
 from app.training.train_canonical_subject_ml import TRAINING_SEEDS
+from app.services.dataset_service import dataset_service
 
 # STORAGE MANAGE ------------------------------------------
 from app.services.storage import storage_service
 
-# Definição do caminho da memória (Banco Vetorial em Arquivo)
 MEMORY_FILE_PATH = settings.NN_MODEL_MEMORY_FILE_PATH
 FILE_MEMORY_CLOUDINARY_ID = settings.ML_CLOUD_FILE_MEMORY_CLOUDINARY_ID
 
@@ -103,20 +103,12 @@ class CanonicalSubjectEngine:
             
         return results
 
-    # TODO: Talvez seja melhor criar timer de sincronização em nuvem, porque da maneira que está, a cada chamada no gemini é um upload do arquivo inteiro
-    def memorize(self, canonical_name: str, vector: np.ndarray) -> None:
-        """Registra um novo conceito (ou reforça um existente) na memória persistente.
-
-        Este método é chamado quando o sistema aprende um novo sinônimo. Ele atualiza
-        o banco em memória e dispara a gravação no disco.
-
-        Args:
-            canonical_name (str): O nome oficial da disciplina (Chave Primária).
-            vector (np.ndarray): O vetor representativo.
+    def memorize(self, raw_input: str, canonical_name: str) -> None:
         """
-        self.memory_bank[canonical_name] = vector
-        self._save_memory_to_disk()
-        self._upload_memory()
+        Persiste o novo conhecimento para o PRÓXIMO retreino.
+        """
+        dataset_service.append_new_var(raw_input, canonical_name)
+
 
     def _load_or_seed_memory(self):
         """Carrega a memória do disco ou cria a semente inicial se vazio."""
@@ -134,35 +126,16 @@ class CanonicalSubjectEngine:
             print("[YSNA-Engine] Memória vazia. Iniciando semente...")
             self._download_memory()
 
-    def _seed_memory(self):
-        """Popula a memória com os conceitos fundamentais do treinamento."""
-        initial_concepts = [item["canonical"] for item in TRAINING_SEEDS]
-        vectors = self.nn.embed_batch(initial_concepts)
-        for name, vec in zip(initial_concepts, vectors):
-            self.memory_bank[name] = vec
-        self._save_memory_to_disk()
-
     def _download_memory(self):
         """
         Baixa o arquivo de memória do Cloudinary, se disponível.
         """
         try:
             storage_service.download_file(FILE_MEMORY_CLOUDINARY_ID, MEMORY_FILE_PATH)
+            self._load_or_seed_memory()
             print(f"[YSNA-Engine] Memória baixada do Cloudinary.")
         except Exception as e:
-            self._seed_memory()
             print(f"[YSNA-Engine] ERRO ao baixar memória: {e}")
-
-    def _upload_memory(self):
-        """
-        Save the current state of memory to the .npz file.
-        """
-        try:
-            if os.path.exists(MEMORY_FILE_PATH):
-                storage_service.upload_file(MEMORY_FILE_PATH, FILE_MEMORY_CLOUDINARY_ID)
-                print(f"[YSNA-Engine] Memória enviada ao Cloudinary.")
-        except Exception as e:
-            print(f"[YSNA-Engine] CRITICAL ERROR saving memory: {e}")
 
     def _save_memory_to_disk(self):
         """Persiste o estado atual da memória no arquivo .npz."""

@@ -34,7 +34,7 @@ class EngineV1Service(BaseEngineService):
         BaseEngineService: Fornece a interface padrão `run_single`.
     """
 
-    def load_context(self, ps_edition_id: str) -> Optional[List[Any]]:
+    async def load_context(self, ps_edition_id: str) -> Optional[List[Any]]:
         """
         Carrega as regras de negócio (pesos dos núcleos) do banco de dados.
         
@@ -44,7 +44,7 @@ class EngineV1Service(BaseEngineService):
         Returns:
             Optional[List[NucleusRequirementsInput]]: Lista de regras ou None se falhar.
         """
-        nuclei_rules = data_service.get_nuclei_configuration(ps_edition_id)
+        nuclei_rules = await data_service.get_nuclei_configuration(ps_edition_id)
         if not nuclei_rules:
             logger.error(f"Abortando V1: Nenhuma configuração de núcleo encontrada para {ps_edition_id}.")
             return None

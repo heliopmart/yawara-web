@@ -11,8 +11,12 @@ from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
 # TRAINING IMPORT -----------------------------------------
 from app.training.train_canonical_subject_ml import TRAINING_SEEDS
 
+# STORAGE MANAGE ------------------------------------------
+from app.services.storage import storage_service
+
 # Definição do caminho da memória (Banco Vetorial em Arquivo)
 MEMORY_FILE_PATH = settings.NN_MODEL_MEMORY_FILE_PATH
+FILE_MEMORY_CLOUDINARY_ID = settings.ML_CLOUD_FILE_MEMORY_CLOUDINARY_ID
 
 class CanonicalSubjectEngine:
     """Motor de inferência vetorial e persistência para normalização de disciplinas.
@@ -40,7 +44,6 @@ class CanonicalSubjectEngine:
         """
         print(f"[YSNA-Engine] Inicializando Motor Vetorial...")
         
-        # 1. Carrega a Rede Neural
         self.nn = CanonicalSubjectNN(vocab="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", encoder_dim=128)
         try:
             self.nn.model.build((None, 64)) 
@@ -50,7 +53,6 @@ class CanonicalSubjectEngine:
             print(f"[FATAL] Erro ao carregar pesos em {weights_path}: {e}")
             raise e
 
-        # 2. Inicializa o Banco de Memória
         self.memory_bank: Dict[str, np.ndarray] = {}
         self._load_or_seed_memory()
 
@@ -63,7 +65,7 @@ class CanonicalSubjectEngine:
         Returns:
             np.ndarray: O vetor denso normalizado representando o texto.
         """
-        # Normalização básica antes de entrar na rede
+        # Basic Normalize 
         clean_text = text.strip().upper()
         return self.nn.embed_single(clean_text)
 
@@ -81,17 +83,17 @@ class CanonicalSubjectEngine:
         if not self.memory_bank:
             return []
             
-        # Otimização: Transforma o dict em matrizes numpy para cálculo vetorizado
+        # Otimization: Transform dict to numpy matrices for vectorized computation
         keys = list(self.memory_bank.keys())
         matrix = np.stack([self.memory_bank[k] for k in keys])
         
-        # Produto Escalar (Dot Product)
-        # Como os vetores já saem normalizados da rede (L2 Norm), 
-        # o produto escalar É a similaridade de cosseno.
+        # Dot Product
+        # Since the vectors are already normalized by the network (L2 Norm), 
+        # the dot product IS the cosine similarity.
         scores = np.dot(vector, matrix.T)
         
-        # Obtém os índices dos Top-K maiores scores
-        # np.argsort ordena crescente, então pegamos o final e invertemos [::-1]
+        # Get Top-K Results
+        # np.argsort ascending order, so we take the last k and reverse [::-1]
         k = min(top_k, len(keys))
         top_indices = np.argsort(scores)[-k:][::-1]
         
@@ -101,6 +103,7 @@ class CanonicalSubjectEngine:
             
         return results
 
+    # TODO: Talvez seja melhor criar timer de sincronização em nuvem, porque da maneira que está, a cada chamada no gemini é um upload do arquivo inteiro
     def memorize(self, canonical_name: str, vector: np.ndarray) -> None:
         """Registra um novo conceito (ou reforça um existente) na memória persistente.
 
@@ -113,6 +116,7 @@ class CanonicalSubjectEngine:
         """
         self.memory_bank[canonical_name] = vector
         self._save_memory_to_disk()
+        self._upload_memory()
 
     def _load_or_seed_memory(self):
         """Carrega a memória do disco ou cria a semente inicial se vazio."""
@@ -125,10 +129,10 @@ class CanonicalSubjectEngine:
                 print(f"[YSNA-Engine] Memória restaurada: {len(self.memory_bank)} vetores.")
             except Exception as e:
                 print(f"[YSNA-Engine] Erro ao ler memória ({e}). Reiniciando com Seeds.")
-                self._seed_memory()
+                self._download_memory()
         else:
             print("[YSNA-Engine] Memória vazia. Iniciando semente...")
-            self._seed_memory()
+            self._download_memory()
 
     def _seed_memory(self):
         """Popula a memória com os conceitos fundamentais do treinamento."""
@@ -137,6 +141,28 @@ class CanonicalSubjectEngine:
         for name, vec in zip(initial_concepts, vectors):
             self.memory_bank[name] = vec
         self._save_memory_to_disk()
+
+    def _download_memory(self):
+        """
+        Baixa o arquivo de memória do Cloudinary, se disponível.
+        """
+        try:
+            storage_service.download_file(FILE_MEMORY_CLOUDINARY_ID, MEMORY_FILE_PATH)
+            print(f"[YSNA-Engine] Memória baixada do Cloudinary.")
+        except Exception as e:
+            self._seed_memory()
+            print(f"[YSNA-Engine] ERRO ao baixar memória: {e}")
+
+    def _upload_memory(self):
+        """
+        Save the current state of memory to the .npz file.
+        """
+        try:
+            if os.path.exists(MEMORY_FILE_PATH):
+                storage_service.upload_file(MEMORY_FILE_PATH, FILE_MEMORY_CLOUDINARY_ID)
+                print(f"[YSNA-Engine] Memória enviada ao Cloudinary.")
+        except Exception as e:
+            print(f"[YSNA-Engine] CRITICAL ERROR saving memory: {e}")
 
     def _save_memory_to_disk(self):
         """Persiste o estado atual da memória no arquivo .npz."""

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
 
     # --- CLOUD ARTIFACTS (Cloudinary/Training) ---
+    ML_CLOUD_FILE_MEMORY_CLOUDINARY_ID: str = "vector_memory_npz"
     ML_CLOUD_CHECKPOINT_NAME: str = "yawara_v2_checkpoint.weights.h5"
     ML_CLOUD_BEST_CHECKPOINT_NAME: str = "yawara_best_checkpoint_v2.weights.h5"
     ML_CLOUD_STATE_NAME: str = "yawara_v2_training_state.json"
@@ -93,6 +94,20 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
     CLOUDINARY_DOCS_FOLDER_NAME: str = ""
+
+    # --- MIDDLEWARE & LOGGING ---
+    YSNA_INTERNAL_TOKEN: str = ""
+    YSNA_DOCS_USER: str = "admin"
+    YSNA_DOCS_PASSWORD: str = "admin"
+
+    # --- DEBUG PROPERTY ---
+    @property
+    def DEBUG(self) -> bool:
+        """
+        Define DEBUG=True automaticamente se estivermos em ambiente de desenvolvimento.
+        Isso evita acidentes de deixar DEBUG=True em produção.
+        """
+        return self.ENVIRONMENT in ["development", "development_local_mock", "testing"]
 
     # Configuração Pydantic
     model_config = SettingsConfigDict(

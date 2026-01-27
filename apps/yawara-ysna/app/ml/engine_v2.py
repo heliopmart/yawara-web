@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 
 # ------- CONFIGS ----------
 from app.core.config import settings
+from app.core.deprecated import deprecated
 
 # ------- SCHEMAS ----------
 from app.schemas.candidate import CandidateInput
@@ -15,12 +16,13 @@ from app.schemas.historic import SubjectRecord
 # ------- SERVICES ----------
 from app.services.neural_resolver import get_resolver
 from app.services.ingestion import ingest_academic_record_from_pdf 
+from app.services.storage import storage_service
 
 logger = logging.getLogger("yawara.ml.engine_v2")
 
 # --- HIPERPARÂMETROS GLOBAIS (Devem dar match com o treino) ---
 MAX_SUBJECTS_PER_STUDENT = 100
-MAX_SUBJECTS = 100 # Alias
+MAX_SUBJECTS = 100
 HASHING_BINS = 5000
 EMBEDDING_DIM = 64
 
@@ -142,13 +144,44 @@ class NucleusRecommendationEngine:
             self.model_path = settings.ML_ENGINE_2_PATH
             self.labels_path = settings.ML_ENGINE_2_LABELS_PATH
 
-    def _load_artifacts(self):
+    @deprecated
+    def _load_artifacts_v1(self):
         if not os.path.exists(self.model_path):
             logger.warning(f"[Engine 2] Modelo não encontrado em {self.model_path}. Modo de inferência desativado.")
             return
+        
+        try:
+            self.model = tf.keras.models.load_model(self.model_path, compile=False)
+            
+            if os.path.exists(self.labels_path):
+                with open(self.labels_path, "r") as f:
+                    self.labels = json.load(f)
+            
+            logger.info(f"🧠 Engine V2 Carregada. Núcleos: {len(self.labels)}")
+        except Exception as e:
+            logger.critical(f"🧠 Erro fatal carregando Engine V2: {e}")
+            self.model = None
+
+    def _load_artifacts(self):
+        """
+        Carrega modelo e labels, baixando do Cloudinary se não existirem localmente.
+        """
+        if not os.path.exists(self.model_path):
+            logger.info(f"[Engine 2] Modelo não encontrado em {self.model_path}. Tentando baixar...")
+            
+            remote_model_name = settings.ML_CLOUD_MODEL_NAME 
+            success = storage_service.download_file(remote_model_name, self.model_path)
+            
+            if not success:
+                logger.warning(f"[Engine 2] Falha ao baixar modelo. Modo de inferência desativado.")
+                return
+
+        if not os.path.exists(self.labels_path):
+            logger.info(f"[Engine 2] Labels não encontrados. Baixando...")
+            remote_labels_name = settings.ML_CLOUD_LABELS_NAME 
+            storage_service.download_file(remote_labels_name, self.labels_path)
 
         try:
-            # compile=False é mais rápido para inferência (não carrega otimizadores)
             self.model = tf.keras.models.load_model(self.model_path, compile=False)
             
             if os.path.exists(self.labels_path):

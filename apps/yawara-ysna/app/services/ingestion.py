@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from typing import Optional, List
 from datetime import datetime
 
@@ -34,6 +35,18 @@ def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
         print(f"[Y-CSNN] Error: Resolver Neural indisponível ({e}). Usando fallback.")
         return None
 
+def normalize_name_for_neural_search(text: str) -> str:
+    """
+    Remove acentos e caracteres especiais para compatibilidade com o vocabulário
+    da rede neural (normalmente A-Z, 0-9).
+    Ex: "CÁLCULO I" -> "CALCULO I"
+    """
+    if not text:
+        return ""
+    # Normalize for unicode (NFKD) and remove non-ASCII characters (accents)
+    normalized = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII')
+    return normalized.strip().upper()
+
 # REGEX TYPING ----------------------------------------------------
 
 # Regex compilada para extração de dados de linhas de disciplina.
@@ -49,6 +62,7 @@ def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
 # "12345678 - ESTAGIO SUP     0        100           MT       OBR"
 # 
 # Observação: ?P<code> são grupos nomeados para fácil acesso.
+
 DISCIPLINE_LINE_REGEX = re.compile(
     r"""
     ^\s*                        # Início da linha (ignora espaços iniciais) 
@@ -76,8 +90,8 @@ DISCIPLINE_LINE_REGEX = re.compile(
 
 # Regex para identificar cabeçalhos de período letivo.
 # Captura o formato "AAAA.S" (Ano.Semestre).
-#
 # Exemplo: "2024.1" ou "2023.2"
+
 PERIOD_LINE_REGEX = re.compile(
     r"""
     ^\s*            # Início da linha
@@ -113,51 +127,53 @@ def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
             4. Object Creation -> Retorna SubjectRecord.
     """
 
-    # Extração via Regex 
+    # Extraction using regex
     m = DISCIPLINE_LINE_REGEX.match(line)
     
-    # Linha inválida (não corresponde ao formato esperado)
+    # invalid line (does not match expected format)
     if not m:
         return None
 
-    # Extração dos campos ( group(<code>) do regex )
+    # Extracted Fields ( group(<code>) on regex )
     code = m.group("code").strip()
     name_raw = m.group("name").strip()
     absences = int(m.group("absences"))
     workload = int(m.group("workload"))
     grade_raw = m.group("grade")
     
-    # Conversão segura da nota
+    # safe note convert 
     grade = try_parse_float(grade_raw)
 
     status = m.group("status").strip()  
     dtype = m.group("dtype").strip()
 
-    # --- INTEGRAÇÃO NEURAL V2 ---
+    # --- NEURAL INTEGRATION V2 ---
     
-    # Chama o interruptor da rede neural (se disponível)
+    # Call the neural network switch (if available)
     _resolver = _get_ai_resolver()
     
-    # Valor padrão caso a rede esteja offline
+    # Default value if the network is offline
     subject_canonical_name = "AI_UNAVAILABLE"
 
-    # Valor padrão para não gerar errors
+    # Default value to avoid errors
     confidence = None
     
     if _resolver:
         try:
-            # Chama o resolvedor neural para obter o nome canônico. Return { "canonical", "confidence", ... }
-            resolution_result = _resolver.resolve(name_raw.upper())
+            search_term = normalize_name_for_neural_search(name_raw)
 
-            # Extrai os campos do resultado
+            # Call the neural resolver to get the canonical name. Return { "canonical", "confidence", ... }
+            resolution_result = _resolver.resolve(search_term)
+
+            # Extract fields from the result
             subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")
             confidence = resolution_result.get("confidence", 0.0)       
 
         except Exception as e:
-            print(f"[Y-CSNN] Erro na resolução de '{name_raw}': {e}")
+            print(f"[Y-CSNN] Error resolving '{name_raw}': {e}")
             subject_canonical_name = "ERROR_RESOLVING"
             
-    # Return o objeto estruturado
+    # Return the structured object
     return SubjectRecord(
         period=period,
         code=code,
@@ -198,32 +214,32 @@ def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source:
     current_period = "UNKNOWN"
     subjects: List[SubjectRecord] = []
 
-    # Itera sobre cada linha do texto
+    # Iterate over each line of the text
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line:
             continue 
 
-        # Verifica se a linha é um cabeçalho de período
+        # Check if the line is a period header
         m_period = PERIOD_LINE_REGEX.match(line)
         if m_period:
-            # Extrai o período atual
+            # Extract the current period
             current_period = m_period.group(1)
             continue
 
-        # Tenta parsear a linha como disciplina
+        # Try to parse the line as a subject
         subj = parse_subject_line(raw_line, current_period)
         
-        # Filtra disciplinas com status irrelevantes
+        # Filter subjects with irrelevant status
         if subj is not None:
-            # Ignora disciplinas com status de exclusão
+            # Ignore subjects with exclusion status
             if subj.status in academic_exclude_status:
                 continue
-            # Adiciona a disciplina válida à lista
+            # Add the valid subject to the list
             subjects.append(subj)
             continue
 
-    # Retorna o registro acadêmico completo
+    # Return the complete academic record
     return AcademicRecord(
         candidate_id=candidate_id,
         cycle_id=cycle_id,
@@ -250,10 +266,10 @@ def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_
             AcademicRecord: O registro acadêmico completo, normalizado e validado, pronto para persistência.
     """
 
-    # Extração de texto do PDF
+    # Extract text from the PDF
     text = extract_text_from_pdf(pdf_bytes)
     
-    # Delegação para o parser principal
+    # Delegate to the main parser
     return parse_academic_history(
         text=text,
         candidate_id=candidate_id,

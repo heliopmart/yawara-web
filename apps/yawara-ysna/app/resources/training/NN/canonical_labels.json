@@ -73,7 +73,7 @@
   {
     "canonical": "ARQUITETURA_E_URBANISMO",
     "vars": [
-      "ARQUITETURA",
+      "ARQ. Urbanismo",
       "ARQUITETURA E URBANISMO",
       "ARQUITETURA URBANISMO"
     ]
@@ -86,15 +86,9 @@
     ]
   },
   {
-    "canonical": "AS_INFORMACOES_FORAM_OBTIDAS_PARA",
-    "vars": [
-      "AS INFORMACOES FORAM OBTIDAS PARA"
-    ]
-  },
-  {
     "canonical": "AUTOMACAO_ELETROHIDRAULICA_E_ELETROPNEUMATICA",
     "vars": [
-      "AUTOMACAO",
+      "AUT. ELETROHIDRAULICA E ELETROPNEUMATICA",
       "AUTOMACAO ELETROHIDRAULICA E ELETROPNEUMATICA",
       "AUTOMACAO ELETROHIDRAULICA ELETROPNEUMATICA"
     ]
@@ -102,20 +96,30 @@
   {
     "canonical": "BIOQUIMICA_DE_ALIMENTOS",
     "vars": [
-      "BIOQUIMICA DE ALIMENTOS"
+      "BIOQUIMICA DE ALIMENTOS",
+      "BIO. ALIMENTOS"
     ]
   },
   {
     "canonical": "BIOQUIMICA_GERAL",
     "vars": [
-      "BIOQUIMICA GERAL"
+      "BIOQUIMICA GERAL",
+      "BIO. GERAL"
     ]
   },
   {
     "canonical": "CALCULO_DIFERENCIAL_E_INTEGRAL_I",
     "vars": [
       "CALCULO DIFERENCIAL E INTEGRAL 1",
-      "CALCULO DIFERENCIAL E INTEGRAL I"
+      "CALCULO DIFERENCIAL E INTEGRAL I",
+      "CALCULO 1",
+      "CALCULO I",
+      "CAL. DIFERENCIAL I",
+      "CAL. DIFERENCIAL 1",
+      "CALULO DIF. INTEGRAL 1",
+      "CALULO DIF. INTEGRAL I",
+      "CDI 1",
+      "CDI I"
     ]
   },
   {
@@ -125,6 +129,10 @@
       "CALCULO DIFERENCIAL E INTEGRAL II",
       "CALCULO DIFERENCIAL INTEGRAL 2",
       "CALCULO DIFERENCIAL INTEGRAL II",
+      "CAL. DIFERENCIAL II",
+      "CAL. DIFERENCIAL 2",
+      "CALULO DIF. INTEGRAL 2",
+      "CALULO DIF. INTEGRAL II",
       "CDI 2",
       "CDI II"
     ]
@@ -136,36 +144,19 @@
       "CALCULO DIFERENCIAL E INTEGRAL III",
       "CALCULO DIFERENCIAL INTEGRAL 3",
       "CALCULO DIFERENCIAL INTEGRAL III",
+      "CAL. DIFERENCIAL III",
+      "CAL. DIFERENCIAL 3",
+      "CALULO DIF. INTEGRAL 3",
+      "CALULO DIF. INTEGRAL III",
       "CDI 3",
       "CDI III"
     ]
   },
   {
-    "canonical": "CALCULO_INTEGRAL_E_DIFERENCIAL_II",
-    "vars": [
-      "CALCULO INTEGRAL DIFERENCIAL 2",
-      "CALCULO INTEGRAL DIFERENCIAL II",
-      "CALCULO INTEGRAL E DIFERENCIAL 2",
-      "CALCULO INTEGRAL E DIFERENCIAL II",
-      "CID 2",
-      "CID II"
-    ]
-  },
-  {
-    "canonical": "CALCULO_INTEGRAL_E_DIFERENCIAL_III",
-    "vars": [
-      "CALCULO INTEGRAL DIFERENCIAL 3",
-      "CALCULO INTEGRAL DIFERENCIAL III",
-      "CALCULO INTEGRAL E DIFERENCIAL 3",
-      "CALCULO INTEGRAL E DIFERENCIAL III",
-      "CID 3",
-      "CID III"
-    ]
-  },
-  {
     "canonical": "CALCULO_NUMERICO",
     "vars": [
-      "CALCULO NUMERICO"
+      "CALCULO NUMERICO",
+      "CAL. NUMERICO"
     ]
   },
   {
@@ -177,14 +168,6 @@
     ]
   },
   {
-    "canonical": "CHIAVERINI_V_TECNOLOGIA_MECANICA_VOLUME",
-    "vars": [
-      "CHIAVERINI",
-      "CHIAVERINI V TECNOLOGIA MECANICA VOLUME",
-      "CVTMV"
-    ]
-  },
-  {
     "canonical": "CIDADANIA_E_EDUCACAO_EM_DIREITOS_HUMANOS",
     "vars": [
       "CIDADANIA E EDUCACAO EM DIREITOS HUMANOS",
@@ -192,37 +175,32 @@
     ]
   },
   {
-    "canonical": "CIDADANIA_E_EDUCACAO_EM_DIREITOS_HUMANOS_HUMANIDADES",
-    "vars": [
-      "CEDHH",
-      "CIDADANIA E EDUCACAO EM DIREITOS HUMANOS HUMANIDADES",
-      "CIDADANIA EDUCACAO EM DIREITOS HUMANOS HUMANIDADES"
-    ]
-  },
-  {
     "canonical": "CIENCIA_DOS_MATERIAIS",
     "vars": [
-      "CIENCIA DOS MATERIAIS"
+      "CIENCIA DOS MATERIAIS",
+      "CIEN. MATERIAIS"
     ]
   },
   {
     "canonical": "CIENCIA_E_TECNOLOGIA_DOS_MATERIAIS",
     "vars": [
       "CIENCIA E TECNOLOGIA DOS MATERIAIS",
-      "CIENCIA TECNOLOGIA DOS MATERIAIS"
+      "CIENCIA TECNOLOGIA DOS MATERIAIS",
+      "CIENCIA TEC. DOS MATERIAIS"
     ]
   },
   {
     "canonical": "CIRCUITOS_ELETRICOS",
     "vars": [
-      "CIRCUITOS",
-      "CIRCUITOS ELETRICOS"
+      "CIRCUITOS ELE.",
+      "CIRCUITOS ELETRICOS",
+      "CIR. ELETRICOS"
     ]
   },
   {
     "canonical": "COMBUSTAO_E_COMBUSTIVEIS",
     "vars": [
-      "COMBUSTAO",
+      "COMBUSTAO E COM.",
       "COMBUSTAO COMBUSTIVEIS",
       "COMBUSTAO E COMBUSTIVEIS"
     ]
@@ -230,7 +208,6 @@
   {
     "canonical": "COMUNICACAO_E_EXPRESSAO",
     "vars": [
-      "COMUNICACAO",
       "COMUNICACAO E EXPRESSAO",
       "COMUNICACAO EXPRESSAO"
     ]
@@ -238,7 +215,8 @@
   {
     "canonical": "CONFORMACAO_MECANICA_DOS_METAIS",
     "vars": [
-      "CONFORMACAO MECANICA DOS METAIS"
+      "CONFORMACAO MECANICA DOS METAIS",
+      "COMFORMACAO MEC. DOS METAIS"
     ]
   },
   {
@@ -251,15 +229,13 @@
   {
     "canonical": "CONSERVACAO_DE_ALIMENTOS",
     "vars": [
-      "CONSERVACAO",
+      "CONSERVACAO DE ALI.",
       "CONSERVACAO DE ALIMENTOS"
     ]
   },
   {
     "canonical": "CONSTRUCAO_DE_EDIFICIOS_I",
     "vars": [
-      "CONS 1",
-      "CONS I",
       "CONSTRUCAO 1",
       "CONSTRUCAO DE EDIFICIOS 1",
       "CONSTRUCAO DE EDIFICIOS I",
@@ -269,9 +245,6 @@
   {
     "canonical": "CONSTRUCAO_DE_EDIFICIOS_II",
     "vars": [
-      "CE II",
-      "CONS 2",
-      "CONS II",
       "CONSTRUCAO 2",
       "CONSTRUCAO DE EDIFICIOS 2",
       "CONSTRUCAO DE EDIFICIOS II",
@@ -281,9 +254,6 @@
   {
     "canonical": "CONSTRUCAO_DE_EDIFICIOS_III",
     "vars": [
-      "CE III",
-      "CONS 3",
-      "CONS III",
       "CONSTRUCAO 3",
       "CONSTRUCAO DE EDIFICIOS 3",
       "CONSTRUCAO DE EDIFICIOS III",
@@ -293,9 +263,6 @@
   {
     "canonical": "CONSTRUCAO_DE_EDIFICIOS_IV",
     "vars": [
-      "CE IV",
-      "CONS 4",
-      "CONS IV",
       "CONSTRUCAO 4",
       "CONSTRUCAO DE EDIFICIOS 4",
       "CONSTRUCAO DE EDIFICIOS IV",
@@ -312,81 +279,77 @@
   {
     "canonical": "CONTROLE_DE_QUALIDADE_NA_INDUSTRIA_DE_ALIMENTOS",
     "vars": [
-      "CONTROLE",
+      "CONTROLE DE QUAL. NA INDUSTRIA DE ALIMENTOS",
+      "CONTROLE DE QUALIDADE NA IND. DE ALIMENTOS",
       "CONTROLE DE QUALIDADE NA INDUSTRIA DE ALIMENTOS"
-    ]
-  },
-  {
-    "canonical": "CO_A_SECAO",
-    "vars": [
-      "CO A SECAO"
     ]
   },
   {
     "canonical": "DESENHO_ARQUITETONICO",
     "vars": [
-      "DESENHO ARQUITETONICO"
+      "DESENHO ARQUITETONICO",
+      "DES. ARQUITETONICO"
     ]
   },
   {
     "canonical": "DESENHO_TECNICO_BASICO",
     "vars": [
-      "DESENHO TECNICO BASICO"
+      "DESENHO TECNICO BASICO",
+      "DES. TECNICO BASICO",
+      "DESENHO TEC. BASICO"
     ]
   },
   {
     "canonical": "DESENHO_TECNICO_DE_MAQUINAS_E_MECANISMOS",
     "vars": [
       "DESENHO TECNICO DE MAQUINAS E MECANISMOS",
-      "DESENHO TECNICO DE MAQUINAS MECANISMOS"
+      "DESENHO TECNICO DE MAQUINAS MECANISMOS",
+      "DES. TECNICO DE MAQUINAS E MECANISMOS",
+      "DESENHO TEC. DE MAQUINAS E MECANISMO",
+      "DESENHO TECNICO DE MAQ. E MECANISMOS",
+      "DESENGO TECNICO DE MAQUINAS E MEC."
     ]
   },
   {
     "canonical": "DESENHO_TECNICO_PARA_A_ENGENHARIA",
     "vars": [
-      "DESENHO TECNICO PARA A ENGENHARIA"
-    ]
-  },
-  {
-    "canonical": "DE_ALIMENTOS_I",
-    "vars": [
-      "DE ALIMENTOS 1",
-      "DE ALIMENTOS I"
+      "DESENHO TECNICO PARA A ENGENHARIA",
+      "DESENHO TEC. PARA ENGENHARIA",
+      "DESENHO TECNICO PARA ENG.",
+      "DESENHO TECNICO P/ ENGENHARIA"
     ]
   },
   {
     "canonical": "DINAMICA_DOS_CORPOS_RIGIDOS",
     "vars": [
-      "DINAMICA",
+      "DINAMICA CORPOS RIGIDOS",
+      "DIN. DOS CORPOS RIGIDOS",
       "DINAMICA DOS CORPOS RIGIDOS"
     ]
   },
   {
     "canonical": "DIVERSIDADES_INTERCULTURALIDADE_E_RELACOES_ETNICO_RACIAIS",
     "vars": [
-      "DIRER",
-      "DIVERSIDADES",
       "DIVERSIDADES INTERCULTURALIDADE E RELACOES ETNICO RACIAIS",
       "DIVERSIDADES INTERCULTURALIDADE RELACOES ETNICO RACIAIS"
     ]
   },
   {
-    "canonical": "DOS_ESTATICA_DOS_CORPOS_RIGIDOS",
+    "canonical": "ESTATICA_DOS_CORPOS_RIGIDOS",
     "vars": [
-      "DOS ESTATICA DOS CORPOS RIGIDOS"
+      "ESTATICA DOS CORPOS RIGIDOS"
     ]
   },
   {
     "canonical": "ECONOMIA_DA_ENERGIA",
     "vars": [
-      "ECONOMIA",
+      "ECO. DA ENERGIA",
       "ECONOMIA DA ENERGIA"
     ]
   },
   {
     "canonical": "EDUCACAO_ETNICO_RACIAL_E_DIREITOS_HUMANOS",
     "vars": [
-      "EDUCACAO",
       "EDUCACAO ETNICO RACIAL DIREITOS HUMANOS",
       "EDUCACAO ETNICO RACIAL E DIREITOS HUMANOS",
       "EERDH"
@@ -395,33 +358,37 @@
   {
     "canonical": "ELETRICIDADE_CIRCUITOS_ELETRICOS",
     "vars": [
-      "ELETRICIDADE",
+      "ELETRICIDADE CIR. ELETRICOS",
       "ELETRICIDADE CIRCUITOS ELETRICOS"
     ]
   },
   {
     "canonical": "ELETRONICA_ANALOGICA",
     "vars": [
-      "ELETRONICA ANALOGICA"
+      "ELETRONICA ANALOGICA",
+      "ELE. ANALOGICA"
     ]
   },
   {
     "canonical": "ELETRONICA_BASICA",
     "vars": [
-      "ELETRONICA BASICA"
+      "ELETRONICA BASICA",
+      "ELE. BASICA"
     ]
   },
   {
     "canonical": "EMBALAGENS_DE_ALIMENTOS",
     "vars": [
-      "EMBALAGENS",
+      "EMBALAGENS ALIMENTOS",
+      "EMB. DE ALIMENTOS",
       "EMBALAGENS DE ALIMENTOS"
     ]
   },
   {
     "canonical": "EMPREENDEDORISMO_E_INOVACAO",
     "vars": [
-      "EMPREENDEDORISMO",
+      "EMPREENDEDORISMO E INO.",
+      "EMP. E INOVACAO",
       "EMPREENDEDORISMO E INOVACAO",
       "EMPREENDEDORISMO INOVACAO"
     ]
@@ -429,14 +396,16 @@
   {
     "canonical": "EMPREENDIMENTOS_PARA_ENGENHARIA",
     "vars": [
-      "EMPREENDIMENTOS",
+      "EMPREENDIMENTOS P/ ENGENHARIA",
+      "EMP. PARA ENGENHARIA",
+      "EMPREENDIMENTOS PARA ENG.",
       "EMPREENDIMENTOS PARA ENGENHARIA"
     ]
   },
   {
     "canonical": "ENERGIA_DA_BIOMASSA",
     "vars": [
-      "ENERGIA",
+      "ENE. DA BIOMASSA",
       "ENERGIA DA BIOMASSA"
     ]
   },
@@ -467,16 +436,8 @@
   {
     "canonical": "ENSAIOS_MECANICOS_DOS_MATERIAIS",
     "vars": [
-      "ENSAIOS",
+      "ENSAIOS MEC. DOS MATERIAIS",
       "ENSAIOS MECANICOS DOS MATERIAIS"
-    ]
-  },
-  {
-    "canonical": "ENSINO_SUPERIOR_DE_TODO_O_PLANETA_SENDO_APENAS",
-    "vars": [
-      "ENSINO",
-      "ENSINO SUPERIOR DE TODO O PLANETA SENDO APENAS",
-      "ESTPSA"
     ]
   },
   {
@@ -494,22 +455,13 @@
   {
     "canonical": "ESTATICA_DOS_CORPOS_RIGIDOS",
     "vars": [
-      "ESTATICA",
+      "EST. DOS CORPOS RIGIDOS",
       "ESTATICA DOS CORPOS RIGIDOS"
-    ]
-  },
-  {
-    "canonical": "ESTATISTICA_PROBABILIDADE_E_ESTATISTICA",
-    "vars": [
-      "ESTATISTICA",
-      "ESTATISTICA PROBABILIDADE E ESTATISTICA",
-      "ESTATISTICA PROBABILIDADE ESTATISTICA"
     ]
   },
   {
     "canonical": "ESTRADAS_II",
     "vars": [
-      "ESTRADAS",
       "ESTRADAS 2",
       "ESTRADAS II"
     ]
@@ -517,7 +469,6 @@
   {
     "canonical": "EXPRESSAO_GRAFICADESENHO_TECNICO_PARA_ENGENHARIA",
     "vars": [
-      "EXPRESSAO",
       "EXPRESSAO GRAFICADESENHO TECNICO PARA ENGENHARIA"
     ]
   },
@@ -541,25 +492,27 @@
     ]
   },
   {
-    "canonical": "FISICA_FISICA_I",
+    "canonical": "FISICA_I",
     "vars": [
-      "FISICA FISICA",
-      "FISICA FISICA 1",
-      "FISICA FISICA I"
+      "FISICA 1",
+      "FUNDAMENTOS DA MECANICA",
+      "FISICA I"
     ]
   },
   {
     "canonical": "FISICA_II",
     "vars": [
       "FISICA 2",
-      "FISICA II"
+      "FISICA II",
+      "FUNDAMENTOS DE OCILACAO, ONDAS E FLUIDOS"
     ]
   },
   {
     "canonical": "FISICA_III",
     "vars": [
       "FISICA 3",
-      "FISICA III"
+      "FISICA III",
+      "FUNDAMENTOS DO ELETROMAGNETISMO"
     ]
   },
   {
@@ -605,7 +558,8 @@
   {
     "canonical": "GEOLOGIA_PARA_ENGENHARIA_CIVIL",
     "vars": [
-      "GEOLOGIA",
+      "GEOLOGIA P/ ENGENHARIA CIVIL",
+      "GEOLOGIA PARA ENG. CIVIL",
       "GEOLOGIA PARA ENGENHARIA CIVIL"
     ]
   },
@@ -647,15 +601,8 @@
     ]
   },
   {
-    "canonical": "G_ERENCIAMENTO_AMBIENTAL",
-    "vars": [
-      "G ERENCIAMENTO AMBIENTAL"
-    ]
-  },
-  {
     "canonical": "HIDRAULICA_II",
     "vars": [
-      "HIDRAULICA",
       "HIDRAULICA 2",
       "HIDRAULICA II"
     ]
@@ -663,14 +610,13 @@
   {
     "canonical": "HIDROLOGIA_BASICA",
     "vars": [
-      "HIDROLOGIA",
+      "HID. BASICA",
       "HIDROLOGIA BASICA"
     ]
   },
   {
     "canonical": "HIGIENE_E_LEGISLACAO_NA_INDUSTRIA_DE_ALIMENTOS",
     "vars": [
-      "HIGIENE",
       "HIGIENE E LEGISLACAO NA INDUSTRIA DE ALIMENTOS",
       "HIGIENE LEGISLACAO NA INDUSTRIA DE ALIMENTOS"
     ]
@@ -678,7 +624,7 @@
   {
     "canonical": "INDUSTRIA_DE_ALIMENTOS",
     "vars": [
-      "INDUSTRIA",
+      "INDUSTRIA ALIMENTOS",
       "INDUSTRIA DE ALIMENTOS"
     ]
   },
@@ -703,7 +649,8 @@
   {
     "canonical": "INSTRUMENTACAO_PARA_ENGENHARIA",
     "vars": [
-      "INSTRUMENTACAO",
+      "INSTRUMENTACAO PARA ENG.",
+      "INS. PARA ENGENHARIA",
       "INSTRUMENTACAO PARA ENGENHARIA"
     ]
   },
@@ -712,8 +659,10 @@
     "vars": [
       "INTR 1",
       "INTR I",
-      "INTRODUCAO 1",
-      "INTRODUCAO I"
+      "INTRODUCAO ADM. 1",
+      "INTRODUCAO ADM. I",
+      "INTRODUÇÃO A ADMINISTRAÇÃO 1",
+      "INTRODUÇÃO A ADMINISTRAÇÃO I"
     ]
   },
   {
@@ -817,7 +766,6 @@
   {
     "canonical": "LUBRIFICACAO_E_MANUTENCAO_INDUSTRIAL",
     "vars": [
-      "LUBRIFICACAO",
       "LUBRIFICACAO E MANUTENCAO INDUSTRIAL",
       "LUBRIFICACAO MANUTENCAO INDUSTRIAL"
     ]
@@ -838,14 +786,15 @@
   {
     "canonical": "MATEMATICA_INTRODUCAO_AO_CALCULO_PARA_ENGENHARIA",
     "vars": [
-      "MATEMATICA",
+      "INTRODUCAO A CALCULO",
+      "INTRODUCAO A CALC. PARA ENGENHARIA",
+      "INT. A CALCULO PARA ENGENHARIA",
       "MATEMATICA INTRODUCAO AO CALCULO PARA ENGENHARIA"
     ]
   },
   {
     "canonical": "MATERIAS_PRIMAS_AGROINDUSTRIAIS",
     "vars": [
-      "MATERIAS",
       "MATERIAS PRIMAS AGROINDUSTRIAIS"
     ]
   },
@@ -859,7 +808,9 @@
     "canonical": "MECANICA_DOS_FLUIDOS_I",
     "vars": [
       "MECANICA DOS FLUIDOS 1",
-      "MECANICA DOS FLUIDOS I"
+      "MECANICA DOS FLUIDOS I",
+      "MEC. DOS FLUIDOS 1",
+      "MEC. DOS FLUIDOS I"
     ]
   },
   {
@@ -901,7 +852,6 @@
   {
     "canonical": "MECANISMOS_E_DINAMICA_DE_MAQUINAS",
     "vars": [
-      "MECANISMOS",
       "MECANISMOS DINAMICA DE MAQUINAS",
       "MECANISMOS E DINAMICA DE MAQUINAS"
     ]
@@ -909,7 +859,6 @@
   {
     "canonical": "METALURGIA_DO_PO_PLASTICOS_E_POLIMEROS",
     "vars": [
-      "METALURGIA",
       "METALURGIA DO PO PLASTICOS E POLIMEROS",
       "METALURGIA DO PO PLASTICOS POLIMEROS"
     ]
@@ -917,7 +866,6 @@
   {
     "canonical": "METODOLOGIA_CIENTIFICA_E_TECNOLOGICA",
     "vars": [
-      "METODOLOGIA",
       "METODOLOGIA CIENTIFICA E TECNOLOGICA",
       "METODOLOGIA CIENTIFICA TECNOLOGICA"
     ]
@@ -941,12 +889,6 @@
     ]
   },
   {
-    "canonical": "NO_MINIMO_MAIS",
-    "vars": [
-      "NO MINIMO MAIS"
-    ]
-  },
-  {
     "canonical": "OFICINA_DE_TECNOLOGIA_MECANICA",
     "vars": [
       "OFICINA DE TECNOLOGIA MECANICA"
@@ -955,8 +897,9 @@
   {
     "canonical": "OPERACOES_UNITARIAS_I",
     "vars": [
-      "OPERACOES 1",
-      "OPERACOES I",
+      "OPERACAO UNITATIAS",
+      "OPERACOES UNI. 1",
+      "OPERACOES UNI. I",
       "OPERACOES UNITARIAS 1",
       "OPERACOES UNITARIAS I"
     ]
@@ -964,27 +907,24 @@
   {
     "canonical": "OPERACOES_UNITARIAS_II",
     "vars": [
-      "OPERACOES 2",
-      "OPERACOES II",
+      "OPERACOES UNI. 2",
+      "OPERACOES UNI. II",
       "OPERACOES UNITARIAS 2",
-      "OPERACOES UNITARIAS II",
-      "OU II"
+      "OPERACOES UNITARIAS II"
     ]
   },
   {
     "canonical": "OPERACOES_UNITARIAS_III",
     "vars": [
-      "OPERACOES 3",
-      "OPERACOES III",
+      "OPERACOES UNI. 3",
+      "OPERACOES UNI. III",
       "OPERACOES UNITARIAS 3",
-      "OPERACOES UNITARIAS III",
-      "OU III"
+      "OPERACOES UNITARIAS III"
     ]
   },
   {
     "canonical": "ORGANIZACAO_DO_TRABALHO",
     "vars": [
-      "ORGANIZACAO",
       "ORGANIZACAO DO TRABALHO"
     ]
   },
@@ -1003,28 +943,17 @@
     ]
   },
   {
-    "canonical": "POR_MEIO_DA_RESOLUCAO_COUNI_NO",
-    "vars": [
-      "POR MEIO DA RESOLUCAO COUNI NO"
-    ]
-  },
-  {
-    "canonical": "PROBABILIDADE_ESTATISTICA_ESTATISTICA",
-    "vars": [
-      "PROBABILIDADE ESTATISTICA ESTATISTICA"
-    ]
-  },
-  {
     "canonical": "PROBABILIDADE_E_ESTATISTICA",
     "vars": [
       "PROBABILIDADE E ESTATISTICA",
-      "PROBABILIDADE ESTATISTICA"
+      "PROBABILIDADE ESTATISTICA",
+      "ESTATISTICA E PROBABILIDADE",
+      "ESTATISTICA"
     ]
   },
   {
     "canonical": "PROJETOS_AGROINDUSTRIAIS",
     "vars": [
-      "PROJETOS",
       "PROJETOS AGROINDUSTRIAIS"
     ]
   },
@@ -1077,6 +1006,7 @@
   {
     "canonical": "QUIMICA_GERAL_I",
     "vars": [
+      "QUIMICA GERAL",
       "QUIMICA GERAL 1",
       "QUIMICA GERAL I"
     ]
@@ -1115,16 +1045,8 @@
     ]
   },
   {
-    "canonical": "RESOLUCAO_COUNI_NO",
-    "vars": [
-      "RESOLUCAO",
-      "RESOLUCAO COUNI NO"
-    ]
-  },
-  {
     "canonical": "SEGURANCA_E_SAUDE_DO_TRABALHO",
     "vars": [
-      "SEGURANCA",
       "SEGURANCA E SAUDE DO TRABALHO",
       "SEGURANCA SAUDE DO TRABALHO"
     ]
@@ -1194,14 +1116,6 @@
     ]
   },
   {
-    "canonical": "TOS_HUMANOSCIDADANIA_E_EDUCACAO_EM_DIREITOS_HUMANOS",
-    "vars": [
-      "THEDH",
-      "TOS HUMANOSCIDADANIA E EDUCACAO EM DIREITOS HUMANOS",
-      "TOS HUMANOSCIDADANIA EDUCACAO EM DIREITOS HUMANOS"
-    ]
-  },
-  {
     "canonical": "TRANSFERENCIA_DE_CALOR_E_MASSA",
     "vars": [
       "TRANSFERENCIA DE CALOR E MASSA",
@@ -1218,6 +1132,7 @@
   {
     "canonical": "TRANSFERENCIA_DE_CALOR_I",
     "vars": [
+      "TRANSFERENCIA DE CALOR",
       "TRANSFERENCIA 1",
       "TRANSFERENCIA DE CALOR 1",
       "TRANSFERENCIA DE CALOR I",
@@ -1237,7 +1152,6 @@
   {
     "canonical": "TRATAMENTOS_DE_AGUA_E_EFLUENTES",
     "vars": [
-      "TRATAMENTOS",
       "TRATAMENTOS DE AGUA E EFLUENTES",
       "TRATAMENTOS DE AGUA EFLUENTES"
     ]
@@ -1245,15 +1159,7 @@
   {
     "canonical": "VIBRACOES_MECANICAS",
     "vars": [
-      "VIBRACOES",
       "VIBRACOES MECANICAS"
-    ]
-  },
-  {
-    "canonical": "ZADO_DA_UNESCO_VIVER_JUNTOS_A_SECAO",
-    "vars": [
-      "ZADO DA UNESCO VIVER JUNTOS A SECAO",
-      "ZUVJS"
     ]
   }
 ]

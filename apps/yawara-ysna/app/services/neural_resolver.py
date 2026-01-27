@@ -42,13 +42,11 @@ class DynamicNeuralResolver:
         path = weights_path or settings.ML_CANONICAL_WEIGHTS_PATH
         logger.info(f"[Y-CSNN] Inicializando Resolver Híbrido com pesos em: {path}")
         
-        # Inicializa Componentes
         self.engine = CanonicalSubjectEngine(path)
         self.llm_client = GeminiClient()
 
-    # Otimização para Cache de Resoluções Repetidas
     @lru_cache(maxsize=4096) 
-    def resolve(self, raw_input: str, threshold: float = 0.69) -> Dict[str, Any]:
+    def resolve(self, raw_input: str, threshold: float = 0.77) -> Dict[str, Any]:
         """
         Resolve o nome da disciplina usando estratégia em cascata (Cache -> Neural -> LLM).
 
@@ -66,27 +64,27 @@ class DynamicNeuralResolver:
         if not raw_input:
             return {"canonical": "UNKNOWN", "confidence": 0.0, "source": "EMPTY"}
 
-        # 1. Vetorização e Busca Neural (TensorFlow)
+        # Vetorize and search in Neural Memory
         try:
-            # O Engine cuida da limpeza básica e embedding
+            # Engine take care of basic cleaning and embedding
             input_vec = self.engine.vectorise(raw_input)
             
-            # Busca na Memória Vetorial
+            # Search for nearest neighbors
             top_candidates = self.engine.search_nearest(input_vec, top_k=5)
         except Exception as e:
             logger.error(f"Falha no Motor Neural: {e}. Usando Fallback.")
             return self._fallback_response(raw_input, "NEURAL_FAILURE")
 
-        # 2. Análise dos Candidatos
+        # 2. Analyze Candidates
         
-        # Cenário A: Cold Start (Memória Vazia) -> LLM
+        # Scenario A: Cold Start (Empty Memory) -> LLM
         if not top_candidates:
-            logger.info(f"Cold Start para '{raw_input}'. Acionando LLM.")
+            logger.info(f"Cold Start for '{raw_input}'. Triggering LLM.")
             return self._resolve_via_llm(raw_input, input_vec, [])
 
         best_match_name, best_match_score = top_candidates[0]
         
-        # Cenário B: Confiança Alta (Fast Path)
+        # Scenario B: High Confidence (Fast Path)
         if best_match_score >= threshold:
             # logger.debug(f"Hit Neural: '{raw_input}' -> '{best_match_name}' ({best_match_score:.2f})")
             return {
@@ -96,9 +94,9 @@ class DynamicNeuralResolver:
                 "new_concept": False
             }
         
-        # Cenário C: Ambiguidade (Slow Path) -> LLM
-        logger.info(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Acionando LLM.")
-        print(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Acionando LLM.")
+        # Scenario C: Ambiguity (Slow Path) -> LLM
+        logger.info(f"Ambiguity: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Triggering LLM.")
+        print(f"Ambiguity: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Triggering LLM.")
         return self._resolve_via_llm(raw_input, input_vec, top_candidates)
 
     def _resolve_via_llm(self, raw_input: str, vector: Any, candidates: List) -> Dict:
@@ -106,35 +104,34 @@ class DynamicNeuralResolver:
         Slow Path: Usa IA Generativa para raciocinar sobre o termo e atualiza a memória vetorial.
         """
         try:
-            # Consulta síncrona (Pode ser otimizada para async no futuro se o GeminiClient suportar)
+            # Async Search could be implemented here for performance improvements.
             decision = self.llm_client.check_concept_ambiguity(raw_input, candidates)
             
             canonical = decision.get("canonical", "UNKNOWN").upper().replace(" ", "_")
             is_new = decision.get("is_new", False)
 
-            # Auto-Learning: Se a LLM tem certeza, ensinamos o motor vetorial
-            # para que na próxima vez ele caia no Fast Path.
+            # Auto-Learning: If the LLM is confident, teach the vector engine
+            # so that next time it falls into the Fast Path.
             if canonical != "UNKNOWN":
                 self.engine.memorize(canonical, vector)
-                logger.info(f"🧠 Aprendizado Auto-Supervisionado: '{raw_input}' mapeado para '{canonical}'")
-
+                logger.info(f"🧠 Self-Supervised Learning: '{raw_input}' mapped to '{canonical}'")
             return {
                 "canonical": canonical,
-                "confidence": 1.0, # LLM é autoridade máxima
+                "confidence": 1.0, # LLM is the ultimate authority
                 "source": "LLM_GENERATION",
                 "new_concept": is_new,
                 "reasoning": decision.get("reasoning")
             }
 
         except Exception as e:
-            logger.error(f"Erro na LLM para '{raw_input}': {e}")
+            logger.error(f"Error in LLM for '{raw_input}': {e}")
             return self._fallback_response(raw_input, "LLM_ERROR", candidates)
 
     def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:
         """
-        Fail-safe: Retorna o melhor que temos para não travar o processo seletivo.
+        Fail-safe: Returns the best we have to avoid breaking the selection process.
         """
-        # Se tiver algum candidato neural (mesmo ruim), usa ele. Senão, usa o próprio input.
+        # If there is any neural candidate (even bad), use it. Otherwise, use the input itself.
         fallback_name = candidates[0][0] if candidates else raw_input.upper().replace(" ", "_")
         
         return {

@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1269,7 +1269,7 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>app\services\engine_v1_service.py</code></summary>
+                <summary>Source code in <code>app/services/engine_v1_service.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25"> 25</a></span>
 <span class="normal"><a href="#__codelineno-0-26"> 26</a></span>
 <span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
@@ -1374,7 +1374,9 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
 <span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="k">class</span><span class="w"> </span><span class="nc">EngineV1Service</span><span class="p">(</span><span class="n">BaseEngineService</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span>
+<span class="normal"><a href="#__codelineno-0-130">130</a></span>
+<span class="normal"><a href="#__codelineno-0-131">131</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="k">class</span><span class="w"> </span><span class="nc">EngineV1Service</span><span class="p">(</span><span class="n">BaseEngineService</span><span class="p">):</span>
 <a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    Orquestrador da Estratégia Determinística (V1).</span>
 <a id="__codelineno-0-28" name="__codelineno-0-28"></a>
@@ -1461,24 +1463,26 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 <a id="__codelineno-0-109" name="__codelineno-0-109"></a>            <span class="c1"># Filtra aprovados</span>
 <a id="__codelineno-0-110" name="__codelineno-0-110"></a>            <span class="n">approved_nuclei</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">nucleus_name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">eligibility_results</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">is_eligible</span><span class="p">]</span>
 <a id="__codelineno-0-111" name="__codelineno-0-111"></a>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>            <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>                <span class="n">save_classification_result</span><span class="p">,</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                <span class="n">user_id</span><span class="p">,</span> 
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                <span class="n">edition_id</span><span class="p">,</span> 
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                <span class="n">approved_nuclei</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a>            <span class="p">)</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;V1 Verdict | User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> | Approved: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">approved_nuclei</span><span class="p">)</span><span class="si">}</span><span class="s2"> nuclei.&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a>            <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a>                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>                <span class="s2">&quot;approved&quot;</span><span class="p">:</span> <span class="n">approved_nuclei</span><span class="p">,</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>                <span class="s2">&quot;xai_reports&quot;</span><span class="p">:</span> <span class="n">xai_reports</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>            <span class="p">}</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erro crítico na Engine V1 para User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_example</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>                <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                    <span class="n">save_classification_result</span><span class="p">,</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                    <span class="n">user_id</span><span class="p">,</span> 
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                    <span class="n">edition_id</span><span class="p">,</span> 
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                    <span class="n">approved_nuclei</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>                <span class="p">)</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;V1 Verdict | User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> | Approved: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">approved_nuclei</span><span class="p">)</span><span class="si">}</span><span class="s2"> nuclei.&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>                <span class="s2">&quot;approved&quot;</span><span class="p">:</span> <span class="n">approved_nuclei</span><span class="p">,</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>                <span class="s2">&quot;xai_reports&quot;</span><span class="p">:</span> <span class="n">xai_reports</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>            <span class="p">}</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erro crítico na Engine V1 para User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1636,7 +1640,7 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>app\services\engine_v1_service.py</code></summary>
+              <summary>Source code in <code>app/services/engine_v1_service.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-53"> 53</a></span>
 <span class="normal"><a href="#__codelineno-0-54"> 54</a></span>
 <span class="normal"><a href="#__codelineno-0-55"> 55</a></span>
@@ -1713,7 +1717,9 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
 <span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_candidate</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span>
+<span class="normal"><a href="#__codelineno-0-130">130</a></span>
+<span class="normal"><a href="#__codelineno-0-131">131</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_candidate</span><span class="p">(</span>
 <a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="bp">self</span><span class="p">,</span> 
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
 <a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="n">candidate_input</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> 
@@ -1772,24 +1778,26 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 <a id="__codelineno-0-109" name="__codelineno-0-109"></a>        <span class="c1"># Filtra aprovados</span>
 <a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="n">approved_nuclei</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">nucleus_name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">eligibility_results</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">is_eligible</span><span class="p">]</span>
 <a id="__codelineno-0-111" name="__codelineno-0-111"></a>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>        <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>            <span class="n">save_classification_result</span><span class="p">,</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a>            <span class="n">user_id</span><span class="p">,</span> 
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>            <span class="n">edition_id</span><span class="p">,</span> 
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a>            <span class="n">approved_nuclei</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="p">)</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;V1 Verdict | User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> | Approved: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">approved_nuclei</span><span class="p">)</span><span class="si">}</span><span class="s2"> nuclei.&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a>        <span class="k">return</span> <span class="p">{</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>            <span class="s2">&quot;approved&quot;</span><span class="p">:</span> <span class="n">approved_nuclei</span><span class="p">,</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>            <span class="s2">&quot;xai_reports&quot;</span><span class="p">:</span> <span class="n">xai_reports</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>        <span class="p">}</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erro crítico na Engine V1 para User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_example</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>            <span class="k">await</span> <span class="n">run_in_threadpool</span><span class="p">(</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                <span class="n">save_classification_result</span><span class="p">,</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                <span class="n">user_id</span><span class="p">,</span> 
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                <span class="n">edition_id</span><span class="p">,</span> 
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                <span class="n">approved_nuclei</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>            <span class="p">)</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;V1 Verdict | User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> | Approved: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">approved_nuclei</span><span class="p">)</span><span class="si">}</span><span class="s2"> nuclei.&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>            <span class="s2">&quot;approved&quot;</span><span class="p">:</span> <span class="n">approved_nuclei</span><span class="p">,</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>            <span class="s2">&quot;xai_reports&quot;</span><span class="p">:</span> <span class="n">xai_reports</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="p">}</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erro crítico na Engine V1 para User </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1865,7 +1873,7 @@ Ideal para fases de 'Cold Start' ou para auditoria de compliance.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>app\services\engine_v1_service.py</code></summary>
+              <summary>Source code in <code>app/services/engine_v1_service.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
 <span class="normal"><a href="#__codelineno-0-39">39</a></span>
@@ -1988,7 +1996,7 @@ a um limiar dinâmico (Dynamic Threshold).</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>app\ml\engine_v1.py</code></summary>
+                <summary>Source code in <code>app/ml/engine_v1.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
 <span class="normal"><a href="#__codelineno-0-22"> 22</a></span>
 <span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
@@ -2315,7 +2323,7 @@ a um limiar dinâmico (Dynamic Threshold).</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>app\ml\engine_v1.py</code></summary>
+              <summary>Source code in <code>app/ml/engine_v1.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
@@ -2452,10 +2460,10 @@ a um limiar dinâmico (Dynamic Threshold).</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

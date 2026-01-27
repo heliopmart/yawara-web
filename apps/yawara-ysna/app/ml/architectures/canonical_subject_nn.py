@@ -32,8 +32,7 @@ class CanonicalSubjectNN:
             vocab (str): O alfabeto permitido (ex: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ").
             max_len (int, optional): Comprimento máximo da string. Defaults to 64.
             char_emb_dim (int, optional): Dimensão do vetor de cada caractere. Defaults to 64.
-            encoder_dim (int, optional): Dimensão do vetor final de saída (embedding semântico).
-            Defaults to 128.
+            encoder_dim (int, optional): Dimensão do vetor final de saída (embedding semântico). Defaults to 128.
         """
         self.vocab = vocab
         self.max_len = max_len

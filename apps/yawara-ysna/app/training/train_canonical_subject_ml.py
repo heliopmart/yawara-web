@@ -293,5 +293,14 @@ def train():
     print(f"[ARTIFACTS] Memória vetorial salva em: {settings.NN_MODEL_MEMORY_FILE_PATH}")
     print(f"[TREINO] Sucesso! Pesos salvos em: {settings.ML_CANONICAL_WEIGHTS_PATH}")
 
+    _calibration_ynsa_model_nn()
+
+def _calibration_ynsa_model_nn():
+    # Avoid circular import
+    from app.calibrations.canonical_subject_calibration import find_optimal_threshold
+
+    print("\n[CALIBRAÇÃO] Iniciando busca pelo threshold ideal...")
+    find_optimal_threshold()
+
 if __name__ == "__main__":
     train()

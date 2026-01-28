@@ -171,7 +171,8 @@
     "canonical": "CIDADANIA_E_EDUCACAO_EM_DIREITOS_HUMANOS",
     "vars": [
       "CIDADANIA E EDUCACAO EM DIREITOS HUMANOS",
-      "CIDADANIA EDUCACAO EM DIREITOS HUMANOS"
+      "CIDADANIA EDUCACAO EM DIREITOS HUMANOS",
+      "EDUCAÇÃO, SOCIEDADE E CIDADANIA"
     ]
   },
   {
@@ -696,12 +697,6 @@
     ]
   },
   {
-    "canonical": "LABORATORIO_DE_FISICA_GERAL",
-    "vars": [
-      "LABORATORIO DE FISICA GERAL"
-    ]
-  },
-  {
     "canonical": "LABORATORIO_DE_FISICA_I",
     "vars": [
       "LABO 1",
@@ -1165,7 +1160,53 @@
   {
     "canonical": "MOTORES_DE_COMBUSTAO_INTERNA_I",
     "vars": [
-      "MOTORES DE COMBUST\u00c3O INTERNA I"
+      "MOTORES DE COMBUSTAO INTERNA I"
+    ]
+  },
+  {
+    "canonical": "MOTORES_DE_COMBUSTAO_INTERNA_II",
+    "vars": [
+      "MOTORES DE COMBUSTAO INTERNA II"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_OPERACIONAIS",
+    "vars": [
+      "SISTEMAS OPERACIONAIS",
+      "SO"
+    ]
+  },
+  {
+    "canonical": "INTRODUCAO_A_ENGENHARIA",
+    "vars": [
+      "INTRODUCAO A ENGENHARIA",
+      "INT. ENGENHARIA",
+      "INTODUCAO A ENGENHARIA DE COMPUTACAO",
+      "INTRODUCAO A ENGENHARIA MECANICA",
+      "INTRODUCAO A ENGENHARIA CIVIL",
+      "INTRODUCAO A ENGENHARIA DE ENERGIA",
+      "INTRODUCAO A ENGENHARIA DE PRODUCAO",
+      "INT. A ENGENHARIA DE COMPUTACAO",
+      "INT. A ENGENHARIA MECANICA",
+      "INT. A ENGENHARIA CIVIL",
+      "INT. A ENGENHARIA DE ENERGIA",
+      "INT. A ENGENHARIA DE PRODUCAO"
+    ]
+  },
+  {
+    "canonical": "PROGRAMACAO_APLICADA_A_ENGENHARIA",
+    "vars": [
+      "PROGRAMACAO APLICADA A ENGENHARIA",
+      "PROGRAMACAO APLICADA A ENG",
+      "PROGRAMACAO APLICADA"
+    ]
+  },
+  {
+    "canonical": "TEORIA_DOS_GRAFOS",
+    "vars": [
+      "TEORIA DOS GRAFOS",
+      "TEORIA DE GRAFOS",
+      "GRAFOS"
     ]
   }
 ]

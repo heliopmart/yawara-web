@@ -47,7 +47,7 @@ class DynamicNeuralResolver:
         self.llm_client = GeminiClient()
 
     # @lru_cache(maxsize=4096) 
-    async def resolve(self, raw_input: str, threshold: float = 0.61) -> Dict[str, Any]:
+    async def resolve(self, raw_input: str, threshold: float = 0.67) -> Dict[str, Any]:
         """
         Resolve o nome da disciplina usando estratégia em cascata (Cache -> Neural -> LLM).
 

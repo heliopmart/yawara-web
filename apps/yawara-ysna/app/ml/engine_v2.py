@@ -17,6 +17,7 @@ from app.schemas.historic import SubjectRecord
 from app.services.neural_resolver import get_resolver
 from app.services.ingestion import ingest_academic_record_from_pdf 
 from app.services.storage import storage_service
+from app.utils.academic_math import optimized_history_from_map
 
 logger = logging.getLogger("yawara.ml.engine_v2")
 
@@ -43,6 +44,7 @@ class EngineDataProcessor:
     @staticmethod
     def normalize_grade(grade: Optional[float]) -> float:
         """Normaliza nota 0-10 para 0.0-1.0."""
+
         if grade is None: return 0.0
         try:
             val = float(grade)
@@ -83,13 +85,15 @@ class EngineDataProcessor:
             - subject_meta: (1, 100, 2) floats (Nota, Carga Horária)
             - student_context: (1, 1) float (Semestre atual)
         """
+
+        optimized_map = optimized_history_from_map(historic)
         
         batch_names = np.full((1, MAX_SUBJECTS_PER_STUDENT), "", dtype=object)
         batch_meta = np.zeros((1, MAX_SUBJECTS_PER_STUDENT, 2), dtype=np.float32)
         batch_context = np.zeros((1, 1), dtype=np.float32)
 
         count = 0
-        for record in historic:
+        for record in optimized_map:
             if count >= MAX_SUBJECTS_PER_STUDENT: break
             
             # --- INTEGRAÇÃO COM NEURAL RESOLVER ---
@@ -197,18 +201,20 @@ class NucleusRecommendationEngine:
         """
         Executa a inferência síncrona (Bloqueante - deve ser chamada via threadpool).
         """
+
         if not self.model:
             return {"error": "Modelo V2 não carregado (Cold Start ou Arquivo ausente).", "recommendations": []}
 
-        # 1. Preparação dos Dados (Usando o Processor ou Manualmente para garantir performance)
-        # Aqui fazemos manual para garantir alinhamento exato com o .keras input layer
+        optimized_map = optimized_history_from_map(historic)
+
+        # 1. Preparação dos Dados
         X_names = np.full((1, MAX_SUBJECTS), "", dtype=object)
         X_meta = np.zeros((1, MAX_SUBJECTS, 2), dtype=float)
         X_sem = np.zeros((1, 1), dtype=float)
         X_course = np.full((1, 1), "", dtype=object)
 
         # Preenchimento (Lógica similar ao Processor, mas otimizada para o loop local)
-        for i, rec in enumerate(historic):
+        for i, rec in enumerate(optimized_map):
             if i >= MAX_SUBJECTS: break
             name = rec.subject_canonical or rec.name_raw
             X_names[0, i] = name.upper() if name else ""

@@ -10,10 +10,18 @@ LEARNED_DATA_PATH = settings.NN_MODEL_LEARNED_DATA_PATH
 class DatasetService:
     def append_new_var(self, raw_input: str, canonical_target: str):
         """
-        Salva um novo aprendizado de forma atômica (Thread-safe/Process-safe).
-        Formato JSONL: {"canonical": "CALCULO_I", "vars": ["CALC 1"]}
+        Salva um novo aprendizado em um arquivo jsonl. Cada linha do arquivo é um JSON com a estrutura:
+        {"canonical": "TARGET_STANDARDIZED", "vars": ["RAW_INPUT1", "RAW_INPUT2", ...]}
+        Args:
+            raw_input (str): A entrada bruta fornecida pelo usuário.
+            canonical_target (str): A forma canônica padronizada da entrada.
         """
-        entry = json.dumps({"canonical": canonical_target, "vars": [raw_input.upper()]}) + "\n"
+
+        payload = {
+            "canonical": canonical_target.upper().strip(), 
+            "vars": [raw_input.upper().strip()]
+        }
+        entry = json.dumps(payload, ensure_ascii=False) + "\n"
         
         os.makedirs(os.path.dirname(LEARNED_DATA_PATH), exist_ok=True)
         
@@ -25,6 +33,6 @@ class DatasetService:
             finally:
                 fcntl.flock(f, fcntl.LOCK_UN)
         
-        print(f"[DATASET] Novo alias salvo em disco: {raw_input} -> {canonical_target}")
+        print(f"[DATASET] Bufferizado para próximo treino: {raw_input} -> {canonical_target}")
 
 dataset_service = DatasetService()

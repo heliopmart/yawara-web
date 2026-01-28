@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import shutil
 import random
 import json
 import os
@@ -14,69 +15,135 @@ from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
 # NORMALIZEED TRAINING DATASET LOADING
 # ==============================================================================
 
-def load_dataset_from_root(path_from_root: str) -> List[Dict[str, Any]]:
-    """
-    Carrega um arquivo assumindo que o caminho começa na RAIZ do projeto.
-    Exemplo de input: 'app/resources/training/NN/canonical_labels.json'
-    """
+# def load_dataset_from_root(path_from_root: str) -> List[Dict[str, Any]]:
+#     """
+#     Carrega um arquivo assumindo que o caminho começa na RAIZ do projeto.
+#     Exemplo de input: 'app/resources/training/NN/canonical_labels.json'
+#     """
     
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(os.path.dirname(current_dir))
-    full_path = os.path.join(project_root, path_from_root)
+#     current_dir = os.path.dirname(os.path.abspath(__file__))
+#     project_root = os.path.dirname(os.path.dirname(current_dir))
+#     full_path = os.path.join(project_root, path_from_root)
     
-    print(f"[DEBUG] Tentando abrir: {full_path}")
+#     print(f"[DEBUG] Tentando abrir: {full_path}")
     
-    if not os.path.exists(full_path):
-        raise FileNotFoundError(
-            f"Erro fatal: Não achei o arquivo!\n"
-            f"Raiz detectada: {project_root}\n"
-            f"Caminho final tentado: {full_path}"
-        )
+#     if not os.path.exists(full_path):
+#         raise FileNotFoundError(
+#             f"Erro fatal: Não achei o arquivo!\n"
+#             f"Raiz detectada: {project_root}\n"
+#             f"Caminho final tentado: {full_path}"
+#         )
         
-    with open(full_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+#     with open(full_path, 'r', encoding='utf-8') as f:
+#         data = json.load(f)
         
-    print(f"[DATASET] Sucesso! Carregadas {len(data)} entidades de {path_from_root}")
-    return data
+#     print(f"[DATASET] Sucesso! Carregadas {len(data)} entidades de {path_from_root}")
+#     return data
 
-def load_dataset_merged() -> List[Dict[str, Any]]:
+# def load_dataset_merged() -> List[Dict[str, Any]]:
+#     """
+#     Carrega o Dataset Oficial + O que foi aprendido em produção.
+#     """
+#     official_data = load_dataset_from_root("app/resources/training/NN/canonical_labels.json")
+    
+#     canonical_map = {item["canonical"]: item for item in official_data}
+    
+#     new_entries_count = 0
+    
+#     current_dir = os.path.dirname(os.path.abspath(__file__))
+#     project_root = os.path.dirname(os.path.dirname(current_dir))
+#     full_learned_path = os.path.join(project_root, settings.NN_MODEL_LEARNED_DATA_PATH)
+
+#     if os.path.exists(full_learned_path):
+#         print(f"[DATASET] Mesclando aprendizado de: {full_learned_path}")
+#         with open(full_learned_path, 'r', encoding='utf-8') as f:
+#             for line in f:
+#                 if not line.strip(): continue
+#                 try:
+#                     record = json.loads(line)
+#                     target = record["canonical"]
+#                     new_var = record["vars"]
+                    
+#                     if target in canonical_map:
+#                         if "vars" not in canonical_map[target]:
+#                             canonical_map[target]["vars"] = []
+                        
+#                         if new_var not in canonical_map[target]["vars"]:
+#                             canonical_map[target]["vars"].append(new_var)
+#                             new_entries_count += 1
+#                 except Exception as e:
+#                     print(f"[WARN] Linha corrompida no dataset aprendido: {e}")
+    
+#     print(f"[DATASET] Merge completo! {new_entries_count} novas variações inseridas no treino.")
+#     return official_data
+
+# TRAINING_SEEDS: List[Dict[str, Any]] = load_dataset_merged()
+
+
+# Caminhos (Assumindo que settings tenha os caminhos corretos)
+BASE_DATASET_PATH = "app/resources/training/NN/canonical_labels.json"
+LEARNED_DATA_PATH = settings.NN_MODEL_LEARNED_DATA_PATH
+
+# ==============================================================================
+# 1. SMART DATASET MERGING (A CORREÇÃO)
+# ==============================================================================
+
+def load_and_consolidate_datasets() -> List[Dict[str, Any]]:
     """
-    Carrega o Dataset Oficial + O que foi aprendido em produção.
+    Carrega a base oficial E o arquivo incremental.
+    Mescla tudo, remove duplicatas e prepara para salvar a nova versão oficial.
     """
-    official_data = load_dataset_from_root("app/resources/training/NN/canonical_labels.json")
-    
-    canonical_map = {item["canonical"]: item for item in official_data}
-    
-    new_entries_count = 0
-    
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(os.path.dirname(current_dir))
-    full_learned_path = os.path.join(project_root, settings.NN_MODEL_LEARNED_DATA_PATH)
+    
+    full_base_path = os.path.join(project_root, BASE_DATASET_PATH)
+    full_learned_path = os.path.join(project_root, LEARNED_DATA_PATH)
+    
+    with open(full_base_path, 'r', encoding='utf-8') as f:
+        official_data = json.load(f)
+    
+    canonical_map = {item["canonical"]: set(item.get("vars", [])) for item in official_data}
+    
+    updates_count = 0
+    new_canonicals_count = 0
 
     if os.path.exists(full_learned_path):
-        print(f"[DATASET] Mesclando aprendizado de: {full_learned_path}")
+        print(f"[DATASET] Processando arquivo de aprendizado: {full_learned_path}")
         with open(full_learned_path, 'r', encoding='utf-8') as f:
             for line in f:
                 if not line.strip(): continue
                 try:
                     record = json.loads(line)
                     target = record["canonical"]
-                    new_var = record["vars"]
-                    
-                    if target in canonical_map:
-                        if "vars" not in canonical_map[target]:
-                            canonical_map[target]["vars"] = []
-                        
-                        if new_var not in canonical_map[target]["vars"]:
-                            canonical_map[target]["vars"].append(new_var)
-                            new_entries_count += 1
-                except Exception as e:
-                    print(f"[WARN] Linha corrompida no dataset aprendido: {e}")
-    
-    print(f"[DATASET] Merge completo! {new_entries_count} novas variações inseridas no treino.")
-    return official_data
+                    new_vars = record["vars"] 
 
-TRAINING_SEEDS: List[Dict[str, Any]] = load_dataset_merged()
+                    if target not in canonical_map:
+                        canonical_map[target] = set()
+                        new_canonicals_count += 1
+                    
+                    for v in new_vars:
+                        if v not in canonical_map[target]:
+                            canonical_map[target].add(v)
+                            updates_count += 1
+                            
+                except Exception as e:
+                    print(f"[WARN] Linha ignorada no merge: {e}")
+
+    consolidated_data = []
+    for canon, vars_set in canonical_map.items():
+        consolidated_data.append({
+            "canonical": canon,
+            "vars": sorted(list(vars_set))
+        })
+
+    print(f"[DATASET] Consolidação concluída.")
+    print(f"   - Novos sinônimos incorporados: {updates_count}")
+    print(f"   - Novas matérias descobertas: {new_canonicals_count}")
+    
+    return consolidated_data, full_base_path, full_learned_path
+
+TRAINING_DATA, PATH_OFFICIAL, PATH_LEARNED = load_and_consolidate_datasets()
+TRAINING_SEEDS = TRAINING_DATA 
 
 # ==============================================================================
 # CREATE SYNTHETIC BATCHES WITH NOISE
@@ -237,8 +304,8 @@ def train():
     3. Salva os pesos finais em disco.
     """
     
-    BATCH_SIZE = 64
-    EPOCHS = 100
+    BATCH_SIZE = 70
+    EPOCHS = 120
     LR = 0.001
 
     print("[TREINO] Inicializando Normalizador de Entidades (CanonicalSubjectNN)...")
@@ -293,8 +360,25 @@ def train():
     print(f"[ARTIFACTS] Memória vetorial salva em: {settings.NN_MODEL_MEMORY_FILE_PATH}")
     print(f"[TREINO] Sucesso! Pesos salvos em: {settings.ML_CANONICAL_WEIGHTS_PATH}")
 
+    _save_consolidated_dataset()
     _calibration_ynsa_model_nn()
 
+def _save_consolidated_dataset():
+    print("[PERSISTÊNCIA] Atualizando base de conhecimento permanente...")
+    
+    shutil.copy(PATH_OFFICIAL, PATH_OFFICIAL + ".bak")
+    
+    with open(PATH_OFFICIAL, 'w', encoding='utf-8') as f:
+        json.dump(TRAINING_DATA, f, indent=2, ensure_ascii=False)
+    
+    print(f"[PERSISTÊNCIA] Base oficial atualizada em: {PATH_OFFICIAL}")
+
+    if os.path.exists(PATH_LEARNED):
+        open(PATH_LEARNED, 'w').close() 
+        print(f"[PERSISTÊNCIA] Buffer de aprendizado ({PATH_LEARNED}) foi limpo.")
+
+    print("[SUCESSO] Ciclo de Active Learning completo.")
+    
 def _calibration_ynsa_model_nn():
     # Avoid circular import
     from app.calibrations.canonical_subject_calibration import find_optimal_threshold

@@ -158,6 +158,8 @@ async def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
             subject_canonical_name = resolution_result.get("canonical", "UNKNOWN_ERROR")
             confidence = resolution_result.get("confidence", 0.0)       
 
+            print("[Y-CSNN] Resolved:", name_raw, "->", subject_canonical_name, f"(conf: {confidence:.4f})")
+
         except Exception as e:
             print(f"[Y-CSNN] Error resolving '{name_raw}': {e}")
             subject_canonical_name = "ERROR_RESOLVING"

@@ -62,6 +62,9 @@ class DynamicNeuralResolver:
         Returns:
             Dict: Objeto padronizado com 'canonical', 'confidence', etc.
         """
+        if settings.ML_THRESHOLD_SUBJECT_MATCH:
+            threshold = settings.ML_THRESHOLD_SUBJECT_MATCH
+
         if not raw_input:
             return {"canonical": "UNKNOWN", "confidence": 0.0, "source": "EMPTY"}
 

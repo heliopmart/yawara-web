@@ -166,7 +166,7 @@ class BaseEngineService:
             bundle = CandidateReportBundle(**report_data)
 
             pdf_bytes = await run_in_threadpool(
-                html_report_service.generate_pdf_bytes,
+                html_report_service.generate_xai_pdf_bytes,
                 bundle
             )
 

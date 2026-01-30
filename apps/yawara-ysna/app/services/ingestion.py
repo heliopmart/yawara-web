@@ -176,7 +176,7 @@ async def parse_subject_line(line: str, period: str) -> Optional[SubjectRecord]:
         confidence=confidence if _resolver else None,
     )
 
-async def parse_academic_history( text: str, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+async def parse_academic_history( text: str, candidate_id: str, cycle_id: Optional[str], source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
     """
         Orquestra o parsing completo do texto de um histórico escolar.
 
@@ -237,7 +237,7 @@ async def parse_academic_history( text: str, candidate_id: str, cycle_id: str, s
         subjects=subjects,
     )
 
-async def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_id: str, source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
+async def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, cycle_id: Optional[str], source: str = "UFGD_HISTORICO_OFICIAL" ) -> AcademicRecord:
     """
         Ponto de entrada principal para a ingestão de históricos escolares em PDF.
 
@@ -248,7 +248,7 @@ async def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, 
         Args:
             pdf_bytes (bytes): O conteúdo binário do arquivo PDF enviado pelo usuário.
             candidate_id (str): ID único do candidato proprietário do documento.
-            cycle_id (str): ID do ciclo seletivo ao qual o documento se aplica.
+            cycle_id (Optional[str]): ID do ciclo seletivo ao qual o documento se aplica.
             source (str, optional): Identificador da fonte do documento. Defaults to "UFGD_HISTORICO_OFICIAL".
 
         Returns:
@@ -262,6 +262,6 @@ async def ingest_academic_record_from_pdf( pdf_bytes: bytes, candidate_id: str, 
     return await parse_academic_history(
         text=text,
         candidate_id=candidate_id,
-        cycle_id=cycle_id,
+        cycle_id=cycle_id or None,
         source=source,
     )

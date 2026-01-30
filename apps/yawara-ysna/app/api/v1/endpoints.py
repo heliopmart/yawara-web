@@ -3,6 +3,7 @@ import time
 import tensorflow as tf
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response, status, Body
 from fastapi.concurrency import run_in_threadpool
+from typing import List
 
 # Serviços e Schemas
 from app.services.ingestion import ingest_academic_record_from_pdf
@@ -15,12 +16,33 @@ from app.services.html_report_service import html_report_service
 from app.ml.engine_v2 import get_recommender
 from app.services.neural_resolver import get_resolver
 from app.schemas.candidate import CandidateInput
+from app.ml.valence_engine import ValenceEngine, ForgeOutput, CandidateProfile
 
 # TODO: IMPLEMENTAÇÃO DOS ENDPOINTS -> miss test endpoint
 
 logger = logging.getLogger("yawara.api.endpoints")
 
 router = APIRouter()
+
+
+@router.post("/valence/forge", response_model=ForgeOutput)
+async def run_valence_forge(
+    candidates: List[CandidateProfile], 
+    team_size: int = 4
+):
+    """
+    Executa a Valence Engine (Algoritmo Genético) para alocação ótima de times.
+    Baseado em matriz de competência vetorial e complementariedade.
+    """
+    try:
+        engine = ValenceEngine(candidates=candidates, team_size=team_size)
+        result = engine.forge()
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"Erro na Valence Engine: {e}")
+        raise HTTPException(status_code=500, detail="Falha crítica na forja dos times.")
 
 @router.post("/ysna/preview", summary="Preview Y-SNA PDF", description="Processa um PDF via Y-SNA e retorna o PDF gerado.")
 async def previewYsna(file: UploadFile = File(...)):

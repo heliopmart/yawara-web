@@ -1,9 +1,10 @@
 import logging
 import json
 from typing import List, Dict, Optional
-from app.utils.db import db_select
+from app.utils.db import db_select, db_rpc
 from app.utils.text import normalize_text_strict
 from app.schemas.engine_v1 import NucleusRequirementsInput
+from app.schemas.valence import AllocationCandidateInput
 from app.services.neural_resolver import get_resolver, DynamicNeuralResolver
 
 def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
@@ -134,6 +135,20 @@ class SelectionDataService:
                 })
         
         return queue
+
+    def get_iron_gate_approved_candidate_data(self) -> List[AllocationCandidateInput]:
+        """
+        Return list of active candidates with their data.
+        """
+
+        row = db_rpc(
+            function_name="get_iron_gate_approved_candidates",
+            params={},
+        )
+
+        candidates = [AllocationCandidateInput(**item) for item in row]
+
+        return candidates
 
     def get_candidate_task_data(self, candidate_id: str) -> List[Dict]:
         """

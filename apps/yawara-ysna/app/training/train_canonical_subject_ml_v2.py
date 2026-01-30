@@ -3,312 +3,257 @@ import numpy as np
 import shutil
 import random
 import json
-from collections import defaultdict
-import re
 import os
+from collections import defaultdict
 from typing import List, Tuple, Dict, Any, Set
 
-# CONFIG IMPORT ----------------------------------
+# CONFIG & SERVICES
 from app.core.config import settings
-
-# UTILS IMPORT -----------------------------------
-from app.utils.semanticAugmenter import augmenter, SemanticAugmenterV2
-from app.utils.stratifiedBatchGenerator import StratifiedBatchGenerator
 from app.services.storage import storage_service
+from app.utils.semanticAugmenter import augmenter
 
-# ARCHITECTURE IMPORT ----------------------------
-from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
+# ARCHITECTURE ----------------------------------------------
+from app.ml.canonical_subject_engine import CanonicalSubjectNN
 
 BASE_DATASET_PATH = settings.NN_MODEL_BASE_DATA_PATH
 LEARNED_DATA_PATH = settings.NN_MODEL_LEARNED_DATA_PATH
 
-class TrainingYsnaCanonical: 
+# Importa constantes para assinatura do Tensor
+from app.ml.canonical_subject_engine import MAX_LEN
+
+class TrainingYsnaCanonicalV2:
+    """
+    Treinador V3: Abordagem Siamese Network (Character-Level).
+    Foco: Maximizar distinção entre 'I', 'II', 'III' usando Hard Negative Mining.
+    """
+
     def __init__(self):
-        self.model = None
-        self.training_data = None
+        self.model_wrapper = None 
         self.base_path : str = None
         self.learned_path : str = None
+        
+        self._setup_paths()
 
-        self._handle_load_datasets_path()
-
-    def _handle_load_datasets_path(self):
-        """
-        Loading dataset paths based on project root.
-            1. Determine the project root directory.
-            2. Construct full paths for base and learned datasets.
-            3. Assign these paths to instance variables.
-
-        Returns:
-            None
-        """
+    def _setup_paths(self):
+        """Resolve caminhos absolutos baseado na raiz do projeto."""
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.dirname(os.path.dirname(current_dir))
         
-        full_base_path = os.path.join(project_root, BASE_DATASET_PATH)
-        full_learned_path = os.path.join(project_root, LEARNED_DATA_PATH)
+        self.base_path = os.path.join(project_root, BASE_DATASET_PATH)
+        self.learned_path = os.path.join(project_root, LEARNED_DATA_PATH)
 
-        if not os.path.exists(full_base_path):
-            raise FileNotFoundError(f"[CRÍTICO] Dataset base não encontrado: {full_base_path}")
+        if not os.path.exists(self.base_path):
+            raise FileNotFoundError(f"[CRITICO] Dataset base não encontrado: {self.base_path}")
 
-        if not os.path.exists(full_learned_path):
-            pass
-            # raise FileNotFoundError(f"[CRÍTICO] Dataset aprendido não encontrado: {full_learned_path}")
-
-        self.base_path = full_base_path
-        self.learned_path = full_learned_path
-
-    def _handle_load_learned_dataset(self, canonical_map: Dict[str, Set[str]]) -> List[Dict[str, Any]]:
-        """
-        Loads the learned dataset from its JSON file.
-        Returns:
-            A list of dictionaries representing the learned dataset.
-        """
-        updates_count = 0
-        new_concepts_count = 0
+    # ==========================================================================
+    # 1. DATA LOADING
+    # ==========================================================================
+    def _load_and_consolidate_data(self) -> List[Dict[str, Any]]:
+        with open(self.base_path, 'r', encoding='utf-8') as f:
+            base_data = json.load(f)
+        
+        canonical_map = {item["canonical"]: set(item.get("vars", [])) for item in base_data}
 
         if os.path.exists(self.learned_path):
-            print(f"[DATASET] Integrando conhecimento incremental de: {os.path.basename(self.learned_path)}")
-            
+            print(f"[DATASET] Integrando incremental: {os.path.basename(self.learned_path)}")
             with open(self.learned_path, 'r', encoding='utf-8') as f:
-                
-                for line_num, line in enumerate(f, 1):
+                for line in f:
                     if not line.strip(): continue
                     try:
-                        record = json.loads(line)
-                        target = record["canonical"].upper().strip()
+                        rec = json.loads(line)
+                        canon = rec["canonical"].upper().strip()
+                        vars_in = rec["vars"] if isinstance(rec["vars"], list) else [rec["vars"]]
                         
-                        raw_vars = record["vars"]
-                        new_vars_list = raw_vars if isinstance(raw_vars, list) else [raw_vars]
-                        
-                        # Verify and add new canonical if not exists
-                        if target not in canonical_map:
-                            canonical_map[target] = set()
-                            new_concepts_count += 1
-                        
-                        # Add new variables without duplication (Set)
-                        for v in new_vars_list:
-                            clean_v = v.upper().strip()
-                            if clean_v and clean_v not in canonical_map[target]:
-                                canonical_map[target].add(clean_v)
-                                updates_count += 1
-                                
-                    except json.JSONDecodeError:
-                        print(f"[WARN] Linha {line_num} ignorada (JSON inválido).")
-                    except Exception as e:
-                        print(f"[WARN] Erro ao processar linha {line_num}: {e}")
+                        if canon not in canonical_map: canonical_map[canon] = set()
+                        for v in vars_in: canonical_map[canon].add(v.upper().strip())
+                    except: pass
 
-        return canonical_map
-    
-    def _handle_load_base_dataset(self) -> List[Dict[str, Any]]:
-        """
-        Loads the base dataset from its JSON file.
-        Returns:
-            A dictionary mapping canonical names to sets of variables.
-        """
-        with open(self.base_path, 'r', encoding='utf-8') as f:
-            official_data = json.load(f)
-
-        # Using Set to avoid deduplication
-        canonical_base_map: Dict[str, Set[str]] = {
-            item["canonical"]: set(item.get("vars", [])) 
-            for item in official_data
-        }
-
-        return canonical_base_map
-
-    def _handle_load_datasets(self) -> Tuple[List[Dict[str, Any]], str, str]:
-        """
-        Loads the base and learned datasets from their respective JSON files.
-        Returns:
-            A tuple containing:
-                - A list of dictionaries representing the consolidated dataset.
-                - The path to the base dataset file.
-                - The path to the learned dataset file.
-        """
-
-        canonical_base_map = self._handle_load_base_dataset()
-        canonical_map = self._handle_load_learned_dataset(canonical_base_map)
-
-        consolidated_data = [
-            {"canonical": canon, "vars": sorted(list(vars_set))} 
-            for canon, vars_set in sorted(canonical_map.items()) 
+        dataset = [
+            {"canonical": c, "vars": sorted(list(v))} 
+            for c, v in sorted(canonical_map.items())
         ]
+        print(f"[DATASET] Total de Entidades: {len(dataset)}")
+        return dataset
 
-        print(f"[DATASET] Consolidação concluída. Base: {len(consolidated_data)} entidades.")
-        return consolidated_data
-
-    @tf.function
-    def info_nce_loss(self, query, key, temperature=0.07):
+    # ==========================================================================
+    # 2. SIAMESE PAIR GENERATOR
+    # ==========================================================================
+    def _siamese_generator(self, dataset, batch_size=64):
         """
-        Calcula a InfoNCE Loss (Information Noise Contrastive Estimation).
-        
-        Matematicamente:
-        - O objetivo é maximizar a similaridade entre pares da diagonal (View1, View2).
-        - E minimizar a similaridade com todos os outros pares da matriz (Negatives).
+        Gera batches infinitos de pares (A, B) e Labels (0 ou 1).
         """
+        family_map = defaultdict(list)
+        for item in dataset:
+            root = item['canonical'].split('_')[0]
+            if len(root) > 3: family_map[root].append(item)
 
-        # Normalização L2 é OBRIGATÓRIA para Cosseno. 
-        # Sem isso, a magnitude dos vetores explode e a loss não converge.
-        query = tf.math.l2_normalize(query, axis=1)
-        key = tf.math.l2_normalize(key, axis=1)
-        
-        # Similaridade (Batch x Batch)
-        # A diagonal principal contém os pares corretos (Positive Pairs)
-        logits = tf.matmul(query, key, transpose_b=True)
-        logits /= temperature
-        
-        # Labels: [0, 1, 2, 3...] (A resposta certa é sempre a diagonal)
-        labels = tf.range(tf.shape(query)[0])
-        
-        # CrossEntropy faz o trabalho sujo de maximizar a prob da classe correta
-        return tf.reduce_mean(
-            tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
-        )
+        while True:
+            batch_a = []
+            batch_b = []
+            labels = []
 
+            # --- 50% PARES POSITIVOS (Label 1) ---
+            for _ in range(batch_size // 2):
+                item = random.choice(dataset)
+                canon = item['canonical']
+                
+                if item['vars'] and random.random() > 0.3:
+                    match = random.choice(item['vars'])
+                    match = augmenter.augment(match, profile="light")
+                else:
+                    match = augmenter.augment(canon, profile="medium")
+                
+                batch_a.append(canon)
+                batch_b.append(match)
+                labels.append(1.0)
+
+            # --- 50% PARES NEGATIVOS (Label 0) ---
+            for _ in range(batch_size // 2):
+                item_a = random.choice(dataset)
+                root = item_a['canonical'].split('_')[0]
+                siblings = family_map.get(root, [])
+                
+                candidates = [x for x in siblings if x['canonical'] != item_a['canonical']]
+                
+                if candidates and random.random() > 0.4:
+                    item_b = random.choice(candidates)
+                else:
+                    item_b = random.choice(dataset)
+                    while item_b['canonical'] == item_a['canonical']:
+                        item_b = random.choice(dataset)
+
+                txt_a = item_a['canonical']
+                
+                if item_b['vars'] and random.random() > 0.5:
+                    txt_b = random.choice(item_b['vars'])
+                else:
+                    txt_b = item_b['canonical']
+                
+                txt_b = augmenter.augment(txt_b, profile="light")
+
+                batch_a.append(txt_a)
+                batch_b.append(txt_b)
+                labels.append(0.0)
+
+            zipped = list(zip(batch_a, batch_b, labels))
+            random.shuffle(zipped)
+            b_a, b_b, lbls = zip(*zipped)
+
+            # yield cru (Strings), o preprocessamento acontece fora
+            yield (np.array(b_a), np.array(b_b), np.array(lbls))
+
+    # ==========================================================================
+    # 3. TRAINING LOOP (CORRIGIDO)
+    # ==========================================================================
     def train(self):
-        BATCH_SIZE = 70      # InfoNCE funciona melhor com batches maiores
-        EPOCHS = 160         # Para cada rodada de treino com dadateset maior, mais epocas precisa
-        LR = 0.0005          # Learning Rate conservador para refino
+        BATCH_SIZE = 64
+        EPOCHS = 100 
+        LR = 0.001
 
         print("="*50)
-        print("[INIT] Iniciando Pipeline de Treinamento Neuro-Simbólico")
+        print("[V3] Iniciando Treino SIAMESE (Character-Level)")
         print("="*50)
 
-        dataset = self._handle_load_datasets()
+        dataset = self._load_and_consolidate_data()
         
-        if not dataset:
-            print("[ERRO] Dataset vazio. Abortando.")
-            return
-
-        augmenter = SemanticAugmenterV2()
-
-        print("[INIT] Inicializando Motores de Geração Sintética...")
+        print("[INIT] Construindo Rede Siamese CNN...")
+        self.model_wrapper = CanonicalSubjectNN(encoder_dim=128)
+        siamese_model = self.model_wrapper.model
         
-        # Instancia o Gerador
-        batch_gen = StratifiedBatchGenerator(
-            dataset=dataset,
-            augmenter=augmenter,
-            p_use_vars=0.90,              # 90% das vezes usa dados reais
-            p_force_numeric_siblings=0.75 # 75% das vezes força I vs II vs III
+        siamese_model.compile(
+            loss='binary_crossentropy',
+            optimizer=tf.keras.optimizers.Adam(learning_rate=LR),
+            metrics=['accuracy']
         )
 
-        # 3. Inicializa o Modelo Neural
-        print("[INIT] Compilando Modelo TensorFlow...")
-        self.model = CanonicalSubjectNN(vocab="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", encoder_dim=128)
-        optimizer = tf.keras.optimizers.Adam(learning_rate=LR)
+        # -------------------------------------------------------------
+        # FIX DO GERADOR (USANDO TF.DATA.DATASET)
+        # -------------------------------------------------------------
         
-        # Checkpoint de melhor loss
-        best_loss = float('inf')
+        # 1. Definimos o gerador Python simples que já preprocessa
+        def final_gen():
+            raw_gen = self._siamese_generator(dataset, BATCH_SIZE)
+            for raw_a, raw_b, lbls in raw_gen:
+                X_a = self.model_wrapper.preprocess(raw_a)
+                X_b = self.model_wrapper.preprocess(raw_b)
+                # Dicionário é mais seguro para o Keras mapear Inputs por nome
+                yield ({"input_a": X_a, "input_b": X_b}, lbls)
 
-        print(f"[TREINO] Iniciando {EPOCHS} épocas...")
+        # 2. Definimos a assinatura (Tipos e Shapes)
+        # Input: Dict com chaves 'input_a' e 'input_b', ambos (None, MAX_LEN) int32
+        # Output: Tensor (None,) float32
+        output_signature = (
+            {
+                "input_a": tf.TensorSpec(shape=(None, MAX_LEN), dtype=tf.int32),
+                "input_b": tf.TensorSpec(shape=(None, MAX_LEN), dtype=tf.int32)
+            },
+            tf.TensorSpec(shape=(None,), dtype=tf.float32)
+        )
+
+        # 3. Criamos o objeto Dataset oficial
+        tf_dataset = tf.data.Dataset.from_generator(
+            final_gen, 
+            output_signature=output_signature
+        )
+
+        steps_per_epoch = max(20, len(dataset) // (BATCH_SIZE // 4))
+        print(f"[TREINO] Iniciando {EPOCHS} épocas com {steps_per_epoch} steps/epoch...")
         
-        for epoch in range(EPOCHS):
-            epoch_loss = 0.0
-
-            # Steps arbitrário, já que o gerador é infinito. 
-            # ? 15 steps * 70 batch = 1050 exemplos vistos por época.
-            steps_per_epoch = 15 
-            
-            for _ in range(steps_per_epoch):
-                # O Batch Gen já devolve View1 e View2 (Augmented)
-                view1_txt, view2_txt = batch_gen.get_batch(BATCH_SIZE)
-                
-                # Forward Pass
-                x_view1 = self.model.encode_batch(view1_txt)
-                x_view2 = self.model.encode_batch(view2_txt)
-                
-                with tf.GradientTape() as tape:
-                    emb_view1 = self.model.model(x_view1, training=True)
-                    emb_view2 = self.model.model(x_view2, training=True)
-                    
-                    loss = self.info_nce_loss(emb_view1, emb_view2)
-                    
-                # Backward Pass
-                grads = tape.gradient(loss, self.model.model.trainable_variables)
-                optimizer.apply_gradients(zip(grads, self.model.model.trainable_variables))
-                
-                epoch_loss += loss.numpy()
-                
-            avg_loss = epoch_loss / steps_per_epoch
-            
-            # Log a cada 10 épocas
-            if (epoch + 1) % 10 == 0:
-                print(f"   Epoch {epoch+1:03d}/{EPOCHS} | Loss: {avg_loss:.4f}")
-                
-                # Save Best Model
-                if avg_loss < best_loss:
-                    best_loss = avg_loss
-                    # Salva pesos intermediários (bom pra segurança)
-                    self.model.model.save_weights(settings.ML_CANONICAL_WEIGHTS_PATH)
+        siamese_model.fit(
+            tf_dataset,
+            steps_per_epoch=steps_per_epoch,
+            epochs=EPOCHS,
+            verbose=1
+        )
 
         print("-" * 50)
-        print(f"[TREINO] Finalizado. Melhor Loss: {best_loss:.4f}")
-
+        print("[TREINO] Concluído.")
         self._save_artifacts(dataset)
-
         self._upload_artifacts_to_cloud()
         
-        self._calibration_ynsa_model_nn()
+        try:
+            from app.calibrations.canonical_subject_calibration_v2 import find_gate_threshold
+            print("\n[CALIBRAÇÃO] Verificando threshold ideal...")
+            find_gate_threshold(self.model_wrapper, dataset)
+        except Exception as e:
+            print(f"[WARN] Calibração falhou ou não encontrada: {e}")
 
+    # ==========================================================================
+    # 4. PERSISTENCE
+    # ==========================================================================
     def _save_artifacts(self, dataset):
-        print("[PERSISTÊNCIA] Iniciando salvamento de artefatos...")
-        
-        print(f"[PERSISTÊNCIA] Atualizando arquivo oficial: {self.base_path}")
+        print("[PERSISTÊNCIA] Salvando...")
+
         shutil.copy(self.base_path, self.base_path + ".bak")
-        
         with open(self.base_path, 'w', encoding='utf-8') as f:
             json.dump(dataset, f, indent=2, ensure_ascii=False)
 
-        print("[ARTIFACTS] Gerando Índice Vetorial (.npz)...")
+        self.model_wrapper.model.save_weights(settings.ML_CANONICAL_WEIGHTS_PATH)
+        print(f"[ARTIFACTS] Pesos salvos em: {settings.ML_CANONICAL_WEIGHTS_PATH}")
+
+        print("[ARTIFACTS] Gerando memória vetorial (.npz)...")
         all_canonicals = [item["canonical"] for item in dataset]
         
-        x_input = self.model.encode_batch(all_canonicals)
-        vectors_tensor = self.model.model(x_input, training=False)
-        vectors_np = vectors_tensor.numpy()
+        vectors = self.model_wrapper.embed_batch(all_canonicals)
         
         os.makedirs(os.path.dirname(settings.NN_MODEL_MEMORY_FILE_PATH), exist_ok=True)
         np.savez_compressed(
             settings.NN_MODEL_MEMORY_FILE_PATH, 
             keys=all_canonicals, 
-            vectors=vectors_np
+            vectors=vectors
         )
-        print(f"[ARTIFACTS] Índice salvo em: {settings.NN_MODEL_MEMORY_FILE_PATH}")
-        
-        self.model.model.save_weights(settings.ML_CANONICAL_WEIGHTS_PATH)
-        print(f"[ARTIFACTS] Pesos salvos em: {settings.ML_CANONICAL_WEIGHTS_PATH}")
- 
-        print("[PERSISTÊNCIA] Limpando buffer de aprendizado incremental...")
-        if os.path.exists(self.learned_path):
-            with open(self.learned_path, 'w') as f:
-                f.write("")
-        
-        print("[SUCESSO] Pipeline concluído e dados persistidos.")
+        print(f"[ARTIFACTS] Memória salva com {len(vectors)} vetores.")
+
+        with open(self.learned_path, 'w') as f: f.write("")
 
     def _upload_artifacts_to_cloud(self):
-        """
-        Placeholder para upload de artefatos para Cloudinary ou outro serviço.
-        """
-        storage_service.upload_file(
-            local_path=settings.NN_MODEL_MEMORY_FILE_PATH,
-            remote_name=settings.NN_MODEL_MEMORY_FILE_ID
-        )
-
-        storage_service.upload_file(
-            local_path=settings.ML_CANONICAL_WEIGHTS_PATH,
-            remote_name=settings.ML_CANONICAL_WEIGHTS_ID
-        )
-
-    def _calibration_ynsa_model_nn(self):
         try:
-            # Importa localmente para evitar dependência circular
-
-            from app.calibrations.canonical_subject_calibration import find_optimal_threshold
-            print("\n[CALIBRAÇÃO] Iniciando recálculo de threshold ideal...")
-            find_optimal_threshold()
-        except ImportError:
-            print("[WARN] Módulo de calibração não encontrado. Pulando.")
-
-training_ysna_canonical = TrainingYsnaCanonical()
+            storage_service.upload_file(settings.NN_MODEL_MEMORY_FILE_PATH, settings.NN_MODEL_MEMORY_FILE_ID)
+            storage_service.upload_file(settings.ML_CANONICAL_WEIGHTS_PATH, settings.ML_CANONICAL_WEIGHTS_ID)
+            print("[CLOUD] Upload concluído.")
+        except Exception as e:
+            print(f"[CLOUD] Erro no upload: {e}")
 
 if __name__ == "__main__":
-    training_ysna_canonical.train()
+    trainer = TrainingYsnaCanonicalV2()
+    trainer.train()

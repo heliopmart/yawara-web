@@ -2,22 +2,24 @@ import numpy as np
 import random
 import sys
 import time
+import os
 from typing import List, Tuple, Dict, Any
 
 # Métricas
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import precision_score, recall_score, f1_score
 
-# Imports do seu projeto (mantendo a estrutura que você já tem)
 try:
     from app.core.config import settings
-    from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
-    from app.training.train_canonical_subject_ml_v2 import TrainingYsnaCanonical
+    # Importa a arquitetura correta (certifique-se que você atualizou o arquivo nn.py como pedi antes)
+    from app.ml.canonical_subject_engine import CanonicalSubjectNN
+    # Importa o treinador apenas para usar o carregador de dados
+    from app.training.train_canonical_subject_ml_v2 import TrainingYsnaCanonicalV2
     from app.utils.semanticAugmenter import augmenter
 except ImportError as e:
     print(f"[ERRO DE IMPORT] Verifique se você está na raiz do projeto: {e}")
     sys.exit(1)
 
-# Cores para o terminal (Frescura necessária para leitura)
+# Cores para o terminal
 class Colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -28,15 +30,11 @@ class Colors:
     BOLD = '\033[1m'
 
 # ==============================================================================
-# 1. GERADOR DE TORTURA (DATASET)
+# 1. GERADOR DE VALIDAÇÃO
 # ==============================================================================
 def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> Tuple[List[Tuple[str, str]], np.ndarray]:
     """
-    Gera um batch projetado para falhar.
-    - 40% Positivos Fáceis (Mesma string, typos leves)
-    - 10% Positivos Difíceis (Sinônimos distantes, Augmentation Pesada)
-    - 25% Negativos "Maldosos" (Mesma família: Calc I vs Calc II)
-    - 25% Negativos Aleatórios (Física vs Direito)
+    Gera um batch projetado para testar o modelo.
     """
     pairs = []
     labels = [] 
@@ -44,9 +42,8 @@ def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> T
     # Mapa de Famílias para Hard Negatives
     family_map = {}
     for item in dataset:
-        # Tenta agrupar por prefixo (ex: 'CALCULO_')
         root = item["canonical"].split("_")[0]
-        if len(root) > 3: # Ignora roots muito curtos
+        if len(root) > 3: 
             if root not in family_map: family_map[root] = []
             family_map[root].append(item)
 
@@ -64,7 +61,7 @@ def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> T
         if item["vars"] and random.random() > 0.2:
             txt_b = random.choice(item["vars"])
         else:
-            txt_b = augmenter.augment(txt_a, profile="medium") # Augmentation on the fly
+            txt_b = augmenter.augment(txt_a, profile="medium") 
             
         pairs.append((txt_a, txt_b))
         labels.append(1)
@@ -72,7 +69,6 @@ def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> T
     # --- 2. NEGATIVOS "MALDOSOS" (HARD NEGATIVES) ---
     n_hard = size // 4
     for _ in range(n_hard):
-        # Pega uma família que tem irmãos (ex: Calculo I, II, III)
         fam = random.choice(conflict_families)
         siblings = family_map[fam]
         
@@ -90,7 +86,7 @@ def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> T
             pairs.append((item_a["canonical"], item_b["canonical"]))
             labels.append(0)
 
-    # Embaralha tudo
+    # Embaralha
     combined = list(zip(pairs, labels))
     random.shuffle(combined)
     pairs[:], labels[:] = zip(*combined)
@@ -100,58 +96,43 @@ def generate_robust_validation_batch(dataset: List[Dict], size: int = 2000) -> T
 # ==============================================================================
 # 2. CALIBRAÇÃO DO GATE
 # ==============================================================================
-def find_gate_threshold(encoder, dataset):
+def find_gate_threshold(model_wrapper, dataset):
     """
-    Encontra o ponto de equilíbrio financeiro/técnico.
+    Encontra o ponto de equilíbrio.
     """
     pairs, y_true = generate_robust_validation_batch(dataset, size=3000)
     
-    # Extrai textos
     texts_a = [p[0] for p in pairs]
     texts_b = [p[1] for p in pairs]
     
     print(f"{Colors.OKBLUE}[MODELO] Calculando embeddings...{Colors.ENDC}")
-    vecs_a = encoder.embed_batch(texts_a)
-    vecs_b = encoder.embed_batch(texts_b)
+    # Usa o encoder extraído para gerar vetores
+    vecs_a = model_wrapper.embed_batch(texts_a)
+    vecs_b = model_wrapper.embed_batch(texts_b)
     
-    # Normalização L2 (Segurança extra)
-    norms_a = np.linalg.norm(vecs_a, axis=1, keepdims=True)
-    norms_b = np.linalg.norm(vecs_b, axis=1, keepdims=True)
-    vecs_a = vecs_a / (norms_a + 1e-9)
-    vecs_b = vecs_b / (norms_b + 1e-9)
-    
-    # Similaridade de Cosseno (-1 a 1)
+    # Similaridade de Cosseno (Já normalizado na saída do modelo, mas reforçamos)
+    # A arquitetura V3 já tem L2 Normalize na última camada, então o dot product é cosseno.
     similarities = np.sum(vecs_a * vecs_b, axis=1)
     
     print("\n" + "="*60)
-    print(f"{Colors.BOLD}   ANÁLISE DE GATE (NEURAL NET vs LLM) {Colors.ENDC}")
+    print(f"{Colors.BOLD}   ANÁLISE DE GATE (Siamese CNN vs LLM) {Colors.ENDC}")
     print("="*60)
     print(f"{'THRESH':<8} | {'PRECISION':<10} | {'RECALL':<10} | {'LLM CALLS %':<12} | {'RISCO (FP)':<10}")
     print("-" * 60)
 
     best_thresh = 0.5
-    target_precision = 0.98 # Queremos confiar muito para não chamar a LLM errado
+    target_precision = 0.98 
     
     candidates = []
 
-    # Varre thresholds de 0.50 até 0.99
     for t in np.arange(0.50, 1.00, 0.02):
         y_pred = (similarities >= t).astype(int)
         
         prec = precision_score(y_true, y_pred, zero_division=0)
         rec = recall_score(y_true, y_pred, zero_division=0)
-        
-        # LLM Calls: Tudo que for rejeitado (0) no gate, teoricamente passaria por revisão 
-        # (se assumirmos que o sistema tenta achar algo).
-        # Na prática, 'Recall' baixo significa que a rede diz "Não sei" para coisas que ERAM matches.
-        # Esses casos vão para a LLM ou são perdidos.
         lost_matches = 1 - rec 
-        
-        # Falsos Positivos (Erro Crítico): A rede disse SIM, mas era NÃO.
-        # Isso contamina seu banco de dados.
         fp_count = np.sum((y_pred == 1) & (y_true == 0))
         
-        # Marcador visual para o melhor candidato
         marker = ""
         if prec >= target_precision and rec > 0.1:
             marker = f"{Colors.OKGREEN}<-- SEGURO{Colors.ENDC}"
@@ -160,7 +141,6 @@ def find_gate_threshold(encoder, dataset):
         
         print(f"{t:.2f}     | {prec:.2%}     | {rec:.2%}     | {lost_matches:.2%}       | {fp_count:<4} {marker}")
 
-    # Se não achou nenhum perfeito, pega o com melhor F1
     if not candidates:
         print(f"\n{Colors.WARNING}[AVISO] Nenhum threshold atingiu precisão > {target_precision:.0%}. Usando melhor F1.{Colors.ENDC}")
         best_t = 0.0
@@ -178,7 +158,7 @@ def find_gate_threshold(encoder, dataset):
 # ==============================================================================
 # 3. INTERACTIVE DEBUGGER
 # ==============================================================================
-def interactive_mode(encoder, threshold):
+def interactive_mode(model_wrapper, threshold):
     print("\n" + "="*60)
     print(f"{Colors.HEADER}   MODO INTERATIVO (Digite 'sair' para encerrar)   {Colors.ENDC}")
     print(f"   Threshold Atual do Gate: {Colors.BOLD}{threshold:.2f}{Colors.ENDC}")
@@ -195,16 +175,11 @@ def interactive_mode(encoder, threshold):
             if not t2: continue
 
             # Embed
-            v1 = encoder.embed_batch([t1])
-            v2 = encoder.embed_batch([t2])
+            v1 = model_wrapper.embed_single(t1)
+            v2 = model_wrapper.embed_single(t2)
             
-            # Normalize
-            v1 = v1 / np.linalg.norm(v1)
-            v2 = v2 / np.linalg.norm(v2)
+            sim = np.dot(v1, v2)
             
-            sim = np.sum(v1 * v2)
-            
-            # Veredito
             status = ""
             color = ""
             if sim >= threshold:
@@ -219,31 +194,41 @@ def interactive_mode(encoder, threshold):
             
         except KeyboardInterrupt:
             break
-            
+        except Exception as e:
+            print(f"Erro: {e}")
+
 # ==============================================================================
 # MAIN
 # ==============================================================================
 if __name__ == "__main__":
     weights_path = settings.ML_CANONICAL_WEIGHTS_PATH
     
-    # 1. Carrega Dados
-    print(f"{Colors.OKBLUE}[INIT] Carregando dataset de treino para gerar validação...{Colors.ENDC}")
-    trainer = TrainingYsnaCanonical()
-    full_dataset = trainer._handle_load_datasets()
+    print(f"{Colors.OKBLUE}[INIT] Carregando dados...{Colors.ENDC}")
+    # Usa o próprio treinador para carregar os dados consolidados de forma segura
+    trainer = TrainingYsnaCanonicalV2()
+    full_dataset = trainer._load_and_consolidate_data()
     
-    # 2. Carrega Modelo
-    print(f"{Colors.OKBLUE}[INIT] Carregando modelo...{Colors.ENDC}")
-    encoder = CanonicalSubjectNN(vocab="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", encoder_dim=128)
-    encoder.model.build((None, 64)) 
-    encoder.model.load_weights(weights_path)
-    print(f"[INIT] Pesos carregados de {weights_path}")
+    print(f"{Colors.OKBLUE}[INIT] Carregando modelo Siamese CNN...{Colors.ENDC}")
+    # Instancia a arquitetura (já constrói o modelo no __init__)
+    # REMOVIDO: vocab=..., pois a nova classe ignora e usa CHARS interno
+    nn_wrapper = CanonicalSubjectNN(encoder_dim=128)
+    
+    # REMOVIDO: nn_wrapper.model.build((None, 64)) -> ISSO CAUSAVA O ERRO!
+    
+    print(f"[INIT] Carregando pesos de {weights_path}")
+    try:
+        # Carrega os pesos no modelo Siames (que contem o encoder dentro)
+        nn_wrapper.model.load_weights(weights_path)
+        print(f"{Colors.OKGREEN}[SUCESSO] Pesos carregados!{Colors.ENDC}")
+    except Exception as e:
+        print(f"{Colors.FAIL}[FATAL] Falha ao carregar pesos: {e}{Colors.ENDC}")
+        sys.exit(1)
 
-    # 3. Calibração Automática
-    suggested_threshold = find_gate_threshold(encoder, full_dataset)
+    # 3. Calibração
+    suggested_threshold = find_gate_threshold(nn_wrapper, full_dataset)
     
-    print(f"\n{Colors.OKGREEN}>>> THRESHOLD RECOMENDADO PARA O GATE: {suggested_threshold:.2f} <<<{Colors.ENDC}")
-    print("Este valor tenta garantir que você NÃO aprove lixo automaticamente.")
+    print(f"\n{Colors.OKGREEN}>>> THRESHOLD RECOMENDADO: {suggested_threshold:.2f} <<<{Colors.ENDC}")
     
     # 4. Teste Manual
-    input(f"\nPressione ENTER para entrar no modo de teste manual...")
-    interactive_mode(encoder, suggested_threshold)
+    input(f"\nPressione ENTER para entrar no modo interativo...")
+    interactive_mode(nn_wrapper, suggested_threshold)

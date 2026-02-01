@@ -1,9 +1,9 @@
 from typing import List, Dict, Set
 import asyncio
 import logging
-from app.schemas.valence import CandidateProfile, ForgeOutput
+from app.schemas.valence import CandidateProfile, ForgeOutput, AllocationCandidateInput
 from app.schemas.historic import AcademicRecord
-from app.ml.valence_engine import ValenceNN
+from app.ml.architectures.valence_nn import ValenceModel
 from app.services.selection_data import SelectionDataService
 from app.services.html_report_service import HTMLReportService
 from app.services.ingestion import ingest_academic_record_from_pdf
@@ -23,8 +23,12 @@ class ValenceEngine:
         Retorna: Bytes do PDF gerado.
         """
         
-        ps_config = self.data_service.get_ps_edition_active()
+        ps_config_id = self.data_service.get_ps_edition_active()
         candidates = self.data_service.get_iron_gate_approved_candidate_data()        
+
+        if(ps_config_id is None):
+            logger.info("Nenhum processo seletivo ativo encontrado.")
+            return
 
         total = len(candidates)
         if total == 0:
@@ -32,7 +36,7 @@ class ValenceEngine:
             return
 
         tasks = [
-            self._bounded_process(task, ps_config.id)
+            self._bounded_process(task, ps_config_id)
             for task in candidates
         ]
         
@@ -65,7 +69,7 @@ class ValenceEngine:
 
         known_subject_weights = self._build_dynamic_knowledge_base(profiles)
 
-        engine = ValenceNN(
+        engine = ValenceModel(
             candidates=profiles,
             subject_weights=known_subject_weights,
             team_size=team_size
@@ -73,7 +77,7 @@ class ValenceEngine:
         
         forge_result: ForgeOutput = engine.forge()
         
-        pdf_bytes = self._generate_xai_pdf(forge_result, ps_config.title or "Processo Seletivo")
+        pdf_bytes = self._generate_xai_pdf(forge_result, ps_config_id or "Processo Seletivo")
         
         return pdf_bytes
     
@@ -110,27 +114,31 @@ class ValenceEngine:
            result = await self._download_historic_pdf(task, edition_id)
            return result
 
-    async def _download_historic_pdf(self, task: dict, edition_id: str) -> AcademicRecord:
+    async def _download_historic_pdf(self, task: AllocationCandidateInput, edition_id: str) -> AcademicRecord:
         """
         Realiza o trabalho pesado comum (I/O) e chama o método de avaliação específico.
         """
-        user_id = task.get("user_id") or task.get("candidate_id")
-        file_id = task.get("file_id")
         try:
+            
+            candidate_id = task.id
+            file_id = task.historic_id
+
+
             if not file_id:
-                logger.warning(f"User {user_id} sem arquivo associado.")
+                logger.warning(f"candidate {candidate_id} sem arquivo associado.")
                 return None
 
-            pdf_bytes = await storage_service.get_file_bytes(file_id)
+            pdf_bytes = storage_service.get_file_bytes(file_id)
 
             if not pdf_bytes:
                 return None
 
-            record = await ingest_academic_record_from_pdf(pdf_bytes, user_id, edition_id) 
+            record = await ingest_academic_record_from_pdf(pdf_bytes, candidate_id=candidate_id, cycle_id=edition_id) 
+
             if not record:
                 return None
             
             return record
         except Exception as e:
-            logger.error(f"Erro ao processar histórico do usuário {user_id}: {str(e)}")
+            logger.error(f"Erro ao processar histórico do usuário {candidate_id}: {str(e)}")
             return None

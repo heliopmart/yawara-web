@@ -4,7 +4,7 @@ import time
 from typing import List, Dict, Tuple
 from app.schemas.valence import CandidateProfile, ForgeOutput, ForgedSquad, SquadMember, SquadMetrics
 
-class ValenceNN:
+class ValenceModel:
     def __init__(
         self, 
         candidates: List[CandidateProfile], 

@@ -24,20 +24,24 @@ logger = logging.getLogger("yawara.api.endpoints")
 
 router = APIRouter()
 
-
-@router.post("/valence/forge", response_model=ForgeOutput)
-async def run_valence_forge(
-    candidates: List[CandidateProfile], 
-    team_size: int = 4
-):
+@router.post("/valence/forge",  summary="Forja de Times Ótimos", description="Executa a Valence Engine para alocação ótima de times.")
+async def run_valence_forge():
     """
     Executa a Valence Engine (Algoritmo Genético) para alocação ótima de times.
     Baseado em matriz de competência vetorial e complementariedade.
     """
     try:
-        engine = ValenceEngine(candidates=candidates, team_size=team_size)
-        result = engine.forge()
-        return result
+        engine = ValenceEngine()
+        report_bytes = await engine.run_allocation_pipeline()
+
+        return Response(
+            content=report_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=forge_valence_report.pdf",
+                "Content-Length": str(len(report_bytes)) 
+            }
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:

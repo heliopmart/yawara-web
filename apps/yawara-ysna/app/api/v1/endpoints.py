@@ -38,7 +38,7 @@ async def run_valence_forge():
             content=report_bytes,
             media_type="application/pdf",
             headers={
-                "Content-Disposition": "attachment; filename=forge_valence_report.pdf",
+                "Content-Disposition": "attachment; filename=forge_valence_team_report.pdf",
                 "Content-Length": str(len(report_bytes)) 
             }
         )

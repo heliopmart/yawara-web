@@ -1,4 +1,6 @@
 from typing import List, Dict, Set
+from datetime import datetime
+import hashlib
 import asyncio
 import logging
 from app.schemas.valence import CandidateProfile, ForgeOutput, AllocationCandidateInput
@@ -64,8 +66,8 @@ class ValenceEngine:
                 print(f"❌ Erro processando dados do candidato {raw_cand.id}: {e}")
                 continue
         
-        if len(profiles) < team_size:
-            raise ValueError(f"Apenas {len(profiles)} candidatos válidos processados. Mínimo necessário: {team_size}")
+        # if len(profiles) < team_size:
+        #     raise ValueError(f"Apenas {len(profiles)} candidatos válidos processados. Mínimo necessário: {team_size}")
 
         known_subject_weights = self._build_dynamic_knowledge_base(profiles)
 
@@ -77,7 +79,7 @@ class ValenceEngine:
         
         forge_result: ForgeOutput = engine.forge()
         
-        pdf_bytes = self._generate_xai_pdf(forge_result, ps_config_id or "Processo Seletivo")
+        pdf_bytes = self._generate_xai_pdf(forge_result)
         
         return pdf_bytes
     
@@ -100,13 +102,28 @@ class ValenceEngine:
         for subject in all_subjects:
             dynamic_weights[subject] = 1.0
 
-                
         return dynamic_weights
 
-    def _generate_xai_pdf(self, forge_data: ForgeOutput, title: str) -> bytes:
+    def _generate_xai_pdf(self, forge_result: ForgeOutput) -> bytes:
+        """
+        Docstring para _generate_xai_pdf
+        
+        :param forge_result: Resultado da forja dos times
+        :type forge_result: ForgeOutput
+        :return: PDF em bytes
+        :rtype: bytes
+        """
+        run_hash = hashlib.md5(str(forge_result.total_fitness).encode()).hexdigest()[:8].upper()
+
+        bundle = {
+            "title": "Processo Seletivo Yawara",
+            "date": datetime.now().strftime("%d/%m/%Y às %H:%M"),
+            "hash": f"#{run_hash}",
+            "squads": forge_result.squads 
+        }
+
         return self.report_service.generate_valence_pdf_bytes(
-            title=f"Relatório de Alocação - {title}",
-            data=forge_data
+            bundle=bundle
         )
 
     async def _bounded_process(self, task, edition_id):

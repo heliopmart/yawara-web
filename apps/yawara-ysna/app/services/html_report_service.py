@@ -14,12 +14,10 @@ from app.templates.report_xai import HTML_XAI_TEMPLATE, PDF_XAI_CSS
 from app.templates.report_valence import HTML_VALENCE_TEMPLATE, PDF_VALENCE_CSS
 from app.schemas.report import CandidateReportBundle
 
-# Backend headless para servidor
 matplotlib.use('Agg')
 
 logger = logging.getLogger("yawara.services.html_generator")
 
-# Lock global para operações do Matplotlib
 _plt_lock = threading.Lock()
 
 class HTMLReportService:

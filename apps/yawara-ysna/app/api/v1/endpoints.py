@@ -18,7 +18,7 @@ from app.services.neural_resolver import get_resolver
 from app.schemas.candidate import CandidateInput
 from app.ml.valence_engine import ValenceEngine, ForgeOutput, CandidateProfile
 
-# TODO: IMPLEMENTAÇÃO DOS ENDPOINTS -> miss test endpoint
+# TODO: IMPLEMENTAÇÃO DOS ENDPOINTS -> miss test endpoint   
 
 logger = logging.getLogger("yawara.api.endpoints")
 

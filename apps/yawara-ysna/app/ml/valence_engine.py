@@ -66,9 +66,6 @@ class ValenceEngine:
                 print(f"❌ Erro processando dados do candidato {raw_cand.id}: {e}")
                 continue
         
-        # if len(profiles) < team_size:
-        #     raise ValueError(f"Apenas {len(profiles)} candidatos válidos processados. Mínimo necessário: {team_size}")
-
         known_subject_weights = self._build_dynamic_knowledge_base(profiles)
 
         engine = ValenceModel(
@@ -133,7 +130,7 @@ class ValenceEngine:
 
     async def _download_historic_pdf(self, task: AllocationCandidateInput, edition_id: str) -> AcademicRecord:
         """
-        Realiza o trabalho pesado comum (I/O) e chama o método de avaliação específico.
+        Realiza o trabalho pesado comum (I/O)
         """
         try:
             

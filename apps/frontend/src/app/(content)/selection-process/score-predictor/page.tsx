@@ -197,7 +197,7 @@ const SnaPredictor = () => {
 
                     <div className={styles.linkGrid}>
                         {/* Card: Whitepaper PDF */}
-                        <Link href="/docs/Y-SNA-Technical-Architecture.pdf" target="_blank" className={styles.resourceCard}>
+                        <Link href="/docs/Yawara_SNA_Technical_Architecture_v3.pdf" target="_blank" className={styles.resourceCard}>
                             <div className={styles.cardContent}>
                                 <div className={styles.iconBox}>
                                     <span className={styles.pdfIcon}>PDF</span>
@@ -210,8 +210,20 @@ const SnaPredictor = () => {
                             <span className={styles.externalLinkIcon}>↓</span>
                         </Link>
 
-                        {/* Card: API Docs em Servidor Externo */}
-                        <Link href="https://api.yawara.org/docs" target="_blank" className={styles.resourceCard}>
+                        <Link href="/docs/Yawara System Neural Architecture - Valence Model Engine.pdf" target="_blank" className={styles.resourceCard}>
+                            <div className={styles.cardContent}>
+                                <div className={styles.iconBox}>
+                                    <span className={styles.pdfIcon}>PDF</span>
+                                </div>
+                                <div className={styles.cardText}>
+                                    <h4>Especificação Forge Team</h4>
+                                    <p>Download do paper completo detalhando como funciona a montagem de time para a etapa "A FORJA"</p>
+                                </div>
+                            </div>
+                            <span className={styles.externalLinkIcon}>↓</span>
+                        </Link>
+
+                        <Link href="https://teamyawara-y-sna.hf.space/docs/ysna/" target="_blank" className={styles.resourceCard}>
                             <div className={styles.cardContent}>
                                 <div className={styles.iconBox}>
                                     <span className={styles.apiIcon}>API</span>

@@ -33,28 +33,70 @@ class DynamicNeuralResolver:
         self.memory_keys: List[str] = []         # Nomes Canônicos
         self.memory_vectors: np.ndarray = None   # Matriz (N, 128)
         
-        self._initialize_resources()
+        self._ready_event = asyncio.Event() 
+        self._init_task = asyncio.create_task(self._initialize_resources())
 
-    def _initialize_resources(self):
-        """Carrega Modelo e Memória na inicialização."""
-        logger.info("[Resolver] Inicializando Motor Neural...")
+    async def ensure_ready(self):
+        """Método que deve ser chamado antes de qualquer operação pública."""
+        await self._ready_event.wait()
+        if self._init_task.done() and self._init_task.exception():
+            raise self._init_task.exception()
+
+    async def _download_resources(self):
+        """
+        Baixa recursos em uma Thread separada para não bloquear o Event Loop.
+        Isso é crucial pois storage_service.download_file é síncrono.
+        """
+        logger.info("[Resolver] Baixando pesos e memória do Storage (Thread Pool)...")
         
-        # 1. Carrega a Rede Neural (Apenas Encoder)
+        loop = asyncio.get_running_loop()
+        
+        def _download_sync(remote_id, local_path):
+            return storage_service.download_file(remote_name=remote_id, local_dest=local_path)
+
+        if not os.path.exists(settings.ML_CANONICAL_WEIGHTS_PATH):
+            success = await loop.run_in_executor(
+                None, 
+                _download_sync, 
+                settings.ML_CANONICAL_WEIGHTS_ID, 
+                settings.ML_CANONICAL_WEIGHTS_PATH
+            )
+            if not success:
+                raise Exception(f"Falha ao baixar pesos: {settings.ML_CANONICAL_WEIGHTS_ID}")
+        
+        if not os.path.exists(settings.NN_MODEL_MEMORY_FILE_PATH):
+            success = await loop.run_in_executor(
+                None, 
+                _download_sync, 
+                settings.NN_MODEL_MEMORY_FILE_ID, 
+                settings.NN_MODEL_MEMORY_FILE_PATH
+            )
+            if not success:
+                 raise Exception(f"Falha ao baixar memória: {settings.NN_MODEL_MEMORY_FILE_ID}")
+
+    async def _initialize_resources(self):
+        """Carrega Modelo e Memória na inicialização."""
         try:
+            logger.info("[Resolver] Inicializando Motor Neural...")
+            
             self.encoder = CanonicalSubjectNN(encoder_dim=128)
             weights_path = settings.ML_CANONICAL_WEIGHTS_PATH
             
-            if os.path.exists(weights_path):
-                self.encoder.model.load_weights(weights_path)
-                logger.info(f"[Resolver] Pesos carregados: {weights_path}")
-            else:
-                logger.warning(f"[Resolver] Pesos não encontrados em {weights_path}. Rodando não-treinado!")
-        except Exception as e:
-            logger.error(f"[Resolver] Erro fatal ao carregar NN: {e}")
-            raise e
+            if not os.path.exists(weights_path) or not os.path.exists(settings.NN_MODEL_MEMORY_FILE_PATH):
+                logger.info(f"[Resolver] Pesos não encontrados localmente. Iniciando download...")
+                await self._download_resources()
+                
+            
+            self.encoder.model.load_weights(weights_path)
+            logger.info(f"[Resolver] Pesos carregados com sucesso de: {weights_path}")
 
-        # 2. Carrega a Memória Vetorial (.npz)
-        self._load_memory_bank()
+            self._load_memory_bank()
+            
+            self._ready_event.set() 
+            
+        except Exception as e:
+            logger.critical(f"[Resolver] FALHA CATÁSTRÓFICA ao inicializar: {e}")
+            raise e
 
     def _load_memory_bank(self):
         """Carrega os vetores pré-calculados do disco para a RAM."""

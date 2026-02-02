@@ -164,7 +164,7 @@ class StorageService:
 
             # 1. Tentativa via SDK
             try:
-                url, _ = cloudinary.utils.cloudinary_url(remote_name, resource_type="raw")
+                url, _ = cloudinary.utils.cloudinary_url(f"models/{remote_name}", resource_type="raw")
             except Exception as e:
                 logger.warning(f"Falha ao gerar URL via SDK: {e}. Tentando fallback manual.")
 
@@ -190,7 +190,7 @@ class StorageService:
                     # Validação de integridade simples
                     if os.path.getsize(local_dest) <= 0:
                         logger.error(f"Download resultou em arquivo vazio: {remote_name}")
-                        os.remove(local_dest) # Limpa lixo
+                        os.remove(local_dest)
                         return False
 
                     return True

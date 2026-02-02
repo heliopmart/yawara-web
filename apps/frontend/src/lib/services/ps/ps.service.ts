@@ -1,5 +1,6 @@
 import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UploadFileResponse, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, sendChalengesEmailParams, BatchNotesItem } from '@yawara/types'
 import { PsRepository } from '@/lib/repository/ps/ps.repository'
+import { YsnaService } from '@/lib/services/ysna/ysna.service';
 import { QStashService } from '@/lib/services/qstash/qstash.service'
 import { CloudinaryService } from '@/lib/services/cloudinary/cloudinary.service'
 import { EmailService } from '@/lib/services/email/email.service'
@@ -10,11 +11,12 @@ const CHALLENGE_DIFFICULTY_LEVEL = process.env.CHALLENGE_DIFFICULTY_LEVEL!!
 export class PsService {
     private auth: TokenPayload;
     private psRepository: PsRepository;
+    private ysnaService: YsnaService;
 
     constructor(auth: TokenPayload) {
         this.auth = auth;
         this.psRepository = new PsRepository(this.auth);
-
+        this.ysnaService = new YsnaService();
     }
 
     /*
@@ -267,7 +269,7 @@ export class PsService {
         =========================================================
     */
 
-    async uploadFile(card_id: ps_card_configs['card_id'], file: File): Promise<boolean> {
+    async uploadFile(card_id: ps_card_configs['card_id'], candidate_id: string, file: File): Promise<boolean> {
         try {
             const upload_response = await CloudinaryService.upload(file, {
                 folder: `${CLOUDINARY_DOCS_FOLDER_NAME}/ps/${this.auth.user_id}/`,
@@ -281,12 +283,19 @@ export class PsService {
 
             const update_reponse = await this.updateStatusUserCard(card_id, upload_response.public_id);
 
-            return update_reponse;
+            if(!update_reponse){
+                throw "USER_CARD_UPDATE_FAILED";
+            }
+
+            const ysnaEvaluation = await this.ysnaService.evaluateHistory(candidate_id);
+
+            return ysnaEvaluation.details.success;
         } catch (error) {
             console.error('PsService.uploadFile error:', error);
             throw error;
         }
     }
+
 
     /*
        =========================================================

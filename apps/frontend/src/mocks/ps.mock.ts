@@ -1,4 +1,4 @@
-import { ps_data_display } from '@yawara/types';
+import { ps_data_display, ps_card_configs } from '@yawara/types';
 
 export const PS_MOCK_DATA: ps_data_display = {
   title: "Processo Seletivo 2026/1",
@@ -61,3 +61,44 @@ export const PS_MOCK_DATA: ps_data_display = {
   is_completed: false,
   is_accepted: false
 };
+
+export const PS_CREATE_MOCK_DATA: Omit<ps_card_configs, 'id' | 'created_at' | 'updated_at' | 'edition_ps'>[] = [
+  {
+    card_id: 1,
+    title: 'Envie seu histórico acadêmico',
+    description: '1. Faça login no SIGECAD \n 2. Acesse a pagina do Academico \n 2. Clique no menu superior "Documentos" \n 3. Baixe o arquivo em PDF \n 4. Envie o arquivo aqui',
+    state: 'PENDING_ACTION',
+    type: 'DOCUMENT_SUBMISSION',
+    deadline: ''
+  },
+  {
+    card_id: 2,
+    title: 'Envie a resolução do desafio Yawara CHALLENGE 202_',
+    description: 'Responda o desafio do Yawara CHALLENGE 202_ e envie sua resolução em PDF. Siga as instruções disponiveis nos links de ajuda e no próprio desafio',
+    state: 'PENDING_ACTION',
+    type: 'DOCUMENT_SUBMISSION',
+    deadline: ''
+  },
+  {
+    card_id: 3,
+    title: 'Participação na "A FORJA"',
+    description: '',
+    state: 'PENDING_ACTION',
+    type: 'PRESENCE_EVALUATION',
+    end_time: '',
+    event_date: '',
+    location: '',
+    start_time: ''
+  },
+  {
+    card_id: 4,
+    title: 'Participação na "O CORREDOR"',
+    description: '',
+    state: 'PENDING_ACTION',
+    type: 'PRESENCE_EVALUATION',
+    end_time: '',
+    event_date: '',
+    location: '',
+    start_time: ''
+  }
+]

@@ -17,7 +17,8 @@ export const psFileSchema = zod.object({
 export const psMetadataUploadSchema = zod.object({
   card_id: zod.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "card_id deve ser válido"
-  })
+  }),
+  candidate_id: zod.string().uuid()
 })
 
 export const updateNucleiChosenSchema = zod.object({

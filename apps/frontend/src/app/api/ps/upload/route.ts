@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         const file = formData.get('file');
         const cardIdRaw = formData.get('card_id');
+        const candidate_id = formData.get('candidate_id');
 
         const validationFileResult = psFileSchema.safeParse({ file });
 
@@ -29,7 +30,8 @@ export async function POST(request: NextRequest) {
         }
 
         const validationMetadataResult = psMetadataUploadSchema.safeParse({
-            card_id: cardIdRaw
+            card_id: cardIdRaw,
+            candidate_id
         });
 
         if (!validationMetadataResult.success) {
@@ -40,9 +42,10 @@ export async function POST(request: NextRequest) {
 
         const validFile = validationFileResult.data.file;
         const validCardId = validationMetadataResult.data.card_id;
+        const validCandidateId = validationMetadataResult.data.candidate_id;
 
-        const uploadFile = await new PsService(user_data).uploadFile(parseInt(validCardId), validFile);
-
+        const uploadFile = await new PsService(user_data).uploadFile(parseInt(validCardId), validCandidateId, validFile);
+        
         return successResponse<boolean>(uploadFile, 200);
 
     } catch (error) {

@@ -78,7 +78,7 @@ class BaseEngineService:
             upload_success = await self._upload_report_pdf(candidate_id,  task.get("user_id", None), pdf_bytes)
 
         logger.info(f"--- SINGLE RUN FINALIZADO. Sucesso: {result.get('success')} ---")
-        return {"processed": 1, "success": upload_success, "xai": result, "pdf_bytes": pdf_bytes, "candidate_id": candidate_id}
+        return {"processed": 1, "success": upload_success, "xai": result if self.is_example else None, "pdf_bytes":  pdf_bytes if self.is_example else None, "candidate_id": candidate_id}
 
     async def run_batch(self, ps_edition_id: Optional[str] = None):
         """

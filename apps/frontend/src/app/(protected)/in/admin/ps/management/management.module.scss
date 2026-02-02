@@ -149,6 +149,18 @@ $bp-lg: 1300px;
             border-color: $yawara-red;
         }
     }
+
+    .btnForgeTeam{
+      background-color: $yawara-red;
+      color: #fff;
+      border: transparent;
+
+      &:hover {
+        background-color: transparent;
+        border: 1px solid $yawara-red;
+        color: $yawara-red;        
+      }
+    }
 }
 
 /* =============================================

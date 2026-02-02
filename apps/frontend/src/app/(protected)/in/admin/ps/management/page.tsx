@@ -10,7 +10,8 @@ const PsManagementPage = () => {
         selectedCard, setSelectedCard,
         candidates, configs,
         handleScoreUpdate, handlePresenceToggle,
-        handleSubmitChanges
+        handleSubmitChanges,
+        handleRequestForgeValance
     } = useManagementPs();
 
     const templateProgress = candidates[0]?.cards_progress as unknown as any[];
@@ -29,6 +30,7 @@ const PsManagementPage = () => {
                 <nav className={styles.viewToggle}>
                     <button className={view === 'PRESENCE' ? styles.active : ''} onClick={() => setView('PRESENCE')}>PRESENÇA</button>
                     <button className={view === 'SCORES' ? styles.active : ''} onClick={() => setView('SCORES')}>NOTAS</button>
+                    <button className={styles.btnForgeTeam} onClick={handleRequestForgeValance}>SOLICITAR FORMAÇÃO DE TIME</button>
                 </nav>
             </header>
 

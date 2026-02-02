@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Candidate, ps_card_configs, DashboardPresenceResponse, cards_progress } from '@yawara/types';
+import { PS_CREATE_MOCK_DATA } from '@/mocks/ps.mock'
 
 export const useManagementPs = () => {
     const [view, setView] = useState<'PRESENCE' | 'SCORES'>('PRESENCE');
@@ -31,9 +32,9 @@ export const useManagementPs = () => {
     useEffect(() => { handleFetchCandidates(); }, [handleFetchCandidates]);
 
     const handleScoreUpdate = (candidateId: string, cardId: number, key: string, value: number) => {
-        if(value > 5)
+        if (value > 5)
             value = 5
-        if(value < 0)
+        if (value < 0)
             value = 0
 
         setCandidates(prev => prev.map(c => {
@@ -114,7 +115,7 @@ export const useManagementPs = () => {
                     throw data.error
                 }
 
-                if(!data.data){
+                if (!data.data) {
                     throw 'PRESENCE_UPDATE_FAILED'
                 }
 
@@ -141,7 +142,7 @@ export const useManagementPs = () => {
                             const targetProgress = progressArray.find(p => p.card_id === selectedCard);
 
                             // ! I added this "if", it will probabily work, but if not, can remove it
-                            if(targetProgress?.state == 'COMPLETED'){
+                            if (targetProgress?.state == 'COMPLETED') {
                                 return {
                                     user_card_id: c.id,
                                     card_id: selectedCard,
@@ -152,12 +153,12 @@ export const useManagementPs = () => {
                     })
                 })
 
-                if(!res.ok){
+                if (!res.ok) {
                     throw 'INTERNAL_SERVER_ERROR    '
                 }
 
                 const data = await res.json()
-                if(!data.success){
+                if (!data.success) {
                     throw data.error
                 }
 
@@ -169,6 +170,62 @@ export const useManagementPs = () => {
 
     }
 
+    const handleRequestForgeValance = async () => {
+        if (!handleCanRequestForgeValance()) {
+            alert("Ainda não é possível solicitar a valência do Forge.");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/admin/ps/manage/forge', {
+                method: 'POST'
+            })
+
+            if (!res.ok) {
+                throw 'INTERNAL_SERVER_ERROR';
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `forge_valence_team_report.pdf`;
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+        catch (err) {
+            console.error("Erro ao solicitar valência do Forge:", err);
+            return
+        }
+    }
+
+    const handleCanRequestForgeValance = () => {
+        const forge_card = configs.find(c => c.card_id === 3);
+
+        const rawDate = forge_card?.start_time || forge_card?.event_date;
+
+        if (!rawDate) return false;
+
+        const cleanDateTime = rawDate.split('+')[0].split('Z')[0];
+
+        const campoGrandeDate = `${cleanDateTime}-04:00`;
+
+        const eventTimestamp = new Date(campoGrandeDate).getTime();
+        const nowTimestamp = new Date().getTime();
+
+        if (isNaN(eventTimestamp)) {
+            console.error('Data inválida no Forge:', campoGrandeDate);
+            return false;
+        }
+
+        return nowTimestamp >= eventTimestamp;
+    }
+
+
     return {
         view, setView,
         selectedCard, setSelectedCard,
@@ -176,7 +233,8 @@ export const useManagementPs = () => {
         loading,
         handleScoreUpdate,
         handlePresenceToggle,
-        handleSubmitChanges
+        handleSubmitChanges,
+        handleRequestForgeValance
     };
 };
 
@@ -185,7 +243,7 @@ export const useCreatePs = () => {
     const [psName, setPsName] = useState('');
     const [globalStart, setGlobalStart] = useState('');
     const [globalEnd, setGlobalEnd] = useState('');
-    const [steps, setSteps] = useState<Omit<ps_card_configs, 'id' | 'created_at' | 'updated_at' | 'edition_ps'>[]>([]);
+    const [steps, setSteps] = useState<Omit<ps_card_configs, 'id' | 'created_at' | 'updated_at' | 'edition_ps'>[]>(PS_CREATE_MOCK_DATA);
 
     const addStep = () => {
         setSteps([...steps, {

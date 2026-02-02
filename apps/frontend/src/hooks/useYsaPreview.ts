@@ -52,7 +52,6 @@ export const useYsaPreview = () => {
                 if (total > 0) {
                     const percent = Math.round((receivedLength / total) * 100);
                     setProgress(percent);
-                    console.log(`Baixado: ${percent}% (${receivedLength} de ${total})`);
                 }
             }
 

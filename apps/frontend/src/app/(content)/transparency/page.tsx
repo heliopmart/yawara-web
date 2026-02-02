@@ -8,7 +8,10 @@ import {
 } from 'react-icons/fa';
 
 const Transparency = () => {
-    const { nucleos, inventario, financeiro, loading } = useTransparency();
+    const { 
+        nuclei, inventory, financial, ps_editions, loading, loadingDownload,
+        downloadArtDoc, downloadArttcDoc, downloadArttcReport, downloadPsResult
+    } = useTransparency();
 
     if (loading) return <div className={styles.loading}>Carregando Dashboard...</div>;
 
@@ -22,70 +25,72 @@ const Transparency = () => {
             </header>
 
             <div className={styles.container}>
-                {/* Seção Financeira */}
                 <section className={styles.section}>
                     <h2 className={styles.title}><FaWallet /> Gestão Financeira</h2>
                     <div className={styles.cashFlowGrid}>
                         <div className={styles.cardFinance}>
                             <span>Saldo em Conta</span>
-                            <strong>R$ {financeiro.saldo.toLocaleString()}</strong>
+                            <strong>R$ {financial?.balance.toLocaleString()}</strong>
                         </div>
                         <div className={styles.cardFinance}>
                             <span>Entradas (Editais/Patrocínios)</span>
-                            <strong className={styles.green}>+ R$ {financeiro.historico.filter(item => item.tipo === 'Entrada').reduce((acc, item) => acc + item.valor, 0).toLocaleString()}</strong>
+                            <strong className={styles.green}>+ R$ {financial?.history.filter(item => item.type === 'INCOME').reduce((acc, item) => acc + item.amount, 0).toLocaleString()}</strong>
                         </div>
                         <div className={styles.cardFinance}>
                             <span>Saídas (Operacional)</span>
-                            <strong className={styles.red}>- R$ {financeiro.historico.filter(item => item.tipo === 'Saída').reduce((acc, item) => acc + item.valor, 0).toLocaleString()}</strong>
+                            <strong className={styles.red}>- R$ {financial?.history.filter(item => item.type === 'EXPENSE').reduce((acc, item) => acc + item.amount, 0).toLocaleString()}</strong>
                         </div>
                     </div>
                     <button className={styles.btnDownload}><FaRegFilePdf /> Baixar Relatório Financeiro Bimestral</button>
                 </section>
 
-                {/* Gestão por ARTs */}
                 <section className={styles.section}>
                     <h2 className={styles.title}><FaCheckCircle /> Governança por Núcleos</h2>
 
-                    {nucleos.map(nucleo => (
-                        <div key={nucleo.nome} className={styles.nucleoGroup}>
-                            <h3 className={styles.nucleoName}>{nucleo.nome}</h3>
+                    {nuclei.map(nucleus => (
+                        <div key={nucleus.name} className={styles.nucleoGroup}>
+                            <h3 className={styles.nucleoName}>{nucleus.name}</h3>
 
                             <div className={styles.artList}>
-                                {nucleo.arts.map(art => (
+                                {nucleus.arts.map(art => (
                                     <div key={art.id} className={styles.artCard}>
-                                        {/* Cabeçalho da ART (O Arquivo Principal) */}
                                         <div className={styles.artHeader}>
                                             <div className={styles.artMainInfo}>
-                                                <h4>{art.id} - {art.titulo}</h4>
+                                                <h4>{art.id.slice(0, 8)} - {art.title}</h4>
                                                 <span className={styles.badge}>{art.status}</span>
                                             </div>
-                                            <a href={art.linkFile} className={styles.btnMainFile}>
-                                                <FaDownload /> Documento ART
-                                            </a>
+                                            {
+                                                !loadingDownload && ( 
+                                                    <button title="Download do Documento ART" onClick={() => downloadArtDoc(art.file_id, art.title)} className={styles.btnMainFile}>
+                                                        <FaDownload /> Documento ART
+                                                    </button>
+                                                )
+                                            }
                                         </div>
 
-                                        {/* Listagem de ARTTCs (As Metas) */}
                                         <div className={styles.arttcContainer}>
                                             {art.arttcs.map(arttc => (
                                                 <div key={arttc.id} className={styles.arttcBox}>
                                                     <div className={styles.arttcInfo}>
-                                                        <p><strong>Meta:</strong> {arttc.meta}</p>
-                                                        <p className={styles.resp}>Resp: {arttc.responsavel}</p>
+                                                        <p><strong>Meta:</strong> {arttc.title}</p>
+                                                        <p className={styles.resp}>Resp: {arttc.responsible}</p>
                                                     </div>
 
                                                     <div className={styles.arttcActions}>
-                                                        {/* Arquivo da Meta */}
-                                                        <a href={arttc.linkFile} title="Download da Meta">
-                                                            <FaDownload /> Arquivo ARTTC
-                                                        </a>
+                                                        {
+                                                            !loadingDownload && (
+                                                                <button title="Download Documento ARTTC" className={styles.btnMainFile} onClick={() => downloadArttcDoc(arttc.file_id, arttc.title)}>
+                                                                    <FaDownload /> Arquivo ARTTC
+                                                                </button>
+                                                            )
+                                                        }
 
-                                                        {/* Report Final (se existir) */}
-                                                        {arttc.report ? (
-                                                            <a href={arttc.report.link} className={styles.reportLink}>
-                                                                <FaRegFilePdf /> Report {arttc.report.dataEntrega && `(${arttc.report.dataEntrega})`}
-                                                            </a>
+                                                        {arttc.report && !loadingDownload ? (
+                                                            <button onClick={() => downloadArttcReport(arttc.file_id, arttc.title)} className={styles.reportLink}>
+                                                                <FaRegFilePdf /> Relatório de Execução
+                                                            </button>
                                                         ) : (
-                                                            <span className={styles.pendingReport}>Report Pendente</span>
+                                                            <span className={styles.pendingReport}>Relatório Pendente</span>
                                                         )}
                                                     </div>
                                                 </div>
@@ -98,7 +103,6 @@ const Transparency = () => {
                     ))}
                 </section>
 
-                {/* Inventário em Tempo Real */}
                 <section className={styles.section}>
                     <h2 className={styles.title}><FaTools /> Ativos e Manutenção</h2>
                     <div className={styles.tableResponsive}>
@@ -112,12 +116,12 @@ const Transparency = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {inventario.map(item => (
+                                {inventory.map(item => (
                                     <tr key={item.id}>
-                                        <td>{item.nome}</td>
-                                        <td>{item.comQuem}</td>
+                                        <td>{item.name}</td>
+                                        <td>{item.assigned_to}</td>
                                         <td><span className={styles.dot}></span> {item.status}</td>
-                                        <td>{item.ultimaManutencao}</td>
+                                        <td>{item.last_used_at ? new Date(item.last_used_at).toLocaleDateString() : 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -126,12 +130,22 @@ const Transparency = () => {
                 </section>
 
                 {/* Resultados PS */}
-                <section className={styles.section}>
-                    <h2 className={styles.title}><FaUserCheck /> Aprovados - Processo Seletivo 2024.2</h2>
-                    <div className={styles.approvedList}>
-                        <p>A lista oficial de candidatos selecionados para os núcleos de Engenharia, Gestão e Software está disponível para consulta pública.</p>
-                        <button className={styles.btnDownload}><FaDownload /> Lista de Aprovados (.PDF)</button>
-                    </div>
+                <section className={`${styles.section} ${styles.psResultsSection}`}>
+                    {
+                        ps_editions && ps_editions.map(edition => (
+                            <div className={styles.subsection}>
+                                <h2 className={styles.title}><FaUserCheck /> Aprovados - {edition.name}</h2>
+                                <div className={styles.approvedList}>
+                                    <p>A lista oficial de candidatos selecionados para os núcleos do Yawara MotoStudent está disponível para consulta pública.</p>
+                                    {
+                                        !loadingDownload && (
+                                            <button onClick={() => downloadPsResult(edition.name, edition.final_result_doc)} className={styles.btnDownload}><FaDownload /> Lista de Aprovados (.PDF)</button>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                        ))
+                    }
                 </section>
             </div>
         </div>

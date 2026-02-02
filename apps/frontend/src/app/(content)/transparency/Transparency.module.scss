@@ -11,6 +11,18 @@ $border: #eeeeee;
   padding-bottom: 5rem;
 }
 
+.loading{
+  width: 100vw;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  color: $red-yawara;
+  font-size: 1.3rem;
+}
+
 .hero {
   background-color: $black-pure;
   color: $white;
@@ -28,6 +40,7 @@ $border: #eeeeee;
 
 .section {
   margin-top: 4rem;
+  
   .title {
     display: flex;
     align-items: center;
@@ -35,6 +48,19 @@ $border: #eeeeee;
     font-size: 1.8rem;
     margin-bottom: 2rem;
     svg { color: $red-yawara; }
+  }
+
+}
+
+.psResultsSection{
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+  align-items: start;
+  
+  .subsection{
+    width: 100%;
   }
 }
 
@@ -121,11 +147,13 @@ $border: #eeeeee;
     
     .btnMainFile {
       background: $black-pure;
+      border: none;
       color: #fff;
       padding: 0.5rem 1rem;
       font-size: 0.8rem;
       display: flex;
       align-items: center;
+      cursor: pointer;
       gap: 0.5rem;
       text-decoration: none;
       &:hover { opacity: 0.8; }
@@ -150,13 +178,17 @@ $border: #eeeeee;
   .arttcActions {
     display: flex;
     gap: 1rem;
-    align-items: center;
+    align-items: end;
+    justify-content: center;
+    flex-direction: column;
 
-    a {
+    button {
+      border: none;
       font-size: 0.8rem;
       color: $black-pure;
       text-decoration: none;
       border: 1px solid #ddd;
+      cursor: pointer;
       padding: 0.4rem 0.8rem;
       display: flex;
       align-items: center;
@@ -167,6 +199,11 @@ $border: #eeeeee;
     .reportLink {
       color: $red-yawara;
       border-color: $red-yawara;
+
+      &:hover {
+        background: $red-yawara;
+        color: white;
+      }
     }
 
     .pendingReport {

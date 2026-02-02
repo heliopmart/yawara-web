@@ -646,8 +646,6 @@ export const useManageArttc = () => {
                 throw data.error
             }
 
-            console.log(data.data)
-
             setArttc(data.data.data)
         } catch (err) {
             console.error("Error fetching ART data:", err);
@@ -657,7 +655,7 @@ export const useManageArttc = () => {
     }
 
     const handleDownload = (download_id: string | undefined) => {
-        return handleDownloadFile(download_id, arttc?.title || 'relatorio_yawara');
+        return handleDownloadFile(download_id, `relatorio_${arttc?.title}` || 'relatorio_yawara');
     }
 
     const handleUploadReport = async () => {

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         return successResponse<ToolShowProps[]>(res, 200);
 
     } catch (error) {
-        console.error('admin/tool/route.GET error:', error);
+        console.error('tool/route.GET error:', error);
 
         const errorDetail = handle_error(error); 
         return errorResponse(

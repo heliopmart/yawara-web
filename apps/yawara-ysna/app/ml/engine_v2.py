@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 
 # ------- CONFIGS ----------
 from app.core.config import settings
+from app.core.deprecated import deprecated
 
 # ------- SCHEMAS ----------
 from app.schemas.candidate import CandidateInput
@@ -15,12 +16,14 @@ from app.schemas.historic import SubjectRecord
 # ------- SERVICES ----------
 from app.services.neural_resolver import get_resolver
 from app.services.ingestion import ingest_academic_record_from_pdf 
+from app.services.storage import storage_service
+from app.utils.academic_math import optimized_history_from_map
 
 logger = logging.getLogger("yawara.ml.engine_v2")
 
 # --- HIPERPARÂMETROS GLOBAIS (Devem dar match com o treino) ---
 MAX_SUBJECTS_PER_STUDENT = 100
-MAX_SUBJECTS = 100 # Alias
+MAX_SUBJECTS = 100
 HASHING_BINS = 5000
 EMBEDDING_DIM = 64
 
@@ -41,6 +44,7 @@ class EngineDataProcessor:
     @staticmethod
     def normalize_grade(grade: Optional[float]) -> float:
         """Normaliza nota 0-10 para 0.0-1.0."""
+
         if grade is None: return 0.0
         try:
             val = float(grade)
@@ -81,13 +85,15 @@ class EngineDataProcessor:
             - subject_meta: (1, 100, 2) floats (Nota, Carga Horária)
             - student_context: (1, 1) float (Semestre atual)
         """
+
+        optimized_map = optimized_history_from_map(historic)
         
         batch_names = np.full((1, MAX_SUBJECTS_PER_STUDENT), "", dtype=object)
         batch_meta = np.zeros((1, MAX_SUBJECTS_PER_STUDENT, 2), dtype=np.float32)
         batch_context = np.zeros((1, 1), dtype=np.float32)
 
         count = 0
-        for record in historic:
+        for record in optimized_map:
             if count >= MAX_SUBJECTS_PER_STUDENT: break
             
             # --- INTEGRAÇÃO COM NEURAL RESOLVER ---
@@ -142,13 +148,44 @@ class NucleusRecommendationEngine:
             self.model_path = settings.ML_ENGINE_2_PATH
             self.labels_path = settings.ML_ENGINE_2_LABELS_PATH
 
-    def _load_artifacts(self):
+    @deprecated
+    def _load_artifacts_v1(self):
         if not os.path.exists(self.model_path):
             logger.warning(f"[Engine 2] Modelo não encontrado em {self.model_path}. Modo de inferência desativado.")
             return
+        
+        try:
+            self.model = tf.keras.models.load_model(self.model_path, compile=False)
+            
+            if os.path.exists(self.labels_path):
+                with open(self.labels_path, "r") as f:
+                    self.labels = json.load(f)
+            
+            logger.info(f"🧠 Engine V2 Carregada. Núcleos: {len(self.labels)}")
+        except Exception as e:
+            logger.critical(f"🧠 Erro fatal carregando Engine V2: {e}")
+            self.model = None
+
+    def _load_artifacts(self):
+        """
+        Carrega modelo e labels, baixando do Cloudinary se não existirem localmente.
+        """
+        if not os.path.exists(self.model_path):
+            logger.info(f"[Engine 2] Modelo não encontrado em {self.model_path}. Tentando baixar...")
+            
+            remote_model_name = settings.ML_CLOUD_MODEL_NAME 
+            success = storage_service.download_file(remote_model_name, self.model_path)
+            
+            if not success:
+                logger.warning(f"[Engine 2] Falha ao baixar modelo. Modo de inferência desativado.")
+                return
+
+        if not os.path.exists(self.labels_path):
+            logger.info(f"[Engine 2] Labels não encontrados. Baixando...")
+            remote_labels_name = settings.ML_CLOUD_LABELS_NAME 
+            storage_service.download_file(remote_labels_name, self.labels_path)
 
         try:
-            # compile=False é mais rápido para inferência (não carrega otimizadores)
             self.model = tf.keras.models.load_model(self.model_path, compile=False)
             
             if os.path.exists(self.labels_path):
@@ -164,18 +201,20 @@ class NucleusRecommendationEngine:
         """
         Executa a inferência síncrona (Bloqueante - deve ser chamada via threadpool).
         """
+
         if not self.model:
             return {"error": "Modelo V2 não carregado (Cold Start ou Arquivo ausente).", "recommendations": []}
 
-        # 1. Preparação dos Dados (Usando o Processor ou Manualmente para garantir performance)
-        # Aqui fazemos manual para garantir alinhamento exato com o .keras input layer
+        optimized_map = optimized_history_from_map(historic)
+
+        # 1. Preparação dos Dados
         X_names = np.full((1, MAX_SUBJECTS), "", dtype=object)
         X_meta = np.zeros((1, MAX_SUBJECTS, 2), dtype=float)
         X_sem = np.zeros((1, 1), dtype=float)
         X_course = np.full((1, 1), "", dtype=object)
 
         # Preenchimento (Lógica similar ao Processor, mas otimizada para o loop local)
-        for i, rec in enumerate(historic):
+        for i, rec in enumerate(optimized_map):
             if i >= MAX_SUBJECTS: break
             name = rec.subject_canonical or rec.name_raw
             X_names[0, i] = name.upper() if name else ""

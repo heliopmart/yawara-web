@@ -6,7 +6,7 @@ const PYTHON_SERVICE_YSNA_URL = process.env.PYTHON_SERVICE_YSNA_URL
 
 export async function POST(req: NextRequest) {
     try {
-        if(!PYTHON_SERVICE_YSNA_URL){
+        if (!PYTHON_SERVICE_YSNA_URL) {
             throw 'YSNA-SERVER-NOT-FOUND';
         }
 
@@ -20,9 +20,16 @@ export async function POST(req: NextRequest) {
         const forwardData = new FormData();
         forwardData.append('file', file);
 
+        const headers: HeadersInit = {};
+        
+        if (process.env.YSNA_INTERNAL_TOKEN) {
+            headers["X-YSNA-INTERNAL-TOKEN"] = process.env.YSNA_INTERNAL_TOKEN;
+        }
+
         const pythonResponse = await fetch(`${PYTHON_SERVICE_YSNA_URL}/ysna/preview`, {
             method: 'POST',
             body: forwardData,
+            headers
         });
 
         if (!pythonResponse.ok) {
@@ -40,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('admin/tools/route.PATCH error:', error);
-        const errorDetail = handle_error(error); 
+        const errorDetail = handle_error(error);
         return errorResponse(
             errorDetail.message,
             errorDetail.code || 'INTERNAL_SERVER_ERROR',

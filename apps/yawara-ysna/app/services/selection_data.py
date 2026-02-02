@@ -1,8 +1,10 @@
 import logging
 import json
 from typing import List, Dict, Optional
-from app.utils.db import db_select
+from app.utils.db import db_select, db_rpc
+from app.utils.text import normalize_text_strict
 from app.schemas.engine_v1 import NucleusRequirementsInput
+from app.schemas.valence import AllocationCandidateInput
 from app.services.neural_resolver import get_resolver, DynamicNeuralResolver
 
 def _get_ai_resolver() -> Optional['DynamicNeuralResolver']:
@@ -51,7 +53,7 @@ class SelectionDataService:
         
         return edition["id"]
 
-    def get_nuclei_configuration(self, ps_edition_id: str) -> List[NucleusRequirementsInput]:
+    async def get_nuclei_configuration(self, ps_edition_id: str) -> List[NucleusRequirementsInput]:
         """
         Busca as regras do jogo: Quais núcleos existem e o que eles pedem.
         """
@@ -80,7 +82,7 @@ class SelectionDataService:
                     
                     if raw_name and _resolve:
                         # O resolve retorna um DICT, pegamos só a chave 'canonical'
-                        res = _resolve.resolve(raw_name)
+                        res =  await _resolve.resolve(normalize_text_strict(raw_name))
                         canonical_name = res.get("canonical")
                     else:
                         # Fallback do Fallback: Se não tem IA e não tem coluna, usa o cru mesmo
@@ -133,6 +135,20 @@ class SelectionDataService:
                 })
         
         return queue
+
+    def get_iron_gate_approved_candidate_data(self) -> List[AllocationCandidateInput]:
+        """
+        Return list of active candidates with their data.
+        """
+
+        row = db_rpc(
+            function_name="get_iron_gate_approved_candidates",
+            params={},
+        )
+
+        candidates = [AllocationCandidateInput(**item) for item in row]
+
+        return candidates
 
     def get_candidate_task_data(self, candidate_id: str) -> List[Dict]:
         """

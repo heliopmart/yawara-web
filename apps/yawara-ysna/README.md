@@ -141,4 +141,23 @@ cd yawara-ysna
 ```
 ---
 
+### 2. GIT hf Config
+
+git config --global alias.deploy-ysna "!f() { \
+    git branch -D hf-yawara-ysna; \
+    git branch -D hf-space-clean; \
+    git subtree split --prefix apps/yawara-ysna -b hf-yawara-ysna; \
+    git checkout --orphan hf-space-clean; \
+    git rm -rf .; \
+    git read-tree -m -u hf-yawara-ysna; \
+    git commit -m 'HF Space deploy (clean history)'; \
+    git push hf hf-space-clean:main --force; \
+    git checkout development; \
+    echo '🚀 Y-SNA em órbita!'; \
+    git branch -D hf-yawara-ysna; \
+    git branch -D hf-space-clean; \
+}; f"
+
+git deploy-ysna
+
 Desenvolvido por Hélio Peres Martins Neto Engenharia de Computação - UFGD | Engenharia de Software - Unigran

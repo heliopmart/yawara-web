@@ -1,150 +1,99 @@
+import tensorflow as tf
+from tensorflow.keras import layers, models, Model
 import numpy as np
-import os
-from typing import List, Tuple, Dict
 
-# CONFIG IMPORT -------------------------------------------
-from app.core.config import settings
+CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .-" 
+MAX_LEN = 40
 
-# ARCHITECTUREs IMPORT ------------------------------------
-from app.ml.architectures.canonical_subject_nn import CanonicalSubjectNN
-
-# TRAINING IMPORT -----------------------------------------
-from app.training.train_canonical_subject_ml import TRAINING_SEEDS
-
-# Definição do caminho da memória (Banco Vetorial em Arquivo)
-MEMORY_FILE_PATH = settings.NN_MODEL_MEMORY_FILE_PATH
-
-class CanonicalSubjectEngine:
-    """Motor de inferência vetorial e persistência para normalização de disciplinas.
-
-    Esta classe encapsula a complexidade de baixo nível da Rede Neural e do
-    armazenamento de vetores. Ela é responsável por carregar os pesos,
-    converter texto em embeddings, realizar a busca de vizinhos mais próximos (KNN)
-    e persistir o aprendizado incremental em disco.
-
-    Attributes:
-        nn (CanonicalSubjectNN): A instância do modelo neural carregada.
-        memory_bank (Dict[str, np.ndarray]): Cache em memória dos vetores conhecidos.
-            Formato: {"NOME_CANONICO": vetor_128d}
+class CanonicalSubjectNN:
     """
-
-    def __init__(self, weights_path: str):
-        """Inicializa o motor, carrega a rede neural e restaura a memória vetorial.
-
-        Args:
-            weights_path (str): Caminho absoluto ou relativo para o arquivo .h5 com os pesos.
+    1D Character-Level CNN Architecture (Siamese Compatible).
+    This class serves both for TRAINING (Siamese) and for INFERENCE (Encoder).
+    """
+    
+    def __init__(self, vocab=None, encoder_dim=64):
+        self.chars = CHARS
+        self.char_to_idx = {c: i+1 for i, c in enumerate(self.chars)}
+        self.vocab_size = len(self.chars) + 1 # +1 for padding (0)
+        self.encoder_dim = encoder_dim
         
-        Raises:
-            FileNotFoundError: Se o arquivo de pesos não existir.
-            Exception: Se houver erro no carregamento do TensorFlow.
+        self.model = self._build_architecture()
+        self.encoder = self._extract_encoder()
+
+    def _build_architecture(self):
         """
-        print(f"[YSNA-Engine] Inicializando Motor Vetorial...")
-        
-        # 1. Carrega a Rede Neural
-        self.nn = CanonicalSubjectNN(vocab="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", encoder_dim=128)
-        try:
-            self.nn.model.build((None, 64)) 
-            self.nn.model.load_weights(weights_path)
-            print("[YSNA-Engine] Pesos neurais carregados com sucesso.")
-        except Exception as e:
-            print(f"[FATAL] Erro ao carregar pesos em {weights_path}: {e}")
-            raise e
-
-        # 2. Inicializa o Banco de Memória
-        self.memory_bank: Dict[str, np.ndarray] = {}
-        self._load_or_seed_memory()
-
-    def vectorise(self, text: str) -> np.ndarray:
-        """Converte uma string crua em seu vetor de embedding (128d).
-
-        Args:
-            text (str): O texto de entrada (ex: "Calc 1").
-
-        Returns:
-            np.ndarray: O vetor denso normalizado representando o texto.
+        Builds the complete Siamese architecture for training.
+        Input: [InputA, InputB] -> Output: Score (0 to 1)
         """
-        # Normalização básica antes de entrar na rede
-        clean_text = text.strip().upper()
-        return self.nn.embed_single(clean_text)
-
-    def search_nearest(self, vector: np.ndarray, top_k: int = 5) -> List[Tuple[str, float]]:
-        """Realiza uma busca por similaridade de cosseno na memória vetorial.
-
-        Args:
-            vector (np.ndarray): O vetor de consulta (query vector).
-            top_k (int, optional): Quantidade de candidatos a retornar. Defaults to 5.
-
-        Returns:
-            List[Tuple[str, float]]: Lista de tuplas (Nome Canônico, Score de Similaridade).
-            Ordenada do maior score para o menor.
-        """
-        if not self.memory_bank:
-            return []
-            
-        # Otimização: Transforma o dict em matrizes numpy para cálculo vetorizado
-        keys = list(self.memory_bank.keys())
-        matrix = np.stack([self.memory_bank[k] for k in keys])
+        # --- THE ENCODER (Generate vector) ---
+        input_layer = layers.Input(shape=(MAX_LEN,), name="char_input", dtype="int32")
         
-        # Produto Escalar (Dot Product)
-        # Como os vetores já saem normalizados da rede (L2 Norm), 
-        # o produto escalar É a similaridade de cosseno.
-        scores = np.dot(vector, matrix.T)
+        # Embedding: Transforms character indices into small dense vectors
+        x = layers.Embedding(self.vocab_size, 32, mask_zero=True)(input_layer)
         
-        # Obtém os índices dos Top-K maiores scores
-        # np.argsort ordena crescente, então pegamos o final e invertemos [::-1]
-        k = min(top_k, len(keys))
-        top_indices = np.argsort(scores)[-k:][::-1]
+        # Convolutional Block (The "Scanner")
+        # Conv1: Detects letter triplets (e.g., "ENG", "CAL")
+        x = layers.Conv1D(64, 3, activation='relu', padding='same')(x)
+        x = layers.MaxPooling1D(2)(x)
         
-        results = []
-        for idx in top_indices:
-            results.append((keys[idx], float(scores[idx])))
-            
-        return results
+        # Conv2: Detects larger combined patterns
+        x = layers.Conv1D(128, 3, activation='relu', padding='same')(x)
+        x = layers.GlobalMaxPooling1D()(x) # Takes the strongest feature from the entire phrase
+        
+        # Final Projection (The identity vector)
+        embedding_output = layers.Dense(self.encoder_dim, activation=None)(x) # Linear projection
+        # L2 normalization is CRUCIAL for cosine/euclidean distance to work well
+        embedding_output = layers.Lambda(lambda t: tf.math.l2_normalize(t, axis=1), name="l2_norm")(embedding_output)
+        
+        # Create the isolated Encoder model (we'll use this for inference later)
+        self.encoder_model = Model(inputs=input_layer, outputs=embedding_output, name="encoder")
 
-    def memorize(self, canonical_name: str, vector: np.ndarray) -> None:
-        """Registra um novo conceito (ou reforça um existente) na memória persistente.
+        # --- THE SIAMESE ARCHITECTURE (For Training) ---
+        input_a = layers.Input(shape=(MAX_LEN,), name="input_a")
+        input_b = layers.Input(shape=(MAX_LEN,), name="input_b")
 
-        Este método é chamado quando o sistema aprende um novo sinônimo. Ele atualiza
-        o banco em memória e dispara a gravação no disco.
+        # Reuse the SAME encoder for both (shared weights)
+        vec_a = self.encoder_model(input_a)
+        vec_b = self.encoder_model(input_b)
 
-        Args:
-            canonical_name (str): O nome oficial da disciplina (Chave Primária).
-            vector (np.ndarray): O vetor representativo.
-        """
-        self.memory_bank[canonical_name] = vector
-        self._save_memory_to_disk()
+        # Distance Layer (L1: |a - b|)
+        L1_distance = layers.Lambda(lambda tensors: tf.abs(tensors[0] - tensors[1]))([vec_a, vec_b])
+        
+        # Classification: 1 = Same, 0 = Different
+        prediction = layers.Dense(1, activation='sigmoid')(L1_distance)
 
-    def _load_or_seed_memory(self):
-        """Carrega a memória do disco ou cria a semente inicial se vazio."""
-        if os.path.exists(MEMORY_FILE_PATH):
-            try:
-                data = np.load(MEMORY_FILE_PATH, allow_pickle=True)
-                keys = data['keys']
-                vectors = data['vectors']
-                self.memory_bank = {k: v for k, v in zip(keys, vectors)}
-                print(f"[YSNA-Engine] Memória restaurada: {len(self.memory_bank)} vetores.")
-            except Exception as e:
-                print(f"[YSNA-Engine] Erro ao ler memória ({e}). Reiniciando com Seeds.")
-                self._seed_memory()
-        else:
-            print("[YSNA-Engine] Memória vazia. Iniciando semente...")
-            self._seed_memory()
+        model = Model(inputs=[input_a, input_b], outputs=prediction, name="siamese_cnn")
+        return model
 
-    def _seed_memory(self):
-        """Popula a memória com os conceitos fundamentais do treinamento."""
-        initial_concepts = [item["canonical"] for item in TRAINING_SEEDS]
-        vectors = self.nn.embed_batch(initial_concepts)
-        for name, vec in zip(initial_concepts, vectors):
-            self.memory_bank[name] = vec
-        self._save_memory_to_disk()
+    def _extract_encoder(self):
+        """Returns only the part of the model that generates vectors."""
+        return self.encoder_model
 
-    def _save_memory_to_disk(self):
-        """Persiste o estado atual da memória no arquivo .npz."""
-        try:
-            keys = list(self.memory_bank.keys())
-            vectors = np.array(list(self.memory_bank.values()))
-            
-            os.makedirs(os.path.dirname(MEMORY_FILE_PATH), exist_ok=True)
-            np.savez_compressed(MEMORY_FILE_PATH, keys=keys, vectors=vectors)
-        except Exception as e:
-            print(f"[YSNA-Engine] ERRO CRÍTICO ao salvar memória: {e}")
+    def preprocess(self, texts):
+        """Transforms a list of strings into a matrix of character indices."""
+        if isinstance(texts, str): texts = [texts]
+        
+        matrix = np.zeros((len(texts), MAX_LEN), dtype="int32")
+        for i, txt in enumerate(texts):
+            txt = str(txt).upper().strip()
+            for t, char in enumerate(txt):
+                if t >= MAX_LEN: break
+                matrix[i, t] = self.char_to_idx.get(char, 0) 
+        return matrix
+
+    def embed_batch(self, texts):
+        """Generates vectors for a list of texts (Optimized for Low Latency)."""
+        X = self.preprocess(texts)
+
+        #  CRITICAL OPTIMIZATION 
+        # .predict() is slow for small batches due to graph construction overhead.
+        # Calling the model directly is much faster for real-time inference.
+        
+        # training=False for inference mode (disables dropout, etc.)
+        vectors_tensor = self.encoder_model(X, training=False)
+        
+        return vectors_tensor.numpy()
+
+    def embed_single(self, text):
+        """Helper for a single text."""
+        return self.embed_batch([text])[0]

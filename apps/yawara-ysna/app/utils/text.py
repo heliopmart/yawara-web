@@ -24,7 +24,8 @@ def normalize_text_strict(text: str) -> str:
 
     text = re.sub(r"\s+", " ", text).strip()
 
-    text = text.upper().replace(" ", "_")
+    # text = text.upper().replace(" ", "_")
+    text = text.upper()
 
     return text
 

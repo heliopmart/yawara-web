@@ -72,7 +72,7 @@ class NeuralMathematician:
             importance = float(note_importance[i])
             
             # Adiciona ao gráfico
-            chart_labels.append(name[:10])
+            chart_labels.append(name[:10].replace("_", " "))
             chart_values.append(grade_real)
             
             # Lógica de Diagnóstico Neural

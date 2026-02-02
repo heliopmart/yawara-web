@@ -47,7 +47,7 @@ class DeterministicMathematician:
         for item in sorted_breakdown:
             # Gráfico de Radar (Labels e Valores)
             # Normalizamos a nota (0-10) para o gráfico
-            chart_labels.append(item.subject[:15]) # Corta nomes gigantes
+            chart_labels.append(item.subject[:15].replace("_", " "))
             chart_values.append(item.candidate_grade)
 
             # Telemetria (Tabela Completa)

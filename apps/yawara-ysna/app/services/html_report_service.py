@@ -1,23 +1,23 @@
 import logging
 import io
+from typing import Any
 import base64
 import textwrap
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import threading # <--- NOVO: Thread Safety
+import threading 
 from jinja2 import Template
 from weasyprint import HTML, CSS
 
-from app.templates.report_xai import HTML_TEMPLATE, PDF_CSS
+from app.templates.report_xai import HTML_XAI_TEMPLATE, PDF_XAI_CSS
+from app.templates.report_valence import HTML_VALENCE_TEMPLATE, PDF_VALENCE_CSS
 from app.schemas.report import CandidateReportBundle
 
-# Backend headless para servidor
 matplotlib.use('Agg')
 
 logger = logging.getLogger("yawara.services.html_generator")
 
-# Lock global para operações do Matplotlib
 _plt_lock = threading.Lock()
 
 class HTMLReportService:
@@ -34,12 +34,12 @@ class HTMLReportService:
         não é totalmente thread-safe em ambientes concorrentes.
     """
     
-    def generate_html(self, bundle: CandidateReportBundle) -> str:
+    def generate_html(self, bundle: Any) -> str:
         """Gera HTML interativo (Web View)."""
-        template = Template(HTML_TEMPLATE)
+        template = Template(HTML_XAI_TEMPLATE)
         return template.render(bundle=bundle, pdf_mode=False)
 
-    def generate_pdf_bytes(self, bundle: CandidateReportBundle) -> bytes:
+    def generate_xai_pdf_bytes(self, bundle: CandidateReportBundle) -> bytes:
         """
         Gera o binário do PDF final.
         """
@@ -52,12 +52,26 @@ class HTMLReportService:
             )
 
         # 2. Renderizar HTML em modo PDF
-        template = Template(HTML_TEMPLATE)
+        template = Template(HTML_XAI_TEMPLATE)
         html_content = template.render(bundle=bundle, pdf_mode=True)
 
         # 3. Converter para PDF (WeasyPrint)
         try:
-            pdf_file = HTML(string=html_content).write_pdf(stylesheets=[CSS(string=PDF_CSS)])
+            pdf_file = HTML(string=html_content).write_pdf(stylesheets=[CSS(string=PDF_XAI_CSS)])
+            return pdf_file
+        except Exception as e:
+            logger.error(f"Erro WeasyPrint: {e}")
+            raise e
+
+    def generate_valence_pdf_bytes(self, bundle: Any) -> bytes:
+        """
+        Gera o binário do PDF final para Relatório Valence.
+        """
+        template = Template(HTML_VALENCE_TEMPLATE)
+        html_content = template.render(bundle=bundle, pdf_mode=True)
+
+        try:
+            pdf_file = HTML(string=html_content).write_pdf(stylesheets=[CSS(string=PDF_VALENCE_CSS)])
             return pdf_file
         except Exception as e:
             logger.error(f"Erro WeasyPrint: {e}")

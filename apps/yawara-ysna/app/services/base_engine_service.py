@@ -52,7 +52,7 @@ class BaseEngineService:
         
         logger.info(f"--- INICIANDO SINGLE RUN ({self.__class__.__name__}) para {candidate_id} ---")
 
-        context = self.load_context(ps_edition_id)
+        context = await self.load_context(ps_edition_id)
         if context is None:
              raise ValueError("Contexto de avaliação não carregado.")
 
@@ -166,7 +166,7 @@ class BaseEngineService:
             bundle = CandidateReportBundle(**report_data)
 
             pdf_bytes = await run_in_threadpool(
-                html_report_service.generate_pdf_bytes,
+                html_report_service.generate_xai_pdf_bytes,
                 bundle
             )
 
@@ -203,7 +203,7 @@ class BaseEngineService:
             logger.error(f"Erro ao fazer upload do PDF para {candidate_id}: {e}")
             return False
 
-    def load_context(self, ps_edition_id: str) -> Any:
+    async def load_context(self, ps_edition_id: str) -> Any:
         """Pode ser sobrescrito para carregar regras ou pesos."""
         return {}
 
@@ -237,7 +237,7 @@ class BaseEngineService:
             if not pdf_bytes:
                 return False
 
-            record = ingest_academic_record_from_pdf(pdf_bytes, user_id, edition_id) 
+            record = await ingest_academic_record_from_pdf(pdf_bytes, user_id, edition_id) 
             if not record:
                 return False
 

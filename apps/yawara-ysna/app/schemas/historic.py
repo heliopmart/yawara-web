@@ -31,4 +31,4 @@ class AcademicRecord(BaseModel):
     source: str                 # ex: "UFGD_HISTORICO_OFICIAL"
     subjects: List[SubjectRecord]
 
-academic_exclude_status = {"MA", "MT", "TR"}
+academic_exclude_status = {"MA", "MT", "TR", "RP", "TR", "RF", "R"}

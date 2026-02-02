@@ -76,8 +76,6 @@ export class EmailService {
             { expiresIn: `${parseInt(CHALLENGE_EXPIRATION_DAYS)}d` }
         );
 
-        console.log(token)
-
         const downloadUrl = `${CHALLENGE_DOWNLOAD_URL}?t=${token}`;
         return challengesEmailTemplate(name, downloadUrl);
     }

@@ -1,5 +1,6 @@
-import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UploadFileResponse, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, checkAndProcessClosingResponse, BatchNotesItem} from '@yawara/types'
+import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UploadFileResponse, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, sendChalengesEmailParams, BatchNotesItem } from '@yawara/types'
 import { PsRepository } from '@/lib/repository/ps/ps.repository'
+import { QStashService } from '@/lib/services/qstash/qstash.service'
 import { CloudinaryService } from '@/lib/services/cloudinary/cloudinary.service'
 import { EmailService } from '@/lib/services/email/email.service'
 
@@ -148,64 +149,42 @@ export class PsService {
     }
 
     async updatePsUserScore(data: BatchNotesItem[]): Promise<boolean> {
-        try{
+        try {
             const response = await this.psRepository.updateBatchScores(data);
             return response;
-        }catch(error){
+        } catch (error) {
             console.error('PsService.updatePsUserScore error:', error);
             throw error;
         }
     }
 
-    async checkAndProcessClosing(): Promise<checkAndProcessClosingResponse> {
-        const activeEdition = await this.psRepository.getPsEditions();
-
-        let edition: PsEditionAvailable | null = null;
-        if (Array.isArray(activeEdition)) {
-            if (activeEdition.length === 0) return 'NO_ACTIVE_EDITION';
-            edition = activeEdition[0];
-        } else {
-            edition = activeEdition;
-        }
-
-        if (!edition) return 'NO_ACTIVE_EDITION';
-
-        if (!edition.registration_closing) {
-            return 'ALREADY_PROCESSED';
-        }
-        const now = new Date();
-        const closingDate = new Date(edition.registration_closing);
-
-        if (now > closingDate) {
-            console.info(`[INFO]: Processando fechamento da edição: ${edition.id}`);
-
+    async checkAndProcessClosing(): Promise<boolean> {
+        try {
             const difficulty = CHALLENGE_DIFFICULTY_LEVEL || 'EASY';
-
-            const survivors = await this.psRepository.processRegistrationClosing(
-                edition.id,
+            const res = await this.psRepository.PsRegistrationClose(
                 difficulty
             );
 
-            if (survivors.length > 0) {
-                const emailService = new EmailService();
-
-                await Promise.allSettled(survivors.map(survivor =>
-                    emailService.sendChallengesEmail({
-                        to: survivor.user_email,
-                        name: survivor.user_name,
-                        challenge_id: survivor.challenge_id,
-                        edition_id: edition.id,
-                        user_id: survivor.user_id
-                    })
-                ));
-
-                console.info(`[INFO]: Emails enviados para ${survivors.length} candidatos.`);
+            if(!res){
+                throw 'PS_REGISTRATION_CLOSING_FAILED';
             }
 
-            return 'PROCESS_COMPLETED';
-        }
+            await this.sendChallengesEmail()
 
-        return 'NOT_YET_TIME';
+            return res
+        } catch (error) {
+            console.error('PsService.checkAndProcessClosing error:', error);
+            throw error;
+        }
+    }
+
+    async finishEdition(): Promise<boolean> {
+        try {
+            return await this.psRepository.psFinishEdition();
+        } catch (error) {
+            console.error('PsService.finishEdition error:', error);
+            throw error;
+        }
     }
 
     /*
@@ -254,11 +233,6 @@ export class PsService {
                         flexibility: 0,
                         self_criticism: 0
                     }
-                },
-                {
-                    card_id: 5,
-                    state: 'NOT_AVAILABLE',
-                    notes: {}
                 }
             ];
 
@@ -273,7 +247,14 @@ export class PsService {
     async createPsEdition(data: createPsEdition): Promise<boolean> {
         try {
             const response = await this.psRepository.createPsEdition(data);
-            return response;
+
+            if (!response) {
+                throw 'PS_EDITION_CREATION_FAILED';
+            }
+
+            await this.scheduleEditionLifecycle(response, data);
+
+            return response ? true : false;
         } catch (error) {
             console.error('PsService.createPsEdition error:', error);
             throw error;
@@ -305,5 +286,102 @@ export class PsService {
             console.error('PsService.uploadFile error:', error);
             throw error;
         }
+    }
+
+    /*
+       =========================================================
+       ======================== PS MAIL  =======================
+       =========================================================
+    */
+
+    async sendChallengesEmail(): Promise<void> {
+        try {
+            const difficulty = CHALLENGE_DIFFICULTY_LEVEL || 'EASY';
+            const candidates = await this.psRepository.setChanllengesForCandidates(difficulty);
+
+            const emailService = new EmailService();
+
+            const params : sendChalengesEmailParams[] = candidates.map(candidate => ({
+                challenge_id: candidate.challenge_id,
+                edition_id: candidate.edition_id,
+                name: candidate.user_name,
+                to: candidate.user_email,
+                user_id: candidate.user_id
+            }));
+
+            const BATCH_SIZE = 20; 
+            
+            for (let i = 0; i < params.length; i += BATCH_SIZE) {
+                const chunk = params.slice(i, i + BATCH_SIZE);
+                
+                const results = await Promise.allSettled(
+                    chunk.map(paramsItem => emailService.sendChallengesEmail(paramsItem))
+                );
+
+                results.forEach((result, index) => {
+                    if (result.status === 'rejected') {
+                        const failedEmail = chunk[index].to;
+                        console.error(`[EMAIL ERROR] Falha ao enviar para ${failedEmail}:`, result.reason);
+                    }
+                });
+
+                console.info(`[EMAIL] Lote ${Math.ceil((i + 1) / BATCH_SIZE)} processado.`);
+            }
+        }
+        catch (error) {
+            console.error('PsService.sendChallengesEmail error:', error);
+            throw error;
+        }
+    }
+
+    /*
+        =========================================================
+        ====================== PS Schedule  =====================
+        =========================================================
+    */
+
+    private async scheduleEditionLifecycle(editionId: string, data: createPsEdition) {
+        const qstash = new QStashService();
+
+        const CRON_DISPATCHER_URL = `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/cron/ps/dispatcher`;
+
+        if (data.registration_closing) {
+            await qstash.scheduleEvent(
+                CRON_DISPATCHER_URL,
+                this.toCampoGrandeDate(data.registration_closing, "00:00"),
+                {
+                    target: 'EDITION',
+                    action: 'CLOSE_REGISTRATION',
+                    edition_id: editionId
+                }
+            );
+        }
+
+        if (data.finish_date) {
+            await qstash.scheduleEvent(
+                CRON_DISPATCHER_URL,
+                this.toCampoGrandeDate(data.finish_date, "00:00"),
+                {
+                    target: 'EDITION',
+                    action: 'FINISH_PROCESS',
+                    edition_id: editionId
+                }
+            );
+        }
+    }
+
+    /**
+    * Helper to force the time zone of Campo Grande (UTC-4 / AMT).
+    * @param dateStr Date string (e.g., '2026-02-23')
+    * @param timeStr Time string (e.g., '07:30' or '07:30:00')
+    */
+    private toCampoGrandeDate(dateStr: string, timeStr: string): Date {
+        const timeParts = timeStr.split(':');
+        const hour = timeParts[0].padStart(2, '0');
+        const minute = timeParts[1] ? timeParts[1].padStart(2, '0') : '00';
+        const second = timeParts[2] ? timeParts[2].padStart(2, '0') : '00';
+        const isoString = `${dateStr}T${hour}:${minute}:${second}-04:00`;
+
+        return new Date(isoString);
     }
 }

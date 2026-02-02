@@ -276,27 +276,50 @@ export class PsRepository {
         }
     }
 
-    async processRegistrationClosing(edition_id: string, difficulty: string): Promise<processRegistrationClosingResponse[]> {
+
+    async PsRegistrationClose(difficulty: string): Promise<boolean> {
         try {
-            const res = await callRpc<processRegistrationClosingResponse[]>({
+            const res = await callRpc({
                 functionName: "process_registration_closing",
                 params: {
-                    p_edition_id: edition_id, 
                     p_difficulty: difficulty
                 },
                 bd: this.bd
             });
+            return res.status;
+        }catch (err){
+            throw err;
+        }
+    }
 
-            if (!res.status) {
-                console.error('Falha ao processar fechamento na RPC');
-                return [];
+    async psFinishEdition(): Promise<boolean> {
+        try {
+            const res = await callRpc({
+                functionName: "finish_ps_edition",
+                params: {},
+                bd: this.bd
+            });
+            return res.status;
+        } catch (err){
+            throw err;
+        }
+    }
+
+    async setChanllengesForCandidates(difficulty : string) : Promise<processRegistrationClosingResponse []> {
+        try {
+            const res = await callRpc<processRegistrationClosingResponse []>({
+                functionName: "allocate_challenges_to_eligible",
+                params: {p_difficulty: difficulty},
+                bd: this.bd
+            })
+
+            if(!res.status ){
+                throw 'PS_CHALLENGE_ALLOCATION_FAILED';
             }
-            
-            return res.data || [];
 
-        } catch (error) {
-            console.error('PsRepository.processRegistrationClosing error:', error);
-            throw error;
+            return res.data as processRegistrationClosingResponse [];
+        }catch (err){
+            throw err;
         }
     }
 
@@ -328,7 +351,7 @@ export class PsRepository {
         }
     }
 
-    async createPsEdition(data: createPsEdition): Promise<boolean> {
+    async createPsEdition(data: createPsEdition): Promise<string> {
 
         try {
             const res = await callRpc({
@@ -346,7 +369,7 @@ export class PsRepository {
             if (!res.status) {
                 throw 'PS_EDITION_CREATION_FAILED';
             }
-            return res.status;
+            return res.data as string;
         } catch (error) {
             console.error('PsRepository.createPsEdition error:', error);
             throw error;

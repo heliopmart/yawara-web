@@ -152,6 +152,7 @@ export interface processRegistrationClosingResponse {
     user_email: string;
     user_name: string;
     challenge_id: string;
+    edition_id: string;
 }
 
 export interface PsEditionAvailable {

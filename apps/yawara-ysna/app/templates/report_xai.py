@@ -1,4 +1,4 @@
-PDF_CSS = """
+PDF_XAI_CSS = """
 @page { size: A4; margin: 0; }
 body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; box-sizing: border-box; background-color: #fff; color: #0F172A; }
 
@@ -61,7 +61,7 @@ td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle
 footer { font-size: 0.7rem; color: #94A3B8; width: 100%; text-align: center; padding: 20px; position: absolute; bottom: 0; }
 """
 
-HTML_TEMPLATE = """
+HTML_XAI_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

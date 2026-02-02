@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -816,47 +816,146 @@
 
 
 <h1 id="arquitetura-do-sistema">Arquitetura do Sistema</h1>
-<pre class="mermaid"><code>flowchart TD
-    %% Nós de Entrada e Saída
-    Input([User Input: 'Calc 1']) --&gt; PreProcess[Normalização de Texto]
-    PreProcess --&gt; Encoder[[Encoder Neural \n CanonicalSubjectNN]]
+<pre class="mermaid"><code>flowchart TB
 
-    %% O Coração Neural
-    subgraph Neural_Engine [Motor Neural]
-        direction TB
-        Encoder -- Vetor (128d) --&gt; VectorSearch[(Busca Vetorial \n KNN em Memória)]
-        VectorSearch --&gt; Candidates{Top-K Candidatos}
-        Candidates --&gt; CheckThreshold{Score &gt; 0.75?}
-    end
+%% =========================
+%% 1) ENTRADA / EDGE LAYER
+%% =========================
+subgraph L0["L0 • Entrada (Edge)"]
+  direction TB
+  U(("👤 USER"))
+  BE["🖥️ BACKEND"]
+  YSNA["🧠 YSNA SERVICE"]
+  U -.-&gt; BE
+  BE -.-&gt; YSNA
+end
 
-    %% Caminho Rápido (Memória)
-    CheckThreshold -- Sim --&gt; FastPath[Retorna Canonical]
-    FastPath --&gt; Output([JSON Final])
+%% =========================
+%% 2) MIDDLEWARE + ROTAS
+%% =========================
+subgraph L1["L1 • Middleware + Rotas"]
+  direction TB
+  MW{{"🛡️ MIDDLEWARE"}}
+  APIv["/API/V*"]
+  DOCS["/DOCS/YSNA"]
 
-    %% Caminho Lento (LLM / Fallback)
-    CheckThreshold -- Não (Ambiguidade) --&gt; LLM_Flow
+  YSNA --&gt; MW
+  MW --&gt; APIv &amp; DOCS
 
-    subgraph LLM_Flow [Resolução Generativa &amp; Aprendizado]
-        direction TB
-        Prompt[Montar Prompt com Contexto]
-        Prompt --&gt; CallGemini(Chamar Gemini Flash)
-        CallGemini --&gt; ParseJSON[Parse &amp; Validação]
+  APIv --&gt; F403(["⛔ 403 FORBIDDEN"]):::bad
+  APIv --&gt; OK200(["✅ 200 OK"]):::ok
+  DOCS --&gt; DOCS200(["✅ 200 OK"]):::ok
+end
 
-        ParseJSON --&gt; Decision{É Novo Conceito?}
-        Decision -- Não (Sinônimo) --&gt; UpdateMem[⚡ AUTO-APRENDIZADO \n Gravar Vetor na Memória]
-        Decision -- Sim (Novo) --&gt; LogNew[Registrar Nova Entidade]
+%% =========================
+%% 3) ENDPOINT PRINCIPAL
+%% =========================
+subgraph L2["L2 • Endpoint Avaliação"]
+  direction TB
+  EVAL["POST /evaluate/{id}"]:::endpoint
+  OK200 --&gt; EVAL
+end
 
-        UpdateMem --&gt; Persist[(Salvar em Disco \n vector_memory.npz)]
-    end
+%% =========================
+%% 4) PIPELINE PRINCIPAL
+%% =========================
+subgraph L3["L3 • Pipeline Orchestrator"]
+  direction TB
+  PIPE[["⚙️ PIPELINE.PY"]]:::core
+  PROC["process_candidate()"]
+  CNT[("get_count_completed_ps()")]
 
-    UpdateMem --&gt; Output
-    LogNew --&gt; Output
+  EVAL --&gt; PIPE --&gt; PROC
+  PROC &lt;--&gt; CNT
 
-    %% Estilização
-    style Input fill:#f9f,stroke:#333,stroke-width:2px
-    style Output fill:#f9f,stroke:#333,stroke-width:2px
-    style UpdateMem fill:#bbf,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
-    style Encoder fill:#ff9,stroke:#333</code></pre>
+  GATE{"PS maior que 4 ?"}
+  PROC -.-&gt; GATE
+end
+
+%% =========================
+%% 5) BRANCH ENGINES
+%% =========================
+subgraph L4["L4 • Engines Strategy"]
+  direction TB
+
+  %% Caminhos
+  GATE --&gt;|"Sim (Neural)"| V2
+  GATE --&gt;|"Não (Heurística)"| V1
+
+  subgraph V1_BOX ["🟣 Engine V1 (Cold Start)"]
+    direction TB
+    V1{{ENGINE V1}}:::heuristic
+    V1_CTX["load_context_files()"]
+    V1_PROC["_process_single_candidate()"]
+    V1 --&gt; V1_CTX --&gt; V1_PROC
+  end
+
+  subgraph V2_BOX ["🟢 Engine V2 (Deep Learning)"]
+    direction TB
+    V2{{ENGINE V2}}:::neural
+    V2_CTX["load_context_files()"]
+    V2_PROC["_process_single_candidate()"]
+    V2 --&gt; V2_CTX --&gt; V2_PROC
+  end
+end
+
+%% =========================
+%% 6) INGESTÃO + CANONICAL
+%% =========================
+subgraph L5["L5 • Shared Ingestion Layer"]
+  direction TB
+  ING["ingest_academic_record_from_pdf()"]
+  GETB["get_file_bytes()"]
+  CAN{{YSNA CANONICAL}}:::core
+
+  V1_PROC &amp; V2_PROC &lt;--&gt; GETB
+  V1_PROC &amp; V2_PROC &lt;--&gt; ING
+  ING &lt;--&gt; CAN
+end
+
+%% =========================
+%% 7) AVALIAÇÃO + RETORNO
+%% =========================
+subgraph L6["L6 • Avaliação &amp; Resposta"]
+  direction TB
+  EVALC["evaluate_candidate()"]
+
+  RET_V1["JSON Response&lt;br/&gt;(Success + XAI)"]:::ok
+  RET_V2["JSON Response&lt;br/&gt;(Success + XAI + Predictions)"]:::ok
+
+  ERR_V1["⚠️ EXCEPTION"]:::bad
+  ERR_V2["⚠️ EXCEPTION"]:::bad
+
+  V1_PROC -.-&gt; EVALC 
+  V2_PROC -.-&gt; EVALC
+
+  %% Conexões de Retorno Lógico (Simplificadas visualmente)
+  V1_BOX --&gt; RET_V1
+  V1_BOX --&gt; ERR_V1
+
+  V2_BOX --&gt; RET_V2
+  V2_BOX --&gt; ERR_V2
+end
+
+%% =========================
+%% 8) FALLBACK (O Pulo do Gato)
+%% =========================
+ERR_V2 -.-&gt;|"Fallback de Erro"| V1
+
+%% =========================
+%% ESTILOS
+%% =========================
+classDef ok fill:#C8E6C9,stroke:#2E7D32,color:#000,stroke-width:2px;
+classDef bad fill:#FFCDD2,stroke:#C62828,color:#000,stroke-width:2px;
+classDef core fill:#BBDEFB,stroke:#1565C0,color:#000,stroke-width:2px;
+classDef endpoint fill:#E1BEE7,stroke:#6A1B9A,color:#000;
+classDef neural fill:#C8E6C9,stroke:#000,stroke-width:2px;
+classDef heuristic fill:#E1BEE7,stroke:#000,stroke-width:2px;
+
+style L0 fill:#fff,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5
+style L1 fill:#f9f9f9,stroke:#333
+style L3 fill:#f0f4c3,stroke:#827717
+style L5 fill:#e0f7fa,stroke:#006064</code></pre>
 
 
 
@@ -906,10 +1005,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

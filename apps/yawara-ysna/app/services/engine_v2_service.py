@@ -81,7 +81,7 @@ class EngineV2Service(BaseEngineService):
         else:
             logger.critical("❌ Falha crítica ao baixar artefatos V2. A inferência falhará.")
 
-    def load_context(self, ps_edition_id: str) -> Dict[str, str]:
+    async def load_context(self, ps_edition_id: str) -> Dict[str, str]:
         """
         A V2 não carrega regras do banco (os 'pesos' estão no arquivo .keras).
         Retorna metadados de versão.
@@ -122,7 +122,7 @@ class EngineV2Service(BaseEngineService):
             recommended = result.get("recommended_nuclei", [])
 
             # 2. Persistência (Não bloqueante)
-            if(self.is_example is False):
+            if(not self.is_example):
                 await run_in_threadpool(
                     save_classification_result,
                     user_id, 

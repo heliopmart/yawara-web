@@ -16,7 +16,6 @@ const SnaPredictor = () => {
 
     return (
         <div className={styles.pageWrapper}>
-            {/* SESSÃO 1: HEADER E CHAMADA PRINCIPAL */}
             <header className={styles.header}>
                 <div className={styles.container}>
                     <span className={styles.overline}>YAWARA SYSTEM NEURAL ARCHITECTURE</span>
@@ -28,7 +27,6 @@ const SnaPredictor = () => {
                 </div>
             </header>
 
-            {/* SESSÃO 2: O QUE É E PARA QUE SERVE */}
             <section className={styles.whiteSection}>
                 <div className={styles.container}>
                     <div className={styles.featureGrid}>
@@ -55,7 +53,6 @@ const SnaPredictor = () => {
                 </div>
             </section>
 
-            {/* SESSÃO 3: FLUXO DE TRABALHO (PIPELINE) */}
             <section className={styles.graySection}>
                 <div className={styles.container}>
                     <h2 className={styles.centeredHeading}>O Fluxo de Processamento Neural</h2>
@@ -77,7 +74,6 @@ const SnaPredictor = () => {
                 </div>
             </section>
 
-            {/* SESSÃO 4: ENGINE 1 VS ENGINE 2 */}
             <section className={styles.whiteSection}>
                 <div className={styles.container}>
                     <h2 className={styles.centeredHeading}>A Evolução da Inteligência</h2>
@@ -112,7 +108,6 @@ const SnaPredictor = () => {
                             </div>
                         </div>
 
-                        {/* Tabela Comparativa (Mantida conforme sua preferência) */}
                         <div className={styles.tableScroll}>
                             <table className={styles.comparisonTable}>
                                 <thead>
@@ -150,7 +145,6 @@ const SnaPredictor = () => {
                 </div>
             </section>
 
-            {/* SESSÃO 5: TESTE A Y-SNA */}
             <section className={styles.testSection}>
                 <div className={styles.container}>
                     <div className={styles.testCard}>
@@ -185,7 +179,6 @@ const SnaPredictor = () => {
                 </div>
             </section>
 
-            {/* SESSÃO 6: RECURSOS ADICIONAIS */}
             <section className={styles.graySection}>
                 <div className={styles.container}>
                     <div className={styles.resourcesHeader}>
@@ -196,7 +189,6 @@ const SnaPredictor = () => {
                     </div>
 
                     <div className={styles.linkGrid}>
-                        {/* Card: Whitepaper PDF */}
                         <Link href="/docs/Yawara_SNA_Technical_Architecture_v3.pdf" target="_blank" className={styles.resourceCard}>
                             <div className={styles.cardContent}>
                                 <div className={styles.iconBox}>

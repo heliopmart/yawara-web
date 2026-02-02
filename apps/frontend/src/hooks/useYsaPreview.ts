@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export const useYsaPreview = () => {
@@ -9,23 +9,13 @@ export const useYsaPreview = () => {
 
     const handleStartAnalysis = () => {
         setIsAnalyzing(true);
-        let p = 0;
-
+        setProgress(0);
         handleUploadFile();
-
-        const interval = setInterval(() => {
-            p += Math.random() * 15;
-            if (p >= 100) {
-                p = 100;
-                clearInterval(interval);
-                setTimeout(() => setIsAnalyzing(false), 500);
-            }
-            setProgress(Math.floor(p));
-        }, 300);
     };
 
     const handleUploadFile = async () => {
         if (!file) return;
+
         const formData = new FormData();
         formData.append('file', file);
 
@@ -33,32 +23,56 @@ export const useYsaPreview = () => {
             const res = await fetch('/api/ysna/preview', {
                 method: 'POST',
                 body: formData
-            })
+            });
 
-            if (!res.ok) {
-                throw 'INTERNAL_SERVER_ERROR';
+            if (!res.ok) throw 'INTERNAL_SERVER_ERROR';
+
+            const contentLength = res.headers.get('Content-Length');
+            
+            const total = contentLength ? parseInt(contentLength, 10) : 0;
+            
+            if(!res.body){
+                throw 'NO_RESPONSE_BODY';
             }
 
-            setProgress(75);
+            const reader = res.body.getReader();
+            const chunks = [];
+            let receivedLength = 0; 
 
-            const blob = await res.blob();
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break; 
+                }
+
+                chunks.push(value);
+                receivedLength += value.length;
+
+                if (total > 0) {
+                    const percent = Math.round((receivedLength / total) * 100);
+                    setProgress(percent);
+                    console.log(`Baixado: ${percent}% (${receivedLength} de ${total})`);
+                }
+            }
+
+            const blob = new Blob(chunks, { type: 'application/pdf' });
+            
             const url = window.URL.createObjectURL(blob);
-
             const a = document.createElement('a');
             a.href = url;
             a.download = `Y-SNA_Report_PREVIEW_${new Date().getTime()}.pdf`;
             document.body.appendChild(a);
             a.click();
-
+            
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            setProgress(100);
         } catch (error) {
-            console.error('Error uploading file:', error);
+            console.error('Error uploading/downloading:', error);
         } finally {
             setIsAnalyzing(false);
-            setProgress(0);
+            setTimeout(() => setProgress(0), 1000); 
         }
     }
 

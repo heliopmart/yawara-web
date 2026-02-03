@@ -59,6 +59,10 @@ $yawara-glow: rgba(230, 0, 0, 0.4);
     padding: 2rem;
     margin-top: 3rem;
     position: relative;
+
+    a{
+        cursor: pointer;
+    }
     
     &::before {
         content: "";

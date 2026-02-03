@@ -52,8 +52,6 @@ export async function getRows<T = any>({
     if (single) {
         const { data, error } = await q.single();
 
-        console.log(error)
-
         if(error?.code === 'PGRST116'){
             return null as any
         }

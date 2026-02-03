@@ -67,7 +67,10 @@ export const ProcessTimeline = () => {
         nuclei_2,
         handleChosenNuclei,
         updateChosenNuclei,
-        error
+        error,
+
+        handleDownloadFinishPsDocument,
+        handleDownloadYsnaDocument
     } = usePs();
 
     if (error && !register_PS) return <div className={styles.error}>{error.message}</div>;
@@ -93,7 +96,7 @@ export const ProcessTimeline = () => {
             <section className={styles.stepsSection}>
                 {data.steps.map((step, idx) => (
                     <TimelineStep key={step.id} step={step} index={idx} />
-                ))}
+                ))} 
             </section>
 
             {/* 2. Seleção de Núcleos (Dinâmico) */}
@@ -124,8 +127,13 @@ export const ProcessTimeline = () => {
                 <section className={`${styles.interactionCard} ${styles.resultCard}`}>
                     <h4>VEREDITO FINAL</h4>
                     <p>{data.finalResult.message}</p>
-                    <a href={data.finalResult.evaluationPdfLink} className={styles.downloadLink}>
-                        BAIXAR RELATÓRIO DE DESEMPENHO (PDF)
+                    <a onClick={() => handleDownloadFinishPsDocument(data.finalResult?.evaluationPdfLink.split(";")[1])} className={styles.downloadLink}>
+                        BAIXAR RELATÓRIO DE FINAL (PDF)
+                    </a>
+                    <br/>
+                    <br/>
+                    <a onClick={() => handleDownloadYsnaDocument(data?.candidate_id)} className={styles.downloadLink}>
+                        BAIXAR RELATÓRIO TÉCNICO YSNA (PDF)
                     </a>
                 </section>
             )}

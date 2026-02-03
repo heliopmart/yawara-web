@@ -587,8 +587,7 @@ export const useManageArt = () => {
             setLoading(false)
         }
     }
-
-    // TODO Testar funcionalidade
+    
     const handleDownload = (public_id: string, title: string, type: 'ART' | 'ARTTC') => {
         return handleDownloadFile(public_id, title)
     };

@@ -139,7 +139,7 @@ const Transparency = () => {
                                     <p>A lista oficial de candidatos selecionados para os núcleos do Yawara MotoStudent está disponível para consulta pública.</p>
                                     {
                                         !loadingDownload && (
-                                            <button onClick={() => downloadPsResult(edition.name, edition.final_result_doc)} className={styles.btnDownload}><FaDownload /> Lista de Aprovados (.PDF)</button>
+                                            <button onClick={() => downloadPsResult(edition.id)} className={styles.btnDownload}><FaDownload /> Lista de Aprovados (.PDF)</button>
                                         )
                                     }
                                 </div>

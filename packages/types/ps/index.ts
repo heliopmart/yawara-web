@@ -1,4 +1,5 @@
 import { Users } from '../user';
+import {Nuclei, Nuclei_config} from '../nuclei'
 
 // --------------------------------------------
 // -------------- PS INTERFACES ---------------
@@ -63,7 +64,6 @@ export interface ps_card_configs {
     created_at: string;
 }
 
-
 export interface ps_user_cards {
     id: string;
     user_id: Users['id'];
@@ -94,6 +94,18 @@ export interface Challenges {
     rules: string[] ;
     stack: string[]
     created_at: string;
+}
+
+type CandidateBase = Pick<ps_user_cards, 'id' | 'user_id' | 'cards_progress' | 'nuclei_chosen'>;
+
+export interface SelectionProcessEngineData {
+    edition: Pick<ps_editions, 'id' | 'name'>;
+    candidates: CandidateBase[];
+    nuclei: (Pick<Nuclei, 'id' | 'name'> & Pick<Nuclei_config, 'open_vacancies' | 'total_members'>)[]
+}
+export interface RankedCandidate extends CandidateBase {
+    finalScore: number;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
 // --------------------------------------------
@@ -185,26 +197,6 @@ export interface PsUserPresence {
     }[];
 }
 
-// export interface DashboardPresenceResponse {
-//     id: ps_editions['id'];
-//     in_person_cards: {
-//         card_id: ps_card_configs['card_id'];
-//         location: ps_card_configs['location'];
-//         date: ps_card_configs['event_date'];
-//         times: NonNullable<ps_card_configs['start_time' | 'end_time']>[];
-//     }[];
-//     participants: {
-//         id: ps_user_cards['id'];
-//         user_id: ps_user_cards['user_id'];
-//         name: Users['name'];
-//         progress: {
-//             card_id: cards_progress['card_id'];
-//             state: EnumPsCardConfigState
-//             file_id?: cards_progress['file_id'];
-//         }[];
-//     }[];
-// }
-
 export interface DashboardPresenceResponse {
     id: ps_editions['id'];
     candidates: Candidate[];
@@ -236,4 +228,57 @@ export interface Candidate {
     cards_progress: cards_progress[];
     is_eligible: boolean;
     is_accepted: boolean
+}
+
+// --------------------------------------------
+// -------- HYDRATATION INTERFACES ------------
+// --------------------------------------------
+
+export interface ReportPayload {
+    candidate_name: string;
+    candidate_id: string;
+    process_name: string;
+    process_id: string;
+    last_row_update_datetime: string;
+    forge_score: number;
+    corridor_score: number;
+    gate_score: number;
+    alpha: number;
+    beta: number;
+    gamma: number;
+    final_score: number;
+    final_score_percent: number;
+    score_top1: number;
+    score_top2: number;
+    score_top3: number;
+    accepted_nucleus?: string;
+    nucleus_leader_name?: string;
+    nucleus_member_count?: number;
+    nucleus_capacity?: number;
+    is_accepted: boolean;
+    missing_skills?: string[]; 
+    nucleiEligible?: string[];
+    nucleiChosen?: string[];
+    sing_hash: string;
+}
+
+export interface EditionFinalResultPayload {
+  edition_name: string;
+  edition_id: string;
+  edition_created_at: string;
+  edition_finish_date: string;
+  
+  engine_version: "v1" | "v2";
+  engine_mode: string;
+  
+  approved_candidates: {
+    rank: number;
+    candidate_name: string;
+    candidate_id: string; 
+    score: number;
+    allocated_nucleus: string;
+  }[];
+
+  generation_timestamp: string;
+  sing_hash: string;
 }

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Relatório de Admissão — {{candidate_name}}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Palette Yawara Tech */
+      --ink: #0B0D12;
+      --muted: #5B6472;
+      --line: #D6DCE6;
+      --line2: #BFC7D6;
+      --primary: #E11B2D;    /* Vermelho Yawara */
+      --tech-green: #00FF41; /* Verde Terminal */
+      --bg-light: #F9FAFB;
+      --approved-color: #2296e4; /* Verde Aprovação */
+      
+      --page-w: 840px;
+      --pad: 32px;
+      --font: 'Inter', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      
+      --score-max: 10; /* Escala de 0 a 10 */
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #F3F4F6;
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.4;
+    }
+
+    .page {
+      width: min(var(--page-w), calc(100vw - 32px));
+      margin: 30px auto;
+      padding: var(--pad);
+      background: #fff;
+      border: 1px solid var(--line);
+      position: relative; /* Para o carimbo */
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Carimbo de Aprovação Exclusivo */
+    .seal-approved {
+      position: absolute;
+      top: 45px;
+      right: 50px;
+      border: 5px solid var(--approved-color);
+      color: var(--approved-color);
+      padding: 10px 30px;
+      font-weight: 900;
+      font-size: 32px;
+      text-transform: uppercase;
+      transform: rotate(12deg);
+      opacity: 0.85;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+
+    .brand img { height: 50px; margin-bottom: 10px; }
+    .titleBlock h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+    .titleBlock .sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Grid de Identificação */
+    .identity-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      border: 1px solid var(--line);
+      margin-bottom: 30px;
+    }
+    .grid-cell { padding: 12px; border-right: 1px solid var(--line); }
+    .grid-cell:last-child { border-right: none; }
+    .grid-cell label {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .grid-cell .val { font-size: 14px; font-weight: 600; }
+    .mono { font-family: var(--mono); text-transform: uppercase; }
+
+    /* Seções */
+    .section { margin-top: 25px; }
+    .section-tag {
+      background: var(--primary);
+      color: #fff;
+      padding: 4px 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    /* Métricas das Etapas */
+    .metrics-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .metric-box {
+      flex: 1;
+      border: 1px solid var(--line);
+      padding: 15px;
+      text-align: center;
+      background: var(--bg-light);
+    }
+    .metric-box .tag { font-family: var(--mono); font-size: 9px; color: var(--muted); display: block; }
+    .metric-box h4 { margin: 8px 0; font-size: 13px; font-weight: 800; }
+    .metric-box .score { font-size: 26px; font-weight: 900; }
+    .metric-box .score span { font-size: 14px; color: var(--muted); }
+
+    /* Núcleos Elegíveis vs Escolhidos */
+    .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .nucleus-block { border-left: 4px solid var(--primary); padding-left: 15px; }
+    .nucleus-block h3 { font-size: 12px; font-weight: 800; margin: 0 0 10px 0; color: var(--primary); }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px; font-size: 12px; }
+    .kv .k { color: var(--muted); }
+    .kv .v { font-weight: 600; }
+
+    /* Terminal de Cálculo Matemático */
+    .math-terminal {
+      background: #1A1D23;
+      color: #D1D5DB;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow: hidden;
+      border: 1px solid #374151;
+    }
+    .terminal-header { background: #333; padding: 8px 15px; font-size: 9px; color: #9CA3AF; }
+    .terminal-body { padding: 15px; line-height: 1.6; }
+    .t-green { color: var(--tech-green); }
+    .t-res { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #4B5563; font-size: 14px; }
+
+    /* Gráfico de Benchmarking */
+    .chart-container {
+      border: 1px solid var(--line);
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 50px;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .bar-label { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .bar-track { background: #F3F4F6; height: 10px; border-radius: 2px; }
+    .bar-fill { height: 100%; background: var(--line2); border-radius: 2px; }
+    .bar-fill.me { background: var(--primary); }
+    .bar-fill.top { background: #FBBF24; } /* Gold for top 1 */
+    .bar-val { font-family: var(--mono); font-size: 11px; text-align: right; font-weight: 700; }
+
+    /* Núcleo Aceito - Sessão Destaque */
+    .highlight-nucleus {
+      background: var(--bg-light);
+      border: 1px solid var(--line);
+      padding: 20px;
+      margin-top: 30px;
+    }
+    .highlight-nucleus h2 { margin: 0 0 15px 0; font-size: 20px; color: var(--primary); }
+
+    /* Texto Técnico e Next Steps */
+    .text-box { margin-top: 25px; }
+    .p { font-size: 12.5px; margin-bottom: 10px; }
+    .onboarding-list { font-size: 12px; padding-left: 20px; }
+    .onboarding-list li { margin-bottom: 8px; }
+
+    .footer-note {
+      margin-top: 40px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; border: none; width: 100%; margin: 0; padding: 20mm; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="seal-approved">Aprovado</div>
+
+    <header class="header">
+      <div class="brand">
+        <img src="/images/yawara-icon-color.png" alt="Yawara Logo">
+        <div class="titleBlock">
+          <h1>Relatório de Admissão & Desempenho</h1>
+          <div class="sub">Yawara System Neural Architecture // Research ART #189271821</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="identity-grid">
+      <div class="grid-cell">
+        <label>Candidato</label>
+        <div class="val">{{candidate_name}}</div>
+      </div>
+      <div class="grid-cell">
+        <label>Identificação (ID)</label>
+        <div class="val mono">{{candidate_id}}</div>
+      </div>
+      <div class="grid-cell">
+        <label>Aprovação (Row Update)</label>
+        <div class="val mono">{{last_row_update_datetime}}</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="section-tag">01 // Métricas de Desempenho</span>
+      <div class="metrics-row">
+        <div class="metric-box">
+          <span class="tag">STAGE 02</span>
+          <h4>A FORJA</h4>
+          <div class="score">{{forge_score}}<span>/10</span></div>
+        </div>
+        <div class="metric-box">
+          <span class="tag">STAGE 03</span>
+          <h4>O CORREDOR</h4>
+          <div class="score">{{corridor_score}}<span>/10</span></div>
+        </div>
+        <div class="metric-box">
+          <span class="tag">STAGE 04</span>
+          <h4>PORTÃO DE FERRO</h4>
+          <div class="score">{{gate_score}}<span>/10</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="section-tag">02 // Logística de Atribuição de Núcleos</span>
+      <div class="cols2">
+        <div class="nucleus-block">
+          <h3>Núcleos Elegíveis</h3>
+          <div class="kv">
+            <div class="k">1ª Opção</div><div class="v">{{nuclei_eligible_first_option}}</div>
+            <div class="k">Opção de Entrada</div><div class="v">{{nuclei_eligible_entry_option}}</div>
+          </div>
+        </div>
+        <div class="nucleus-block">
+          <h3>Núcleos Escolhidos</h3>
+          <div class="kv">
+            <div class="k">1ª Opção</div><div class="v">{{nuclei_chosen_first_option}}</div>
+            <div class="k">Opção de Entrada</div><div class="v">{{nuclei_chosen_entry_option}}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="section-tag">03 // Resultado Final & Registro de Auditoria</span>
+      
+      <div class="math-terminal">
+        <div class="terminal-header">academic_math_engine_v2.log</div>
+        <div class="terminal-body">
+          <p>> Carregando pesos: Alpha({{alpha}}), Beta({{beta}}), Gamma({{gamma}})</p>
+          <p>> Calculando: Sf = ({{forge_score}} * {{alpha}}) + ({{corridor_score}} * {{beta}}) + ({{gate_score}} * {{gamma}})</p>
+          <p class="t-res">> RESULTADO FINAL: <span class="t-green">{{score_candidate}}</span> / 10.0</p>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div style="font-size:10px; font-family:var(--mono); color:var(--muted); margin-bottom:12px;">
+          BENCHMARK: Comparação de Score com Top 3 Aprovados
+        </div>
+        
+        <div class="bar-row">
+          <div class="bar-label">TOP 01</div>
+          <div class="bar-track"><div class="bar-fill top" style="width: calc(({{score_top1}}/10)*100%);"></div></div>
+          <div class="bar-val">{{score_top1}}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">TOP 02</div>
+          <div class="bar-track"><div class="bar-fill" style="width: calc(({{score_top2}}/10)*100%);"></div></div>
+          <div class="bar-val">{{score_top2}}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">TOP 03</div>
+          <div class="bar-track"><div class="bar-fill" style="width: calc(({{score_top3}}/10)*100%);"></div></div>
+          <div class="bar-val">{{score_top3}}</div>
+        </div>
+        <div class="bar-row" style="margin-top:5px; padding-top:5px; border-top:1px dashed var(--line);">
+          <div class="bar-label" style="color:var(--primary);">VOCÊ</div>
+          <div class="bar-track"><div class="bar-fill me" style="width: calc(({{score_candidate}}/10)*100%);"></div></div>
+          <div class="bar-val" style="color:var(--primary);">{{score_candidate}}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="highlight-nucleus">
+      <h2>Núcleo de Admissão: {{accepted_nucleus}}</h2>
+      <div class="kv">
+        <div class="k">Líder da Unidade</div><div class="v">{{nucleus_leader_name}}</div>
+        <div class="k">Efetivo Atual</div><div class="v mono">{{nucleus_member_count}} membros</div>
+        <div class="k">Capacidade Máxima</div><div class="v mono">{{nucleus_capacity}} membros</div>
+      </div>
+    </section>
+
+    <div class="text-box">
+      <span class="section-tag">04 // Diretivas Técnicas</span>
+      <p class="p">
+        Meus parabéns, você agora é oficialmente um mebro do <strong>YAWARA</strong>.
+        <br/>
+        <br/>
+        Este relatório foi gerado automaticamente pelo motor de admissão Yawara. O processo utiliza inferência baseada em 
+        históricos via Y-SNA e a metodologia acadêmica de pesos ponderados para assegurar o 
+        equilíbrio entre competências técnicas e socioemocionais. Todo o processo é auditável e transparente, 
+        garantindo a integridade dos resultados apresentados. <br/> Para mais informações técnicas, consulte o documento os documentos vinculados pelo projeto ou contate-nos: teamyawaraufgd@gmail.com.
+      </p>
+      
+      <div style="margin-top:15px;">
+        <p class="p"><strong>O que vem a seguir:</strong></p>
+        <ul class="onboarding-list">
+          <li>O sistema já alocou você no núcleo, mas caso isso ainda não tenha acontecido, entre em contato com o líder responsável.</li>
+          <li>Um reunião de <i>Boas Vindas</i> será marcada e aparecerá direto no seu calendário. Fique atento.</li>
+          <li>Será passado suas atribuições e você começará o seu trainee, vamos te mostrar o que realmente é participar do <strong> YAWARA </strong>.</li>
+          <li>Continue focando na sua graduação, e lembre-se, na engenharia criamos soluções!</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="footer-note">
+      DOCUMENTO CONFIDENCIAL // YAWARA MOTOSTUDENT // {{sing_hash}}
+    </footer>
+  </div>
+</body>
+</html>

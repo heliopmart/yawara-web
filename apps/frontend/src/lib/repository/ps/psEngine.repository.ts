@@ -1,5 +1,5 @@
 import { supabaseAdmin, create_rls_client } from "@/lib/db/index"
-import { callRpc } from '@/utils/bd/'
+import { callRpc, getRows} from '@/utils/bd/'
 import { SelectionProcessEngineData, TokenPayload, ReportPayload } from '@yawara/types'
 
 export class PsEngineRepository {
@@ -41,6 +41,26 @@ export class PsEngineRepository {
 
             return res.data as SelectionProcessEngineData
         } catch (error) {
+            throw error
+        }
+    }
+
+    async getYsnaReportData(candidate_id: string): Promise<string> {
+        try {
+            const res = await getRows({
+                bd: this.bd,
+                table: 'ps_user_cards',
+                columns: `final_result_doc`,
+                filters: [{ column: 'candidate_id', op: 'eq', value: candidate_id }],
+                single: true            
+            })
+
+            if(!res.final_result_doc){
+                throw 'DOCUMENT_NOT_FOUND';
+            }
+
+            return res.final_result_doc;
+        }catch (error) {
             throw error
         }
     }

@@ -18,6 +18,7 @@ export interface RecruitmentStep {
 }
 
 export interface ps_data_display {
+  candidate_id?: string;
   title: string;
   progressPercentage: number;
   currentStepLabel: string;

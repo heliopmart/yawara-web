@@ -184,6 +184,30 @@ export const usePs = () => {
         }
     }
 
+    const handleDownloadYsnaDocument = async (candidate_id?: string) => {
+        if(!candidate_id){
+            return
+        }
+        try {
+            window.location.href = `/api/ps/report/ynsa/${candidate_id}`;
+        } catch (e) {
+            console.error('Erro ao baixar o documento YSNA:', e);
+            throw e
+        }
+    }
+
+    const handleDownloadFinishPsDocument = async (ps_edition_id?: string) => {
+        if(!ps_edition_id){
+            return
+        }
+        try {
+            window.location.href = `/api/ps/report/${ps_edition_id}`;
+        } catch (e) {
+            console.error('Erro ao baixar o documento de finalização do PS:', e);
+            throw e
+        }
+    }
+
     useEffect(() => {
         handlePs();
         return
@@ -195,7 +219,8 @@ export const usePs = () => {
         handleChosenNuclei,
         updateChosenNuclei,
         handle_sign_up_ps,
-
+        handleDownloadFinishPsDocument,
+        handleDownloadYsnaDocument,
         data,
         error,
         register_PS,

@@ -137,6 +137,7 @@ export const mapBackendDataToFrontend = (rawBackendData: ps_full_data): ps_data_
     const finalResultShow = userApplication.show_final_result;
 
     return {
+        candidate_id: userApplication.id,
         title: rawBackendData.name,
         progressPercentage: progressPercentage,
         currentStepLabel: currentStepLabel,

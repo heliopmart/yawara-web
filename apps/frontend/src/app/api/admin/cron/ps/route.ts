@@ -39,6 +39,8 @@ export async function POST(req: Request) {
             else if (action === 'FINISH_PROCESS') {
                 console.info(`[CRON] Finalizando Processo Seletivo ${edition_id}`);
                 await psService.finishEdition();
+            }else if (action === 'DESACTIVATE_PROCESS'){
+                await psService.deactivateSelectionProcess(edition_id);
             }
         }
 

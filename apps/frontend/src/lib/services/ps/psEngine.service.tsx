@@ -20,21 +20,53 @@ export class PsEngine {
     }
 
     public async generateDynamicReport(ps_edition_id: string) {
-        const rawData = await this.psEngineRepository.getDataForReport(ps_edition_id);
-        const result = this.hydrateReportPayload(rawData);
+        try {
+            const rawData = await this.psEngineRepository.getDataForReport(ps_edition_id);
+            const result = this.hydrateReportPayload(rawData);
 
-        if (result.is_accepted) {
-            return await renderToStream(
-                <ApprovedCandidateReport
-                    payload={result}
-                />
-            );
-        } else {
-            return await renderToStream(
-                <FinalisedCandidateReport
-                    payload={result}
-                />
-            );
+            if (result.is_accepted) {
+                return await renderToStream(
+                    <ApprovedCandidateReport
+                        payload={result}
+                    />
+                );
+            } else {
+                return await renderToStream(
+                    <FinalisedCandidateReport
+                        payload={result}
+                    />
+                );
+            }
+        }catch (error) {
+            throw error
+        }
+    }
+
+    public async generateDynamicReportYsna(candidate_id: string) : Promise<any> {
+        try {
+            const documents = await this.psEngineRepository.getYsnaReportData(candidate_id);
+        
+            if(!documents){
+                throw 'DOCUMENT_NOT_FOUND';
+            }
+
+            const cloudinaryUrl = documents.split(";")[0];
+
+            if(!cloudinaryUrl){
+                throw 'DOCUMENT_NOT_FOUND';
+            }
+
+            const cloudinaryResponse = await fetch(cloudinaryUrl);
+
+            if(!cloudinaryResponse.ok){
+                throw 'DOCUMENT_FETCH_ERROR';
+            }
+
+            const arrayBuffer = await cloudinaryResponse.arrayBuffer();
+            
+            return arrayBuffer;
+        } catch (error) {
+            throw error
         }
     }
 

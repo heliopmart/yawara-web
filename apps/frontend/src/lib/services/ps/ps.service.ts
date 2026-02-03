@@ -167,7 +167,7 @@ export class PsService {
                 difficulty
             );
 
-            if(!res){
+            if (!res) {
                 throw 'PS_REGISTRATION_CLOSING_FAILED';
             }
 
@@ -185,6 +185,15 @@ export class PsService {
             return await this.psRepository.psFinishEdition();
         } catch (error) {
             console.error('PsService.finishEdition error:', error);
+            throw error;
+        }
+    }
+
+    async deactivateSelectionProcess(edition_id: string): Promise<boolean> {
+        try {
+            return await this.psRepository.updatePsEdition({ is_active: false }, edition_id);
+        } catch (error) {
+            console.error('PsService.deactivateSelectionProcess error:', error);
             throw error;
         }
     }
@@ -283,7 +292,7 @@ export class PsService {
 
             const update_reponse = await this.updateStatusUserCard(card_id, upload_response.public_id);
 
-            if(!update_reponse){
+            if (!update_reponse) {
                 throw "USER_CARD_UPDATE_FAILED";
             }
 
@@ -310,7 +319,7 @@ export class PsService {
 
             const emailService = new EmailService();
 
-            const params : sendChalengesEmailParams[] = candidates.map(candidate => ({
+            const params: sendChalengesEmailParams[] = candidates.map(candidate => ({
                 challenge_id: candidate.challenge_id,
                 edition_id: candidate.edition_id,
                 name: candidate.user_name,
@@ -318,11 +327,11 @@ export class PsService {
                 user_id: candidate.user_id
             }));
 
-            const BATCH_SIZE = 20; 
-            
+            const BATCH_SIZE = 20;
+
             for (let i = 0; i < params.length; i += BATCH_SIZE) {
                 const chunk = params.slice(i, i + BATCH_SIZE);
-                
+
                 const results = await Promise.allSettled(
                     chunk.map(paramsItem => emailService.sendChallengesEmail(paramsItem))
                 );
@@ -373,6 +382,22 @@ export class PsService {
                 {
                     target: 'EDITION',
                     action: 'FINISH_PROCESS',
+                    edition_id: editionId
+                }
+            );
+        }
+
+        if (data.finish_date) {
+            const finishDate = new Date(data.finish_date);
+            finishDate.setDate(finishDate.getDate() + 5);
+            const delayedDateStr = finishDate.toISOString().split('T')[0];
+
+            await qstash.scheduleEvent(
+                CRON_DISPATCHER_URL,
+                this.toCampoGrandeDate(delayedDateStr, "00:00"),
+                {
+                    target: 'EDITION',
+                    action: 'DESACTIVATE_PROCESS',
                     edition_id: editionId
                 }
             );

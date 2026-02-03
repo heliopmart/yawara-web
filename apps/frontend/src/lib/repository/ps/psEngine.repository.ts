@@ -1,6 +1,6 @@
 import { supabaseAdmin, create_rls_client } from "@/lib/db/index"
 import { callRpc, getRows} from '@/utils/bd/'
-import { SelectionProcessEngineData, TokenPayload, ReportPayload } from '@yawara/types'
+import { SelectionProcessEngineData, TokenPayload, ReportPayload, EditionFinalResultPayload} from '@yawara/types'
 
 export class PsEngineRepository {
     private bd: typeof supabaseAdmin;
@@ -41,6 +41,26 @@ export class PsEngineRepository {
 
             return res.data as SelectionProcessEngineData
         } catch (error) {
+            throw error
+        }
+    }
+
+    async getDataForFinallyReport(ps_edition_id: string): Promise<EditionFinalResultPayload> {
+        try {
+            const res = await callRpc<EditionFinalResultPayload>({
+                bd: this.bd,
+                functionName: 'get_ps_final_results_report_data',
+                params: {
+                    p_edition_id: ps_edition_id
+                }
+            })
+
+            if(!res.status){
+                throw 'ERROR_FETCHING_PS_FINAL_REPORT_DATA'
+            }
+
+            return res.data as EditionFinalResultPayload    
+        }catch (error) {
             throw error
         }
     }

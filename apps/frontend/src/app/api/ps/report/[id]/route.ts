@@ -29,7 +29,7 @@ export async function GET(
         return new Response(stream as any, {
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="Yawara-Relatório-Processo-Seletivo-${id}.pdf"`,
+                'Content-Disposition': `attachment; filename="Yawara-Relatório-Processo-Seletivo-${id.slice(0, 8)}.pdf"`,
             },
         });
     } catch (error) {

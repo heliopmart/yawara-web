@@ -11,25 +11,18 @@ export async function GET(
 ) {
     try {
         const { id } = await context.params;
-        const user_token = await getCookie('user-session')
-
-        if (!user_token || !id) {
-            throw 'UNAUTHORIZED_ERROR';
+        
+        if(!id){
+            throw 'MISSING_PS_EDITION_ID';
         }
 
-        const user_data = await authService.getSession(user_token)
-
-        if(!user_data) {
-            throw 'UNAUTHORIZED_ERROR';
-        }
-
-        const psService = new PsEngine(user_data);
-        const stream = await psService.generateDynamicReportYsna(id);
+        const psService = new PsEngine();
+        const stream = await psService.generateFinallyReportPs(id);
 
         return new Response(stream as any, {
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="Yawara-Relatório-Técnico-Processo-Seletivo-${id.slice(0, 8)}.pdf"`,
+                'Content-Disposition': `attachment; filename="Yawara-Transparência-Processo-Seletivo-${id.slice(0, 8)}.pdf"`,
             },
         });
     } catch (error) {

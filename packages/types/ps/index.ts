@@ -261,3 +261,24 @@ export interface ReportPayload {
     nucleiChosen?: string[];
     sing_hash: string;
 }
+
+export interface EditionFinalResultPayload {
+  edition_name: string;
+  edition_id: string;
+  edition_created_at: string;
+  edition_finish_date: string;
+  
+  engine_version: "v1" | "v2";
+  engine_mode: string;
+  
+  approved_candidates: {
+    rank: number;
+    candidate_name: string;
+    candidate_id: string; 
+    score: number;
+    allocated_nucleus: string;
+  }[];
+
+  generation_timestamp: string;
+  sing_hash: string;
+}

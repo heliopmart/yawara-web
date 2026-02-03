@@ -46,14 +46,6 @@ function buildBaseline(payload: ReportPayload) {
   return payload.accepted_nucleus ?? payload.process_name ?? "Baseline";
 }
 
-function formatToCampoGrande(dateIso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'short',
-    timeStyle: 'medium',
-    timeZone: 'America/Campo_Grande' 
-  }).format(new Date(dateIso));
-}
-
 
 export function FinalisedCandidateReport({ payload }: { payload: ReportPayload }) {
   const missingList = buildMissingSkillsList(payload.missing_skills);
@@ -190,7 +182,7 @@ export function FinalisedCandidateReport({ payload }: { payload: ReportPayload }
             DOCUMENTO DE FEEDBACK // EQUIPE YAWARA // {payload.sing_hash}
           </Text>
           <Text style={styles.footerSub}>
-            {formatToCampoGrande(payload.last_row_update_datetime)}
+            {payload.last_row_update_datetime}
           </Text>
         </View>
       </Page>

@@ -35,13 +35,6 @@ function pctFrom10(score: number) {
   return (clamp(score, 0, 10) / 10) * 100;
 }
 
-function formatToCampoGrande(dateIso: string): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'short',
-    timeStyle: 'medium',
-    timeZone: 'America/Campo_Grande' 
-  }).format(new Date(dateIso));
-}
 
 export function ApprovedCandidateReport({ payload }: { payload: ReportPayload }) {
   const {
@@ -112,7 +105,7 @@ export function ApprovedCandidateReport({ payload }: { payload: ReportPayload })
 
           <View style={styles.gridCell}>
             <Text style={styles.label}>Aprovação </Text>
-            <Text style={[styles.value, styles.mono]}>{formatToCampoGrande(last_row_update_datetime)}</Text>
+            <Text style={[styles.value, styles.mono]}>{last_row_update_datetime}</Text>
           </View>
         </View>
 

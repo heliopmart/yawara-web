@@ -54,9 +54,9 @@ export const useTransparency = () => {
         return handleDownloadDocFile(file_id, title || 'relatório-arttc.pdf');
     }
 
-    const downloadPsResult = (title: string, file_id?: string,) => {
-        if (!file_id) return;
-        return handleDownloadDocFile(file_id, title || 'relatório-arttc.pdf');
+    const downloadPsResult = (ps_edition_id: string) => {
+        if (!ps_edition_id) return;
+        window.location.href = `/api/transparency/download/ps/${ps_edition_id}`;   
     }
 
 

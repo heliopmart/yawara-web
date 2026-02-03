@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --ink: #0B0D12;
+            --muted: #5B6472;
+            --line: #D6DCE6;
+            --primary: #0057FF; /* Tom Yawara */
+            --bg-light: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Helvetica', sans-serif;
+            color: var(--ink);
+            line-height: 1.5;
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* Header */
+        header {
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .subtitle-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 9px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .mono { font-family: 'Courier', monospace; font-size: 8px; }
+
+        /* Body Sections */
+        .dispositions {
+            font-size: 10px;
+            color: var(--muted);
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            border-left: 3px solid var(--primary);
+            padding-left: 8px;
+            margin: 20px 0 15px 0;
+            text-transform: uppercase;
+        }
+
+        /* Results Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: var(--bg-light);
+            text-align: left;
+            font-size: 9px;
+            text-transform: uppercase;
+            padding: 10px;
+            border-bottom: 1px solid var(--ink);
+        }
+
+        td {
+            padding: 10px;
+            font-size: 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .rank-badge {
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            padding-top: 10px;
+            border-top: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .audit-box {
+            font-size: 7px;
+            color: var(--muted);
+            max-width: 70%;
+        }
+
+        .footer-brand {
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: -1px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="title">Edital de Homologação de Resultados</h1>
+        <div class="subtitle-grid">
+            <div>PROCESSO: <strong>{{process_name}}</strong></div>
+            <div class="mono">ID: {{process_id}}</div>
+            <div>GERADO EM: {{timestamp}} (AMT)</div>
+        </div>
+    </header>
+
+    <div class="dispositions">
+        <div class="section-label">01 // Transparência e Critérios</div>
+        <p>O presente documento oficializa o resultado final do Processo Seletivo Yawara. A seleção foi conduzida sob os princípios da transparência e mérito técnico, utilizando o motor de análise <strong>Y-SNA v2</strong> para avaliação de competências. Os scores apresentados refletem a média ponderada das etapas "A Forja", "O Corredor" e "Portão de Ferro".</p>
+        
+        <div class="section-label">02 // Disposições Gerais</div>
+        <p>Os candidatos aprovados listados abaixo estão convocados para a etapa de integração nos respectivos núcleos. A alocação foi realizada com base na compatibilidade neural detectada pelo sistema e na disponibilidade de vagas de cada unidade tecnológica.</p>
+    </div>
+
+    <div class="section-label">03 // Lista de Classificação e Admissão</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Pos</th>
+                <th>Candidato</th>
+                <th>Identificação (UUID)</th>
+                <th>Score</th>
+                <th>Núcleo Alocado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="rank-badge">#01</td>
+                <td><strong>Hélio Peres Martins Neto</strong></td>
+                <td class="mono">34F2A7DC-9265-480D-AFD7-D1A83BBDFAAB</td>
+                <td>9.85</td>
+                <td>Sistemas Embarcados</td>
+            </tr>
+            </tbody>
+    </table>
+
+    <footer>
+        <div class="audit-box">
+            <div style="margin-bottom: 4px;"><strong>REGISTRO DE AUDITORIA (HASH):</strong></div>
+            <div class="mono" style="word-break: break-all;">{{sing_hash}}</div>
+        </div>
+        <div class="footer-brand">YAWARA.</div>
+    </footer>
+
+</body>
+</html>

@@ -1,10 +1,10 @@
 import { PsEngineRepository } from "@/lib/repository/ps/psEngine.repository"
-import { SelectionProcessEngineData, RankedCandidate, cards_progress, TokenPayload, ReportPayload } from '@yawara/types'
+import { SelectionProcessEngineData, RankedCandidate, cards_progress, TokenPayload, ReportPayload, EditionFinalResultPayload } from '@yawara/types'
 import { handleGenerateHash } from "@/utils/hash"
 import { renderToStream } from '@react-pdf/renderer';
 import { ApprovedCandidateReport } from '@/components/ps/pdf/ApprovedReport';
 import { FinalisedCandidateReport } from '@/components/ps/pdf/ReportCompleted';
-
+import { FinalResultsReport } from "@/components/ps/pdf/Report/"
 export class PsEngine {
     private psEngineRepository: PsEngineRepository;
     private auth?: TokenPayload;
@@ -37,33 +37,46 @@ export class PsEngine {
                     />
                 );
             }
-        }catch (error) {
+        } catch (error) {
             throw error
         }
     }
 
-    public async generateDynamicReportYsna(candidate_id: string) : Promise<any> {
+    public async generateFinallyReportPs(ps_edition_id: string) {
+        try {
+            const rawData = await this.psEngineRepository.getDataForFinallyReport(ps_edition_id);
+            const payload = await this.handleCreateFinallyReportPayload(rawData);
+
+            return await renderToStream(
+                <FinalResultsReport data={payload} />
+            );
+        } catch (error) {
+            throw error
+        }
+    }
+
+    public async generateDynamicReportYsna(candidate_id: string): Promise<any> {
         try {
             const documents = await this.psEngineRepository.getYsnaReportData(candidate_id);
-        
-            if(!documents){
+
+            if (!documents) {
                 throw 'DOCUMENT_NOT_FOUND';
             }
 
             const cloudinaryUrl = documents.split(";")[0];
 
-            if(!cloudinaryUrl){
+            if (!cloudinaryUrl) {
                 throw 'DOCUMENT_NOT_FOUND';
             }
 
             const cloudinaryResponse = await fetch(cloudinaryUrl);
 
-            if(!cloudinaryResponse.ok){
+            if (!cloudinaryResponse.ok) {
                 throw 'DOCUMENT_FETCH_ERROR';
             }
 
             const arrayBuffer = await cloudinaryResponse.arrayBuffer();
-            
+
             return arrayBuffer;
         } catch (error) {
             throw error
@@ -95,14 +108,22 @@ export class PsEngine {
         }
     }
 
-    private renderApprovedTemplate(payload: ReportPayload) {
-        return { template: 'ApprovedReport', data: payload };
-    }
+    private async handleCreateFinallyReportPayload(payload: EditionFinalResultPayload): Promise<EditionFinalResultPayload> {
+        const candidates_score_total = payload.approved_candidates.reduce((acc, candidate) => acc + candidate.score, 0);
+        const candidates_count = payload.approved_candidates.length;
+        const average_score = candidates_count > 0 ? candidates_score_total / candidates_count : 0;
+        const hashPayload = `${payload.edition_id}|${payload.edition_name}|${payload.edition_finish_date}|${average_score}`;
 
-    private renderCompletedTemplate(payload: ReportPayload) {
-        return { template: 'ReportCompleted', data: payload };
-    }
+        const sing_hash = handleGenerateHash(hashPayload);
+        const date = new Date().toISOString();
 
+        return {
+            ...payload,
+            sing_hash,
+            generation_timestamp: this.formatToCampoGrande(date),
+        }
+
+    }
 
     private async handleGetPsEngine(): Promise<SelectionProcessEngineData> {
         try {
@@ -158,6 +179,13 @@ export class PsEngine {
         }
     }
 
+    private formatToCampoGrande(dateIso: string): string {
+        return new Intl.DateTimeFormat('pt-BR', {
+            dateStyle: 'short',
+            timeStyle: 'medium',
+            timeZone: 'America/Campo_Grande'
+        }).format(new Date(dateIso));
+    }
 
     private handleRankAndAllocate(rankedCandidates: RankedCandidate[], nuclei: SelectionProcessEngineData['nuclei']) {
         const sorted = [...rankedCandidates].sort((a, b) => b.finalScore - a.finalScore);
@@ -251,7 +279,7 @@ export class PsEngine {
             candidate_id: rawData.candidate_id,
             process_name: rawData.process_name,
             process_id: rawData.process_id,
-            last_row_update_datetime: rawData.last_row_update_datetime,
+            last_row_update_datetime: this.formatToCampoGrande(rawData.last_row_update_datetime),
             final_score: rawData.final_score,
             final_score_percent: final_score_percent,
             forge_score,

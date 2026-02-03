@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Resultado de Desempenho — {{candidate_name}}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #0B0D12;
+      --muted: #5B6472;
+      --line: #D6DCE6;
+      --line2: #BFC7D6;
+      --primary: #E11B2D; 
+      --tech-orange: #F97316; /* Cor de atenção para Gaps */
+      --bg-light: #F9FAFB;
+      
+      --page-w: 840px;
+      --pad: 32px;
+      --font: 'Inter', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #F3F4F6; color: var(--ink); font-family: var(--font); line-height: 1.4; }
+
+    .page {
+      width: min(var(--page-w), calc(100vw - 32px));
+      margin: 30px auto; padding: var(--pad);
+      background: #fff; border: 1px solid var(--line);
+      position: relative;
+    }
+
+    /* Selo de Finalizado (Em vez de Approved) */
+    .seal-finalised {
+      position: absolute; top: 45px; right: 50px;
+      border: 5px solid var(--muted); color: var(--muted);
+      padding: 10px 20px; font-weight: 900; font-size: 24px;
+      text-transform: uppercase; transform: rotate(-5deg); opacity: 0.6;
+    }
+
+    .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--muted); padding-bottom: 20px; margin-bottom: 25px; }
+    .titleBlock h1 { margin: 0; font-size: 24px; font-weight: 900; text-transform: uppercase; }
+    .titleBlock .sub { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+    .identity-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; border: 1px solid var(--line); margin-bottom: 30px; }
+    .grid-cell { padding: 12px; border-right: 1px solid var(--line); }
+    .grid-cell label { display: block; font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+    .grid-cell .val { font-size: 14px; font-weight: 600; }
+
+    .section-tag { background: var(--muted); color: #fff; padding: 4px 12px; font-family: var(--mono); font-size: 10px; display: inline-block; margin-bottom: 15px; }
+
+    /* Mensagem de Consolação Tech */
+    .consolation-box {
+      background: #FDF2F2; border-left: 4px solid var(--primary);
+      padding: 20px; margin-bottom: 25px;
+    }
+    .consolation-box h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--primary); }
+    .consolation-box p { margin: 0; font-size: 13px; color: #4B5563; }
+
+    /* Terminal de Gaps */
+    .math-terminal {
+      background: #1A1D23; color: #D1D5DB;
+      border-radius: 6px; margin-top: 20px; font-family: var(--mono); font-size: 12px;
+      border: 1px solid #374151;
+    }
+    .terminal-header { background: #333; padding: 8px 15px; font-size: 9px; color: #9CA3AF; }
+    .terminal-body { padding: 15px; line-height: 1.6; }
+    .t-orange { color: var(--tech-orange); }
+
+    .footer-note { margin-top: 40px; text-align: center; font-family: var(--mono); font-size: 9px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 20px; }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="seal-finalised">Finalised</div>
+
+    <header class="header">
+      <div class="brand">
+        <img src="/images/yawara-icon-color.png" alt="Yawara Logo" style="height:50px;">
+        <div class="titleBlock">
+          <h1>Performance & Feedback Report</h1>
+          <div class="sub">Yawara System Neural Architecture // Research ART #189271821</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="consolation-box">
+      <h3>Prezado(a) {{candidate_name}},</h3>
+      <p>
+        Agradecemos imensamente o seu interesse e esforço durante este processo seletivo. Identificamos grande potencial em seu perfil, 
+        contudo, devido à alta competitividade e ao limite de vagas por núcleo, informamos que você não foi selecionado(a) para esta edição. 
+        Na engenharia, cada falha é uma oportunidade de iteração. Este relatório serve como diagnóstico para o seu desenvolvimento contínuo.
+      </p>
+    </section>
+
+    <section class="identity-grid">
+      <div class="grid-cell"><label>Candidato</label><div class="val">{{candidate_name}}</div></div>
+      <div class="grid-cell"><label>ID (SNA)</label><div class="val mono">{{candidate_id}}</div></div>
+      <div class="grid-cell"><label>Score Final</label><div class="val mono" style="color:var(--primary);">{{score_candidate}}</div></div>
+    </section>
+
+    <section class="section">
+      <span class="section-tag">01 // Gap Analysis (SNA Diagnostics)</span>
+      <div class="math-terminal">
+        <div class="terminal-header">gap_detection_engine.log</div>
+        <div class="terminal-body">
+          <p>> EXECUTANDO DIAGNÓSTICOS NO SCORE: {{score_candidate}}</p>
+          <p>> COMPARANDO COM O NÚCLEO BASELINE ({{nucleus_baseline}})</p>
+          <p class="t-orange">> [ALERTA] REQUISITOS AUSENTES EM: {{missing_skills_list}}</p>
+          <p>> ITERAÇÃO SUGERIDA: Foco em {{focus_area_suggestion}}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="section-tag">02 // Próximos Passos & Desenvolvimento</span>
+      <div style="font-size: 13px;">
+        <p><strong>Não pare por aqui.</strong> Sugerimos os seguintes passos para fortalecer sua candidatura em ciclos futuros:</p>
+        <ul style="padding-left: 20px; line-height: 1.8;">
+          <li><strong>Reforço em {{focus_area_suggestion}}:</strong> Busque projetos práticos ou disciplinas que aprofundem este tema.</li>
+          <li><strong>Engajamento:</strong> Continue acompanhando as inovações e transparência do Yawara através do nosso portal.</li>
+          <li><strong>Próxima Edição:</strong> Sua conta SNA permanece ativa. Seus dados de desempenho serão considerados como histórico evolutivo na próxima PS.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      DOCUMENTO DE FEEDBACK // EQUIPE YAWARA // {{sing_hash}}
+    </footer>
+  </div>
+</body>
+</html>

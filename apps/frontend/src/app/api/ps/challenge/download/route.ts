@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { handle_error } from '@/utils/error';
-import { errorResponse } from '@/lib/helpers/response'; // successResponse não é usado para stream de arquivo
+import { errorResponse } from '@/lib/helpers/response';
 import jwt from 'jsonwebtoken';
 import { ChallengeService } from '@/lib/services/challenge/challenge.service';
 import { ChallengeDownloadTokenPayload } from '@yawara/types';

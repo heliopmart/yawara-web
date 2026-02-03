@@ -20,8 +20,6 @@ export class UserRepository {
 
     async getMyAccountUserData(): Promise<MyAccountUserDataRepository> {
         try {
-            // TODO: Puxar ART, ARTTS
-
             const res = await getRows<MyAccountUserDataRepository>({
                 table: UserRepository.userTableName,
                 columns: `

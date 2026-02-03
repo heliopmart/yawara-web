@@ -19,6 +19,7 @@ export interface Nuclei_config {
     nuclei_id: string;
     ps_edition_id: string;
     open_vacancies: number;
+    total_members: number;
     learned_baseline_score: number;
     created_at: string;
 }

@@ -83,9 +83,17 @@ export class PsService {
 
     private async updateStatusUserCard(card_id: ps_card_configs['card_id'], file_id: UploadFileResponse['public_id']): Promise<boolean> {
         try {
+            const ps_card_configs = await this.psRepository.getPsCardConfigById(card_id);
             const user_cards_context = await this.psRepository.getUserCardsById();
-
             const targetCard = user_cards_context.cards_progress.find(card => card.card_id === card_id);
+
+            const card_date = this.toCampoGrandeDate(ps_card_configs.deadline!);
+            const current_date = this.toCampoGrandeDate(new Date().toUTCString());
+
+            if (current_date.getTime() > card_date.getTime()) {
+                console.error(`[PS_GUARD] Bloqueado: Prazo expirado.`);
+                throw 'CARD_DEADLINE_PASSED';
+            }
 
             if (!targetCard) {
                 console.error(`Card ${card_id} not found in user progress.`);
@@ -405,17 +413,32 @@ export class PsService {
     }
 
     /**
-    * Helper to force the time zone of Campo Grande (UTC-4 / AMT).
-    * @param dateStr Date string (e.g., '2026-02-23')
-    * @param timeStr Time string (e.g., '07:30' or '07:30:00')
+    * Helper para forçar o fuso horário de Campo Grande (UTC-4).
+    * @param dateStr String de data (ex: '2026-03-11' ou '2026-03-11 22:00:00')
+    * @param timeStr Hora opcional (usada apenas se dateStr não tiver hora)
     */
-    private toCampoGrandeDate(dateStr: string, timeStr: string): Date {
-        const timeParts = timeStr.split(':');
-        const hour = timeParts[0].padStart(2, '0');
-        const minute = timeParts[1] ? timeParts[1].padStart(2, '0') : '00';
-        const second = timeParts[2] ? timeParts[2].padStart(2, '0') : '00';
-        const isoString = `${dateStr}T${hour}:${minute}:${second}-04:00`;
+    private toCampoGrandeDate(dateStr: string, timeStr?: string): Date {
+        let isoString: string;
 
-        return new Date(isoString);
+        if (dateStr.includes(' ')) {
+            const isoFormat = dateStr.replace(' ', 'T');
+            isoString = `${isoFormat}-04:00`;
+        } else {
+            const cleanDate = dateStr.split('T')[0];
+            const timeParts = (timeStr || "00:00:00").split(':');
+            const hour = timeParts[0].padStart(2, '0');
+            const minute = (timeParts[1] || '00').padStart(2, '0');
+            const second = (timeParts[2] || '00').padStart(2, '0');
+            isoString = `${cleanDate}T${hour}:${minute}:${second}-04:00`;
+        }
+
+        const finalDate = new Date(isoString);
+
+        if (isNaN(finalDate.getTime())) {
+            console.error("[DATE_ERROR] Falha ao converter:", isoString);
+            throw "INTERNAL_DATE_ERROR";
+        }
+
+        return finalDate;
     }
 }

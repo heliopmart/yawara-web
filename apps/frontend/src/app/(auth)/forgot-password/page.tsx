@@ -1,14 +1,16 @@
 'use client'
-import React, { useState } from 'react';
+
+import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthForm from '@/components/auth/AuthForm';
 import { resetPasswordSchema } from '@/lib/validations/auth.validation';
-import { AuthErrorRespose } from "@yawara/types"
+import { AuthErrorRespose } from "@yawara/types";
 
-const ResetPasswordPage: React.FC = () => {
+const ResetPasswordContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<{ message: string } | null>(null);
+  
   const hash = searchParams.get('hash');
 
   const handleResetPassword = async (data: Record<string, string>) => {
@@ -20,9 +22,7 @@ const ResetPasswordPage: React.FC = () => {
     }
 
     const handleParseMessage = (message: string | AuthErrorRespose[]): string => {
-      if (typeof message === 'string') {
-        return message;
-      }
+      if (typeof message === 'string') return message;
       return message.map(msg => msg.message).join('<br/>');
     };
 
@@ -30,7 +30,7 @@ const ResetPasswordPage: React.FC = () => {
       password: data.password,
       email: data.email,
       hash: hash,
-    })
+    });
 
     if (!validation.success) {
       setError({ message: handleParseMessage(JSON.parse(validation.error.message)) });
@@ -44,9 +44,7 @@ const ResetPasswordPage: React.FC = () => {
         body: JSON.stringify(validation.data),
       });
 
-      if(!response.ok){
-        throw 'INTERNAL_SERVER_ERROR'
-      }
+      if (!response.ok) throw 'INTERNAL_SERVER_ERROR';
 
       const res_data = await response.json();
 
@@ -61,19 +59,28 @@ const ResetPasswordPage: React.FC = () => {
   };
 
   const resetFields = [
+    { name: 'email', label: 'E-MAIL', type: 'email' },
     { name: 'password', label: 'NOVA SENHA', type: 'password' },
     { name: 'confirmPassword', label: 'CONFIRMAR NOVA SENHA', type: 'password' },
   ];
 
   return (
     <AuthForm
-      type="register"
+      type="login"
       title="REDEFINIR SENHA"
       fields={resetFields}
       buttonText="ATUALIZAR SENHA"
       onSubmit={handleResetPassword}
       error={error}
     />
+  );
+};
+
+const ResetPasswordPage: React.FC = () => {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 };
 

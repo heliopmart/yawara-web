@@ -1,6 +1,6 @@
 import { create_rls_client, supabaseAdmin } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, ps_full_data, ps_user_cards, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, processRegistrationClosingResponse, downloadChanllengeData, BatchNotesItem} from '@yawara/types'
+import { TokenPayload, ps_full_data, ps_card_configs, ps_user_cards, UserProgressContext, cards_progress, AdminUserCardsProgress, ps_editions, PsEditionAvailable, createPsEdition, BatchPresenceItem, DashboardPresenceResponse, processRegistrationClosingResponse, downloadChanllengeData, BatchNotesItem} from '@yawara/types'
 
 export class PsRepository {
     private TablePsEditionName = 'ps_editions';
@@ -46,6 +46,26 @@ export class PsRepository {
                 throw error;
             }
             throw 'INTERNAL_SERVER_ERROR';
+        }
+    }
+
+    async getPsCardConfigById(card_id: ps_card_configs['card_id']): Promise<ps_card_configs> {
+        try {
+            const res = await callRpc({
+                functionName: "get_active_ps_card_config",
+                params: {
+                    p_card_id: card_id
+                },
+                bd: this.bd
+            })
+            if (!res.status) {
+                throw 'PS_CARD_CONFIG_NOT_FOUND'
+            }
+            return res.data as ps_card_configs;
+        }
+        catch (error) {
+            console.error('PsRepository.getPsCardConfigById error:', error);
+            throw error;
         }
     }
 

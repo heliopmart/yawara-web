@@ -4,7 +4,6 @@ import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, Nuclei
 
 export class NucleiRepository {
     private auth?: TokenPayload;
-    private TablePsEditionsName = 'ps_editions';
     private bd: ReturnType<typeof create_rls_client>;
 
     constructor(auth?: TokenPayload) {
@@ -23,28 +22,35 @@ export class NucleiRepository {
         =========================================================
     */
 
-    // ? it would be better to update this function to RPC later
     async getActivePsEditionAndNucleiConfigs() : Promise<PsEditionAndNucleiConfigs> {
         try{
-            const res = await getRows({
+            // const res = await getRows({
+            //     bd: this.bd,
+            //     table: this.TablePsEditionsName,
+            //     filters: [{ column: 'is_active', op: 'eq', value: true }, { column: 'nuclei_configs.nuclei.leader', op: 'eq', value: this.auth?.user_id }],
+            //     columns: `
+            //         id, name, 
+            //         nuclei_configs: nuclei_configs!nuclei_configs_ps_edition_id_fkey ( id, open_vacancies, 
+            //             nuclei: nuclei ( id, leader ),
+            //             nuclei_subject_weights: nuclei_subject_weights!nuclei_subject_weights_config_id_fkey ( id, subject_name, weight )
+            //         )
+            //     `,
+            //     single: true
+            // })
+
+            const res = await callRpc<PsEditionAndNucleiConfigs>({
                 bd: this.bd,
-                table: this.TablePsEditionsName,
-                filters: [{ column: 'is_active', op: 'eq', value: true }, { column: 'nuclei_configs.nuclei.leader', op: 'eq', value: this.auth?.user_id }],
-                columns: `
-                    id, name, 
-                    nuclei_configs: nuclei_configs!nuclei_configs_ps_edition_id_fkey ( id, open_vacancies, 
-                        nuclei: nuclei ( id, leader ),
-                        nuclei_subject_weights: nuclei_subject_weights!nuclei_subject_weights_config_id_fkey ( id, subject_name, weight )
-                    )
-                `,
-                single: true
+                functionName: 'get_active_ps_with_leader_configs',
+                params: {
+                    p_leader_id: this.auth?.user_id || ''
+                }
             })
 
-            if(!res){
+            if(!res.status){
                 throw 'PS_EDITION_NOT_FOUND';
             }
 
-            return res;
+            return res.data as PsEditionAndNucleiConfigs;
         }catch(err){
             throw err;
         }

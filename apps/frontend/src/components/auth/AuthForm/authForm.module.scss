@@ -1,21 +1,20 @@
 @import '@/styles/variables.scss';
 @import '@/styles/utils.scss';
 
-// --- CONTAINER PRINCIPAL ---
 .authContainer {
-  @include flex-center; // Mixin para centralizar (do utils.scss)
+  @include flex-center; 
   width: 100%;
   padding: $spacing-xl 0;
   min-height: calc(100vh - 60px - #{$spacing-xl});
 }
 
 .authBox {
-  background-color: $color-dark-surface; // Fundo cinza escuro (#111111)
+  background-color: $color-dark-surface;
   padding: $spacing-xl $spacing-lg;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   width: 100%;
-  max-width: 450px; // Largura mais compacta, como na imagem
+  max-width: 450px; 
   text-align: center;
 }
 
@@ -26,7 +25,6 @@
   color: $color-text-light;
 }
 
-// --- FORMULÁRIO E INPUTS ---
 .form {
   display: flex;
   flex-direction: column;
@@ -38,13 +36,12 @@
 }
 
 .label {
-  // Mantido por acessibilidade (screen readers), mas escondido visualmente
   display: none;
 }
 
 .errorMessage {
   width: 100%;
-  height: 50px;
+  min-height: 50px;
   background-color: #252525;
   border: 1px solid $color-error;
   border-radius: 4px;
@@ -65,35 +62,34 @@
 
 .input {
   width: 100%;
-  padding: $spacing-md; // Padding maior para input alto
-  background-color: #3f3f3f; // Fundo do input (cor escura sólida)
-  border: none; // Sem borda para replicar o visual da imagem
+  padding: $spacing-md; 
+  background-color: #3f3f3f; 
+  border: none; 
   color: $color-text-light;
   border-radius: 4px;
   font-size: $fs-base;
-  height: 50px; // Altura fixa do input
+  height: 50px;
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px $color-primary; // Borda de foco vermelha
+    box-shadow: 0 0 0 2px $color-primary; 
   }
 
   &::placeholder {
-    color: #b0b0b0; // Cor do placeholder mais clara
+    color: #b0b0b0; 
   }
 }
 
-// --- BOTÃO DE SUBMISSÃO ---
 .submitButton {
   @include button-reset;
-  background-color: $color-primary; // Botão vermelho Yawara
+  background-color: $color-primary; 
   color: $color-text-light;
   padding: $spacing-sm $spacing-md;
   border-radius: 4px;
   font-size: $fs-large;
   font-weight: bold;
-  height: 50px; // Altura do botão igual à altura do input
-  margin-top: $spacing-md; // Margem para separar do input
+  height: 50px; 
+  margin-top: $spacing-md; 
   transition: background-color 0.3s ease;
 
   &:hover {
@@ -101,7 +97,6 @@
   }
 }
 
-// --- LINKS DE RODAPÉ ---
 .footerLinks {
   margin-top: $spacing-lg;
   font-size: 0.9em;
@@ -113,22 +108,25 @@
 
   &>* {
     display: inline-block;
-    margin: 5px 0; // Espaçamento vertical entre os links
+    margin: 5px 0;
   }
 }
 
 .registerLink,
 .smallLink {
   color: $color-text-light;
-  text-decoration: none; // Remove a sublinha inicial
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
   transition: color 0.3s ease;
 
   &:hover {
     color: $color-primary;
-    text-decoration: underline; // Adiciona sublinha no hover
+    text-decoration: underline; 
   }
 }
 
 .separator {
-  display: none; // Ocultamos o separador '|' para ter os links em linhas separadas (visual mais limpo)
+  display: none; 
 }

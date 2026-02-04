@@ -72,10 +72,18 @@ export const ProcessTimeline = () => {
         handleDownloadFinishPsDocument,
         handleDownloadYsnaDocument
     } = usePs();
+    
+    if (error && !register_PS) {
+        return (
+            <div className={styles.onboarding}>
+                <div className={styles.glitchTitle} data-text="PROCESSO SELETIVO">PROCESSO SELETIVO</div>
+                <h2>YAWARA MOTOSTUDENT</h2>
+                <p>{error.message} Normalmente os processos seletivos abrem nos meses de Março e Agosto, fique ligado nas nossas redes socias para não perder nada!</p>
+                <Link href="https://www.instagram.com/yawara_ufgd/" target="_blank" className={styles.primaryBtn}>NOS SIGA NO INSTAGRAM!</Link>
+            </div>
+        );
+    }
 
-    if (error && !register_PS) return <div className={styles.error}>{error.message}</div>;
-
-    // Estado: Sem Processo Ativo
     if (register_PS) {
         return (
             <div className={styles.onboarding}>
@@ -92,14 +100,12 @@ export const ProcessTimeline = () => {
 
     return (
         <div className={styles.timelineContainer}>
-            {/* 1. Fluxo de Etapas */}
             <section className={styles.stepsSection}>
                 {data.steps.map((step, idx) => (
                     <TimelineStep key={step.id} step={step} index={idx} />
                 ))} 
             </section>
 
-            {/* 2. Seleção de Núcleos (Dinâmico) */}
             {data.nucleusChoice?.isWaiting && (
                 <section className={styles.interactionCard}>
                     <div className={styles.cardHeader}>
@@ -122,7 +128,6 @@ export const ProcessTimeline = () => {
                 </section>
             )}
 
-            {/* 3. Resultado Final */}
             {data.finalResult?.show && (
                 <section className={`${styles.interactionCard} ${styles.resultCard}`}>
                     <h4>VEREDITO FINAL</h4>

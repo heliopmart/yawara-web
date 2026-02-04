@@ -32,10 +32,10 @@ export default function MyAccountPage() {
 
         <section className={styles.profileSection}>
           <div className={styles.header}>
-            <div className={styles.avatar}>{user.initials}</div>
+            <div className={styles.avatar}>{user?.initials}</div>
             <div className={styles.info}>
               <h1>{user.name}</h1>
-              <span className={styles.nucleusBadge}>{user.nucleus.name}</span>
+              <span className={styles.nucleusBadge}>{user?.nucleus?.name}</span>
             </div>
           </div>
 
@@ -46,7 +46,7 @@ export default function MyAccountPage() {
                 type="text"
                 name="name"
                 placeholder='Nome'
-                value={user.name}
+                value={user.name ?? ""}
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
@@ -56,7 +56,7 @@ export default function MyAccountPage() {
               <input
                 type="email"
                 name="email"
-                value={user?.auth?.email}
+                value={user?.auth?.email ?? ""}
                 disabled
                 title="E-mail não pode ser alterado"
               />
@@ -67,7 +67,7 @@ export default function MyAccountPage() {
                 type="tel"
                 placeholder='Telefone/Whatsapp'
                 name="phone"
-                value={user?.phone}
+                value={user?.phone ?? ""}
                 onChange={handleInputChange}
                 disabled={!isEditing}
               />
@@ -77,7 +77,7 @@ export default function MyAccountPage() {
               <input
                 type="text"
                 placeholder='Núcleo Alocado'
-                value={user.nucleus.name}
+                value={user?.nucleus?.name ? user.nucleus.name : ""}
                 disabled
                 style={{ opacity: 0.5 }}
               />
@@ -95,7 +95,7 @@ export default function MyAccountPage() {
         <section className={styles.workSection}>
           <h2>Trabalhando em</h2>
           <div className={styles.cardsGrid}>
-            {workItems.map((item) => (
+            {workItems?.map((item) => (
               <div key={item.id} className={styles.workCard}>
                 <div className={styles.cardHeader}>
                   <span className={styles.type}>{item.type} • {item.code} {item.role && `• ${item.role}`} </span>

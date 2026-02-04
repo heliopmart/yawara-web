@@ -1,25 +1,14 @@
-// apps/frontend/src/components/auth/AuthForm/index.tsx
-
-'use client'; 
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import styles from './authForm.module.scss';
+import {AuthFormProps} from "@yawara/types"
 
-// Tipos para configurar o formulário (Você pode mover para @yawara/types se quiser compartilhar)
-interface AuthFormProps {
-  type: 'login' | 'register' | 'forgot';
-  title: string;
-  fields: { name: string; label: string; type: string, minLength?: number }[];
-  buttonText: string;
-  error: { message: string } | null;
-  onSubmit: (data: Record<string, string>) => void; 
-}
-
-const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, error, onSubmit }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, error, onForgotPassword, onSubmit }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -28,12 +17,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, er
     onSubmit(formData);
   };
 
+  const handleForgotPassword = () => {
+    if (type === 'login' && typeof onForgotPassword === 'function') {
+      onForgotPassword();
+    }
+  };
+
   return (
     <div className={styles.authContainer}>
       <div className={styles.authBox}>
         <h2 className={styles.title}>{title.toUpperCase()}</h2>
-        
-        {error && <div className={styles.errorMessage}><span>{error.message}</span></div>}
+
+        {error && <div className={styles.errorMessage}><span dangerouslySetInnerHTML={{ __html: error.message }}/></div>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {fields.map((field) => (
@@ -41,17 +36,48 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, er
               <label htmlFor={field.name} className={styles.label}>
                 {field.label}
               </label>
-              <input
-                id={field.name}
-                name={field.name}
-                type={field.type}
-                value={formData[field.name] || ''}
-                onChange={handleChange}
-                className={styles.input}
-                required
-                minLength={field?.minLength || 0}
-                placeholder={field.label} 
-              />
+
+              {field.type === 'select' ? (
+                <select
+                  id={field.name}
+                  name={field.name}
+                  value={formData[field.name] || ''}
+                  onChange={handleChange}
+                  className={styles.input}
+                  required
+                >
+                  <option value="" disabled>Selecione seu curso</option>
+
+                  {Array.isArray(field.options) && typeof field.options[0] === 'object'
+                    ? (field.options as any[]).map((group) => (
+                      <optgroup key={group.college} label={group.college}>
+                        {group.courses.map((course: string) => (
+                          <option key={course} value={course}>
+                            {course}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))
+                    : (field.options as string[]).map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))
+                  }
+                </select>
+              ) : (
+                <input
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  value={formData[field.name] || ''}
+                  onChange={handleChange}
+                  className={styles.input}
+                  required
+                  minLength={field?.minLength || 0}
+                  placeholder={field.label}
+                />
+              )}
             </div>
           ))}
 
@@ -60,25 +86,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, er
           </button>
         </form>
 
-        {/* Links adicionais baseados no tipo do formulário */}
         <div className={styles.footerLinks}>
           {type === 'login' && (
             <>
-              <Link href="/forgot-password" className={styles.smallLink}>
+              <button onClick={() => handleForgotPassword()} className={styles.smallLink}>
                 Esqueceu a senha?
-              </Link>
-              {/* O separador '|' foi removido via SCSS para separar os links verticalmente */}
+              </button>
               <Link href="/registre" className={styles.registerLink}>
                 Cadastre-se
               </Link>
             </>
           )}
           {type === 'register' && (
-             <Link href="/login" className={styles.smallLink}>
-                Já tenho conta. Fazer Login
-              </Link>
+            <Link href="/login" className={styles.smallLink}>
+              Já tenho conta. Fazer Login
+            </Link>
           )}
-          {/* Você adicionará um link para voltar ao login na tela de Forgot Password */}
         </div>
       </div>
     </div>

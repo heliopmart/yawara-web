@@ -3,6 +3,7 @@ import crypto from 'crypto'
 
 const TOKEN_SECRET_KEY = process.env.TOKEN_SECRET_KEY!!
 const REPORT_HASH_SALT = process.env.REPORT_HASH_SALT || 'yawara_secret_salt';
+const PASSWORD_HASH_SALT = process.env.PASSWORD_HASH_SALT || 'yawara_secret_salt';
 
 export const hashCreateSecretAuth = async (): Promise<string> => {
     return crypto.randomBytes(16).toString('hex');
@@ -27,4 +28,10 @@ export const handleGenerateHash = (payload: string): string => {
     
     const crypto = require('crypto');
     return crypto.createHash('sha256').update(`${payload}${REPORT_HASH_SALT}`).digest('hex');
+}
+
+export const handleGeneratePasswordHash = (payload: string): string => {
+    
+    const crypto = require('crypto');
+    return crypto.createHash('sha256').update(`${payload}${PASSWORD_HASH_SALT}`).digest('hex');
 }

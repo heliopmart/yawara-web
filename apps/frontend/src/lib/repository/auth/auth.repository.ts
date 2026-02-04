@@ -34,7 +34,7 @@ export class AuthRepository {
             })
 
             if (res) {
-                return (res.data as unknown as AuthRespositoryUserDataByEmail[])[0] ;
+                return (res.data as unknown as AuthRespositoryUserDataByEmail[])[0];
             }
 
             return null
@@ -83,7 +83,7 @@ export class AuthRepository {
                 table: this.authTableName,
                 data: { is_active: false, disabled_at: new Date().toISOString() },
                 where: [{ column: 'user_id', op: 'eq', value: user_id }],
-                authBd:bd,
+                authBd: bd,
             })
             if (!res.success) {
                 throw 'DISABLE_USER_ERROR';
@@ -108,7 +108,7 @@ export class AuthRepository {
                 table: this.authTableName,
                 data: { is_active: true, disabled_at: null },
                 where: [{ column: 'id', op: 'eq', value: auth_id }],
-                authBd:bd,
+                authBd: bd,
             })
             if (!res.success) {
                 throw 'RECOVER_USER_ERROR';
@@ -116,6 +116,30 @@ export class AuthRepository {
             return res.success;
         } catch (error) {
             console.error('AuthRepository.recoverAccount error:', error);
+            throw 'INTERNAL_SERVER_ERROR';
+        }
+    }
+
+    /**
+     * Update user password
+     * @param email String
+     * @param hashedPassword String
+     * @return boolean
+     * @throws 'INTERNAL_SERVER_ERROR'
+     */
+    static async updatePassword(email: string, hashedPassword: string): Promise<boolean> {
+        try {
+            const bd = supabaseAdmin
+            const res = await updateRow({
+                table: this.authTableName,
+                data: { password: hashedPassword },
+                where: [{ column: 'email', op: 'eq', value: email }],
+                authBd: bd,
+            })
+
+            return res.success
+        } catch (error) {
+            console.error('AuthRepository.updatePassword error:', error);
             throw 'INTERNAL_SERVER_ERROR';
         }
     }

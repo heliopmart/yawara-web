@@ -1,6 +1,7 @@
 import { resend } from '@/lib/resend';
-import { sendEmailParams, sendChalengesEmailParams, ChallengeDownloadTokenPayload} from '@yawara/types'
+import { sendEmailParams, sendChalengesEmailParams, ChallengeDownloadTokenPayload } from '@yawara/types'
 import { challengesEmailTemplate } from '@/utils/email/template/challenges_template'
+import { reset_password_template } from "@/utils/email/template/password_template"
 import jwt from 'jsonwebtoken';
 
 const fromEmail = process.env.RESEND_EMAIL || ''
@@ -48,6 +49,19 @@ export class EmailService {
         }
     }
 
+    async sendPasswordResetEmail(to: string, resetLink: string): Promise<void> {
+        try {
+            await this.sendEmail({
+                to,
+                subjetct: 'Redefinição de senha - Yawara',
+                html: reset_password_template(resetLink),
+            });
+        } catch (error) {
+            console.error('EmailService.sendPasswordResetEmail error:', error);
+            throw error;
+        }
+    }
+
     /*
         =========================================================
         ========================= HANDLE ========================
@@ -56,18 +70,18 @@ export class EmailService {
 
     private handleSetChallengesEmailTemplate(
         name: string,
-        user_id: string,    
-        edition_id: string,  
+        user_id: string,
+        edition_id: string,
         challenge_id: string,
         email: string
     ): string {
 
-        const tokenPayload : ChallengeDownloadTokenPayload = {
-            uid: user_id,     
-            eid: edition_id,  
+        const tokenPayload: ChallengeDownloadTokenPayload = {
+            uid: user_id,
+            eid: edition_id,
             cid: challenge_id,
-            eml: email,       
-            iat: Date.now()   
+            eml: email,
+            iat: Date.now()
         };
 
         const token = jwt.sign(

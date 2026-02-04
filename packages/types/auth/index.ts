@@ -35,9 +35,16 @@ export interface AuthServiceLoginCredentials {
 export interface AuthServiceRegistreCredentials {
     email: Auth['email'];
     name: Users['name'];
+    yearOfEntry: number;
     course: Users['course'];
     password: Auth['password'];
 }   
+
+export interface ResetPasswordCredentials {
+    email: Auth['email'];
+    password: Auth['password'];
+    hash: string;
+}
 
 export interface AuthLoginResponse{
     token: string;
@@ -79,3 +86,28 @@ export interface TokenPayload {
 // --------------------------------------------
 // ----------- FRONTEND INTERFACES ------------
 // --------------------------------------------
+
+interface CourseGroup {
+  college: string;
+  courses: string[];
+}
+export interface AuthFormProps {
+  type: 'login' | 'register' | 'forgot';
+  title: string;
+  fields: {
+    name: string;
+    label: string;
+    type: string;
+    minLength?: number;
+    options?: string[] | CourseGroup[];
+  }[];
+  buttonText: string;
+  error: { message: string } | null;
+  onForgotPassword?: () => void;
+  onSubmit: (data: Record<string, string>) => void;
+}
+export interface AuthErrorRespose {
+  code: string;
+  path: string;
+  message: string;
+}

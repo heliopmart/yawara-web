@@ -10,6 +10,7 @@ export interface Users{
     name: string;
     course: string;
     phone: string;
+    semester: number;
 }
 
 
@@ -37,6 +38,7 @@ export interface MyAccountUserData {
 export interface UserRespositoryUserDataById {
     name: Users['name'];
     course: Users['course'];
+    semester: Users['semester']
 }
 
 // export interface MyAccountUserDataRepository extends MyAccountUserData {

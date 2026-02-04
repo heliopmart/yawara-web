@@ -111,7 +111,7 @@ export class PsRepository {
         }
     }
 
-    async getPsEditions(edition_id?: ps_editions['id']): Promise<PsEditionAvailable[] | PsEditionAvailable> {
+    async getPsEditions(edition_id?: ps_editions['id']): Promise<PsEditionAvailable> {
         try {
             const res = await getRows<PsEditionAvailable>({
                 table: this.TablePsEditionName,
@@ -125,7 +125,7 @@ export class PsRepository {
                 throw 'PS_EDITION_NOT_FOUND'
             }
 
-            return res
+            return res as PsEditionAvailable
         } catch (error) {
             console.error('PsRepository.getPsEditions error:', error);
             throw error;

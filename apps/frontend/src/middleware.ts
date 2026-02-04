@@ -39,8 +39,6 @@ export async function middleware(req: NextRequest) {
         }
     }
 
-    console.log(userRole)
-
     // --- REGRA 1: Proteção de Líder/Admin ---
     if (ROLE_ROUTES.ADMIN_ROUTES.some(route => path.startsWith(route))) {
         if (userRole !== 'LEADER' && userRole !== 'ADMIN') {

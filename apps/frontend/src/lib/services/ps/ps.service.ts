@@ -35,6 +35,7 @@ export class PsService {
         }
     }
 
+
     async getUserCardsById(): Promise<UserProgressContext> {
         try {
             const response = await this.psRepository.getUserCardsById();
@@ -217,12 +218,12 @@ export class PsService {
             const cards_progress: cards_progress[] = [
                 {
                     card_id: 1,
-                    state: 'NOT_AVAILABLE',
+                    state: 'PENDING_ACTION',
                     file_id: '',
                 },
                 {
                     card_id: 2,
-                    state: 'NOT_AVAILABLE',
+                    state: 'PENDING_ACTION',
                     file_id: '',
                     notes: {
                         technical_content: 0,
@@ -234,7 +235,7 @@ export class PsService {
                 },
                 {
                     card_id: 3,
-                    state: 'NOT_AVAILABLE',
+                    state: 'PENDING_ACTION',
                     notes: {
                         communication: 0,
                         proactivily: 0,
@@ -245,7 +246,7 @@ export class PsService {
                 },
                 {
                     card_id: 4,
-                    state: 'NOT_AVAILABLE',
+                    state: 'PENDING_ACTION',
                     notes: {
                         technique: 0,
                         resilience: 0,
@@ -270,8 +271,6 @@ export class PsService {
             if (!response) {
                 throw 'PS_EDITION_CREATION_FAILED';
             }
-
-            await this.scheduleEditionLifecycle(response, data);
 
             return response ? true : false;
         } catch (error) {
@@ -362,10 +361,47 @@ export class PsService {
 
     /*
         =========================================================
+        ======================= PS HANDLE  ======================
+        =========================================================
+    */
+
+    async checkAndOrchestrateActiveEdition() {
+        const edition = await this.psRepository.getPsEditions()
+
+        const now = new Date();
+        const registrationClosing = this.toCampoGrandeDate(edition.registration_closing);
+        const finishDate = this.toCampoGrandeDate(edition.finish_date);
+
+        const deactivationDate = new Date(finishDate);
+        deactivationDate.setDate(deactivationDate.getDate() + 7);
+
+        if (now > deactivationDate) {
+            return { action: 'DESACTIVATE_PROCESS', id: edition.id };
+        }
+
+        if (now > finishDate && !edition.is_completed) {
+            return { action: 'FINISH_PROCESS', id: edition.id };
+        }
+
+        if (now > registrationClosing) {
+            return { action: 'CLOSE_REGISTRATION', id: edition.id };
+        }
+
+        return null;
+    }
+
+    /*
+        =========================================================
         ====================== PS Schedule  =====================
         =========================================================
     */
 
+    /**
+    * Schedules lifecycle events for the edition in QStash.
+    * @param editionId ID of the PS edition.
+    * @param data Data of the PS edition.
+    * @deprecated Events are now triggered by cron jobs that check the status of active editions.
+    */
     private async scheduleEditionLifecycle(editionId: string, data: createPsEdition) {
         const qstash = new QStashService();
 

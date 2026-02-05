@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi.concurrency import run_in_threadpool
 from app.training.train_canonical_subject_ml_v2 import TrainingYsnaCanonicalV2
-from app.services.storage import storage_service
+from app.utils.download_models_file import verify_and_download_models_file
 from app.training.train_engine_v2 import TrainingEngineV2
 from app.utils.data_checker_for_training import check_entered_grades
 from app.core.config import settings
@@ -17,44 +17,11 @@ class TrainingScheduler:
         self.scheduler = AsyncIOScheduler()
         self.scheduler.add_job(self._check_and_train_routine_engine_v2, 'cron', hour=3, minute=0) # Todo dia as 3am
         self.scheduler.add_job(self._check_and_train_routine_canonical, 'cron', hour=3, minute=0) # Todo dia as 3am
-        self.scheduler.add_job(self._verify_and_download_models_file, 'cron', hour=1, minute=0) # Todo dia as 1am
+        self.scheduler.add_job(lambda: verify_and_download_models_file(), 'cron', hour=1, minute=0)
         
     def start(self):
         self.scheduler.start()
         logger.info("🕒 Agendador de Treinamento iniciado.")
-
-    async def _verify_and_download_models_file(self):
-        """
-        Verifica se o arquivo de modelos existe localmente. Se não existir, baixa do repositório remoto.
-        """
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(os.path.dirname(current_dir))
-        
-        canonical_model = os.path.join(project_root, settings.ML_CANONICAL_WEIGHTS_PATH)
-        canonical_memory = os.path.join(project_root, settings.NN_MODEL_MEMORY_FILE_PATH)
-        engine_v2_model = os.path.join(project_root, settings.ML_ENGINE_2_PATH)
-        engine_v2_labels = os.path.join(project_root, settings.ML_ENGINE_2_LABELS_PATH) 
-
-        if(os.path.exists(canonical_model) and 
-           os.path.exists(canonical_memory) and
-           os.path.exists(engine_v2_model) and
-           os.path.exists(engine_v2_labels)):
-            logger.info("✅ Todos os arquivos de modelo estão presentes localmente.")
-            return True
-        
-        if(os.path.exists(canonical_model) == False):
-            logger.info("⬇️ Baixando modelo Canonical...")
-            await run_in_threadpool(storage_service.download_file, local_dest=canonical_model, public_id=settings.ML_CANONICAL_WEIGHTS_ID)
-        if(os.path.exists(canonical_memory) == False):
-            logger.info("⬇️ Baixando memória Canonical...")
-            await run_in_threadpool(storage_service.download_file, local_dest=canonical_memory, public_id=settings.NN_MODEL_MEMORY_FILE_ID)
-        if(os.path.exists(engine_v2_model) == False):
-            logger.info("⬇️ Baixando modelo Engine V2...")
-            await run_in_threadpool(storage_service.download_file, local_dest=engine_v2_model, public_id=settings.ML_CLOUD_MODEL_NAME)
-        if(os.path.exists(engine_v2_labels) == False):
-            logger.info("⬇️ Baixando labels Engine V2...")
-            await run_in_threadpool(storage_service.download_file, local_dest=engine_v2_labels, public_id=settings.ML_CLOUD_LABELS_NAME)
-
 
     async def _check_and_train_routine_canonical(self):
         """

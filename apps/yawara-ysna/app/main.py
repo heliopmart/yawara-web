@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.api.v1.endpoints import router as api_router 
 from app.core.scheduler import training_scheduler 
 from app.core.middleware import YsnaFirewallMiddleware
+from app.utils.download_models_file import verify_and_download_models_file
 
 current_file = pathlib.Path(__file__).resolve()
 project_root = current_file.parent.parent
@@ -42,15 +43,21 @@ app.include_router(api_router, prefix="/api/v1")
 app.mount("/docs/ysna", StaticFiles(directory=str(docs_path), html=True), name="yawara-ysna-docs")
 
 @app.get("/")
-def root():
+async def root():
     return {
         "system": "Y-SNA",
         "status": "online",
         "phase": settings.CURRENT_PHASE,
-        "message": "O Portão de Ferro está ativo."
+        "message": "O Y-SNA está ativo."
     }
 
 
 @app.on_event("startup")
 async def startup_event():
     training_scheduler.start()
+
+    try:
+     await verify_and_download_models_file()
+    except Exception as e:
+        print("Error during model file verification/download:", e)
+

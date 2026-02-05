@@ -129,7 +129,7 @@ class StorageService:
             response = cloudinary.uploader.upload(
                 local_path, 
                 resource_type="raw",
-                public_id=f"models/{remote_name}",
+                public_id=remote_name,
                 overwrite=True,
                 unique_filename=False,
                 access_mode="public"
@@ -172,11 +172,13 @@ class StorageService:
             if not url:
                 config = cloudinary.config()
                 if config.cloud_name:
-                    url = f"https://res.cloudinary.com/{config.cloud_name}/raw/upload/models/{remote_name}"
+                    url = f"https://res.cloudinary.com/{config.cloud_name}/raw/upload/{remote_name}"
                 else:
                     logger.error("Cloudinary não configurado. Impossível gerar URL.")
                     return False
 
+
+            print(url)
             logger.debug(f"Downloading Model: {url} -> {local_dest}")
 
             # Stream=True para não carregar arquivos gigantes na RAM

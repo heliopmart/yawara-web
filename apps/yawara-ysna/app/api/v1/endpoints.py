@@ -4,6 +4,7 @@ import tensorflow as tf
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response, status, Body
 from fastapi.concurrency import run_in_threadpool
 from typing import List
+import asyncio
 
 # Serviços e Schemas
 from app.services.ingestion import ingest_academic_record_from_pdf
@@ -52,8 +53,18 @@ async def run_valence_forge():
 async def previewYsna(file: UploadFile = File(...)):
     try:
         pdf_bytes = await file.read()
-            
-        analysis_result = await selection_pipeline.execute_preview(pdf_bytes) 
+
+        try:
+            analysis_result = await asyncio.wait_for(
+                selection_pipeline.execute_preview(pdf_bytes), 
+                timeout=30.0
+            )
+        except asyncio.TimeoutError:
+            logger.warning("⏳ Timeout no Y-SNA pipeline.")
+            raise HTTPException(
+                status_code=408, 
+                detail="O processamento do Y-SNA demorou mais que o esperado. Tente novamente."
+            )
         
         report_bytes = analysis_result.get('pdf_bytes')
 

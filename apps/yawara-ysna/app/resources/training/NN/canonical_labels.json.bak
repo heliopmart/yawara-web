@@ -1,10 +1,36 @@
 [
   {
+    "canonical": "ADMINISTRACAO_DA_PRODUCAO",
+    "vars": [
+      "ADM. DA PRODUCAO",
+      "ADMINISTRACAO DA PRODUCAO",
+      "ADMINISTRACAO DE PRODUCAO",
+      "GESTAO DA PRODUCAO"
+    ]
+  },
+  {
+    "canonical": "ADMISTRACAO_PARA_ENGENHARIA",
+    "vars": [
+      "ADM. PARA ENGENHARIA",
+      "ADMINISTRACAO PARA ENGENHARIA"
+    ]
+  },
+  {
+    "canonical": "AERODINAMICA",
+    "vars": [
+      "AERODINAMICA",
+      "AERODINAMICA APLICADA"
+    ]
+  },
+  {
     "canonical": "ALGEBRA_LINEAR_E_GEOMETRIA_ANALITICA",
     "vars": [
-      "ALGEBRA",
       "ALGEBRA LINEAR E GEOMETRIA ANALITICA",
-      "ALGEBRA LINEAR GEOMETRIA ANALITICA"
+      "ALGEBRA LINEAR GEOMETRIA ANALITICA",
+      "GEOMETRIA ANALITICA E ALGEBREA LINEAR",
+      "GEOMETRIA ANALITICA",
+      "ALGEBRA LINEAR",
+      "GEOMETRIA E ALGEBRA LINEAR"
     ]
   },
   {
@@ -27,6 +53,18 @@
     ]
   },
   {
+    "canonical": "ANALISE_E_MELHORIA_DE_PROCESSOS",
+    "vars": [
+      "ANALISE E MELHORIA DE PROCESSOS",
+      "GESTAO POR PROCESSOS",
+      "KAIZEN",
+      "LEAN",
+      "MELHORIA CONTINUA",
+      "MELHORIA DE PROCESSOS",
+      "PDCA"
+    ]
+  },
+  {
     "canonical": "ANALISE_INSTRUMENTAL_DE_ALIMENTOS",
     "vars": [
       "ANALISE INSTRUMENTAL DE ALIMENTOS"
@@ -42,6 +80,13 @@
     "canonical": "ANALISE_SENSORIAL",
     "vars": [
       "ANALISE SENSORIAL"
+    ]
+  },
+  {
+    "canonical": "ANALIZE_POR_ELEMENTOS_FINITOS",
+    "vars": [
+      "ANALISE POR ELEM. FINITOS",
+      "ANALIZE POR ELEMENTOS FINITOS"
     ]
   },
   {
@@ -71,6 +116,23 @@
     ]
   },
   {
+    "canonical": "ARMAZENAMENTO_DE_ENERGIA",
+    "vars": [
+      "ARMAZENAMENTO DE ENERGIA",
+      "ARMAZENAMENTO ENERGETICO",
+      "SISTEMAS DE ARMAZENAMENTO"
+    ]
+  },
+  {
+    "canonical": "ARQUITETURA_E_ORGANIZACAO_DE_COMPUTADORES",
+    "vars": [
+      "AOC",
+      "ARQUITETURA DE COMPUTADORES",
+      "ARQUITETURA E ORGANIZACAO DE COMPUTADORES",
+      "ORGANIZACAO DE COMPUTADORES"
+    ]
+  },
+  {
     "canonical": "ARQUITETURA_E_URBANISMO",
     "vars": [
       "ARQ. Urbanismo",
@@ -94,6 +156,13 @@
     ]
   },
   {
+    "canonical": "AUTOMACAO_INDUSTRIAL",
+    "vars": [
+      "AUT. INDUSTRIAL",
+      "AUTOMACAO INDUSTRIAL"
+    ]
+  },
+  {
     "canonical": "BIOQUIMICA_DE_ALIMENTOS",
     "vars": [
       "BIO. ALIMENTOS",
@@ -113,9 +182,9 @@
       "CAL. DIFERENCIAL 1",
       "CAL. DIFERENCIAL I",
       "CALCULO 1",
+      "CALCULO DIFERENCIAL E INTEGRAL",
       "CALCULO DIFERENCIAL E INTEGRAL 1",
       "CALCULO DIFERENCIAL E INTEGRAL I",
-      "CALCULO DIFERENCIAL E INTEGRAL",
       "CALCULO I",
       "CALULO DIF. INTEGRAL 1",
       "CALULO DIF. INTEGRAL I",
@@ -173,6 +242,18 @@
     ]
   },
   {
+    "canonical": "CELULAS_A_COMBUSTIVEL",
+    "vars": [
+      "CELULA A COMBUSTIVEL",
+      "CELULAS A COMBUSTIVEL",
+      "FUEL CELL",
+      "FUEL CELLS",
+      "PAFC",
+      "PEMFC",
+      "SOFC"
+    ]
+  },
+  {
     "canonical": "CIDADANIA_E_EDUCACAO_EM_DIREITOS_HUMANOS",
     "vars": [
       "CIDADANIA E EDUCACAO EM DIREITOS HUMANOS",
@@ -187,6 +268,15 @@
       "CIENCIA TEC. DOS MATERIAIS",
       "CIENCIA TECNOLOGIA DOS MATERIAIS",
       "TECNOLOGIA DOS MATERIAIS"
+    ]
+  },
+  {
+    "canonical": "CINETICA_I",
+    "vars": [
+      "CINETICA 1",
+      "CINETICA I",
+      "CINETICA QUIMICA 1",
+      "CINETICA QUIMICA I"
     ]
   },
   {
@@ -285,6 +375,33 @@
     ]
   },
   {
+    "canonical": "CONVERSAO_DE_ENERGIA",
+    "vars": [
+      "CONVERSAO DE ENERGIA",
+      "CONVERSAO DE ENERGIA I",
+      "CONVERSAO DE ENERGIA II",
+      "CONVERSAO ENERGETICA"
+    ]
+  },
+  {
+    "canonical": "CONVERSORES_ESTATICOS",
+    "vars": [
+      "CONVERSOR ESTATICO",
+      "CONVERSORES ESTATICOS",
+      "INVERSORES",
+      "RETIFICADORES"
+    ]
+  },
+  {
+    "canonical": "CUSTOS_INDUSTRIAIS",
+    "vars": [
+      "ANALISE DE CUSTOS",
+      "CUSTEIO INDUSTRIAL",
+      "CUSTO INDUSTRIAL",
+      "CUSTOS INDUSTRIAIS"
+    ]
+  },
+  {
     "canonical": "DESENHO_ARQUITETONICO",
     "vars": [
       "DES. ARQUITETONICO",
@@ -330,6 +447,23 @@
     ]
   },
   {
+    "canonical": "DINAMICA_DOS_FLUIDOS",
+    "vars": [
+      "DINAMICA DE FLUIDOS",
+      "DINAMICA DOS FLUIDOS"
+    ]
+  },
+  {
+    "canonical": "DINAMICA_DOS_FLUIDOS_COMPUTACIONAL",
+    "vars": [
+      "CFD",
+      "COMPUTATIONAL FLUID DYNAMICS",
+      "DINAMICA DE FLUIDOS COMPUTACIONAL",
+      "DINAMICA DOS FLUIDOS COMPUTACIONAL",
+      "SIMULACAO DE FLUIDOS"
+    ]
+  },
+  {
     "canonical": "DIVERSIDADES_INTERCULTURALIDADE_E_RELACOES_ETNICO_RACIAIS",
     "vars": [
       "DIVERSIDADES INTERCULTURALIDADE E RELACOES ETNICO RACIAIS",
@@ -344,11 +478,39 @@
     ]
   },
   {
+    "canonical": "ECONOMIA_PARA_ENGENHARIA",
+    "vars": [
+      "ECO. PARA ENGENHARIA",
+      "ECONOMIA PARA ENGENHARIA",
+      "ECONOMIA",
+      "ECONOMIA 1",
+      "ECONOMIA I"
+    ]
+  },
+  {
     "canonical": "EDUCACAO_ETNICO_RACIAL_E_DIREITOS_HUMANOS",
     "vars": [
       "EDUCACAO ETNICO RACIAL DIREITOS HUMANOS",
       "EDUCACAO ETNICO RACIAL E DIREITOS HUMANOS",
       "EERDH"
+    ]
+  },
+  {
+    "canonical": "ELEMENTOS_DE_MAQUINAS_I",
+    "vars": [
+      "ELEMENTOS DE MAQUINAS 1",
+      "ELEMENTOS DE MAQUINAS I",
+      "EM 1",
+      "EM I"
+    ]
+  },
+  {
+    "canonical": "ELEMENTOS_DE_MAQUINAS_II",
+    "vars": [
+      "ELEMENTOS DE MAQUINAS 2",
+      "ELEMENTOS DE MAQUINAS II",
+      "EM 2",
+      "EM II"
     ]
   },
   {
@@ -366,10 +528,43 @@
     ]
   },
   {
+    "canonical": "ELETRONICA_ANALOGICA_I",
+    "vars": [
+      "ELETRONICA 1",
+      "ELETRONICA ANALOGICA",
+      "ELETRONICA ANALOGICA 1",
+      "ELETRONICA ANALOGICA I",
+      "ELETRONICA I"
+    ]
+  },
+  {
     "canonical": "ELETRONICA_BASICA",
     "vars": [
       "ELE. BASICA",
       "ELETRONICA BASICA"
+    ]
+  },
+  {
+    "canonical": "ELETRONICA_DE_POTENCIA",
+    "vars": [
+      "ELET. DE POTENCIA",
+      "ELETRONICA DE POTENCIA",
+      "POWER ELECTRONICS"
+    ]
+  },
+  {
+    "canonical": "ELETRONICA_DIGITAL_I",
+    "vars": [
+      "ELETRONICA DIGITAL",
+      "ELETRONICA DIGITAL 1",
+      "ELETRONICA DIGITAL I"
+    ]
+  },
+  {
+    "canonical": "ELETROQUIMICA",
+    "vars": [
+      "ELETRO-QUIMICA",
+      "ELETROQUIMICA"
     ]
   },
   {
@@ -424,6 +619,15 @@
     ]
   },
   {
+    "canonical": "ENGENHARIA_DE_SOFTWARE",
+    "vars": [
+      "ENG. DE SOFTWARE",
+      "ENGENHARIA DE SOFT.",
+      "ENGENHARIA DE SOFTWARE",
+      "ENGENHARIA SOFTWARE"
+    ]
+  },
+  {
     "canonical": "ENGENHARIA_ECONOMICA",
     "vars": [
       "ENGENHARIA ECONOMICA"
@@ -434,6 +638,14 @@
     "vars": [
       "ENSAIOS MEC. DOS MATERIAIS",
       "ENSAIOS MECANICOS DOS MATERIAIS"
+    ]
+  },
+  {
+    "canonical": "EQUACOES_DIFERENCIAIS",
+    "vars": [
+      "EQUA. DIFERENCIAS",
+      "EQUACOES DIF.",
+      "EQUACOES DIFERENCIAIS"
     ]
   },
   {
@@ -452,9 +664,9 @@
     "canonical": "ESTATICA_DOS_CORPOS_RIGIDOS",
     "vars": [
       "EST. DOS CORPOS RIGIDOS",
-      "ESTATICA DOS CORPOS RIGIDOS",
       "ESTATICA",
       "ESTATICA DE CORPOS RIGIDOS",
+      "ESTATICA DOS CORPOS RIGIDOS",
       "ESTATICA PARA ENGENHARIA"
     ]
   },
@@ -463,6 +675,15 @@
     "vars": [
       "ESTRADAS 2",
       "ESTRADAS II"
+    ]
+  },
+  {
+    "canonical": "ETICA_E_LEGISLACAO_PROFISSIONAL",
+    "vars": [
+      "ETICA E LEGISLACAO",
+      "ETICA E LEGISLACAO PROFISSIONAL",
+      "ETICA PROFISSIONAL",
+      "LEGISLACAO PROFISSIONAL"
     ]
   },
   {
@@ -482,8 +703,8 @@
     "canonical": "FENOMENOS_DE_TRANSPORTE_I",
     "vars": [
       "FENOMENOS 1",
-      "FENOMENOS DE TRANSPORTE 1",
       "FENOMENOS DE TRANSPORTE",
+      "FENOMENOS DE TRANSPORTE 1",
       "FENOMENOS DE TRANSPORTE I",
       "FENOMENOS I"
     ]
@@ -525,29 +746,29 @@
   {
     "canonical": "FISICO_QUIMICA_PARA_ENGENHARIA_I",
     "vars": [
-      "FISICO QUIMICA PARA ENGENHARIA 1",
-      "FISICO QUIMICA PARA ENGENHARIA I",
-      "FQE 1",
-      "FQE I",
-      "FISICO QUIMICA I",
-      "FISICO-QUIMICA 1",
+      "FIS. QUIMICA",
       "FIS. QUIMICA 1",
       "FIS. QUIMICA I",
       "FISICO QUIMICA",
+      "QUIMICA FISICO",
+      "FISICO QUIMICA I",
+      "FISICO QUIMICA PARA ENGENHARIA 1",
+      "FISICO QUIMICA PARA ENGENHARIA I",
       "FISICO-QUIMICA",
-      "FIS. QUIMICA",
-      "FIS. QUIMICA"
+      "FISICO-QUIMICA 1",
+      "FQE 1",
+      "FQE I"
     ]
   },
   {
     "canonical": "FISICO_QUIMICA_PARA_ENGENHARIA_II",
     "vars": [
+      "FIS. QUIMICA 2",
+      "FIS. QUIMICA II",
+      "FISICO QUIMICA II",
       "FISICO QUIMICA PARA ENGENHARIA 2",
       "FISICO QUIMICA PARA ENGENHARIA II",
-      "FISICO QUIMICA II",
-      "FISICO-QUIMICA 2",
-      "FIS. QUIMICA 2",
-      "FIS. QUIMICA II"
+      "FISICO-QUIMICA 2"
     ]
   },
   {
@@ -596,18 +817,45 @@
     ]
   },
   {
+    "canonical": "GESTAO_DA_INOVACAO_TECNOLOGICA",
+    "vars": [
+      "GESTAO DA INOVACAO",
+      "GESTAO DA INOVACAO TECNOLOGICA",
+      "GESTAO TECNOLOGICA",
+      "INOVACAO TECNOLOGICA"
+    ]
+  },
+  {
     "canonical": "GESTAO_DA_MANUTENCAO",
     "vars": [
       "GESTAO DA MANUTENCAO"
     ]
   },
   {
+    "canonical": "GESTAO_DE_PROJETOS",
+    "vars": [
+      "ANALIZE DE PROJETOS",
+      "GES. DE PROJETOS",
+      "GESTAO DE PROJETOS",
+      "PLANEJAMENTO"
+    ]
+  },
+  {
     "canonical": "GESTAO_DE_QUALIDADE",
     "vars": [
-      "GESTAO DE QUALIDADE",
       "GESTAO DA QUALIDADE",
-      "GESTAO QUALIDADE",
-      "GESTAO DE QUAL."
+      "GESTAO DE QUAL.",
+      "GESTAO DE QUALIDADE",
+      "GESTAO QUALIDADE"
+    ]
+  },
+  {
+    "canonical": "GESTAO_ESTRATEGICA",
+    "vars": [
+      "ESTRATEGIA",
+      "GESTAO DE ESTRATEGIA",
+      "GESTAO ESTRATEGICA",
+      "PLANEJAMENTO ESTRATEGICO"
     ]
   },
   {
@@ -678,21 +926,9 @@
   {
     "canonical": "INTRODUCAO_A_ECONOMIA",
     "vars": [
-      "INTRODUCAO A ECONOMIA"
-    ]
-  },
-  {
-    "canonical": "ECONOMIA_PARA_ENGENHARIA",
-    "vars": [
-      "ECONOMIA PARA ENGENHARIA",
-      "ECO. PARA ENGENHARIA"
-    ]
-  },
-  {
-    "canonical": "ADMISTRACAO_PARA_ENGENHARIA",
-    "vars": [
-      "ADM. PARA ENGENHARIA",
-      "ADMINISTRACAO PARA ENGENHARIA"
+      "INTRODUCAO A ECONOMIA",
+      "INT. A ECONOMIA",
+      "INTRODUCAO ECONOMICA"
     ]
   },
   {
@@ -786,55 +1022,18 @@
     ]
   },
   {
-    "canonical": "GESTAO_DE_PROJETOS",
-    "vars": [
-      "GESTAO DE PROJETOS",
-      "GES. DE PROJETOS",
-      "ANALIZE DE PROJETOS",
-      "PLANEJAMENTO"
-    ]
-  },
-  {
-    "canonical": "EQUACOES_DIFERENCIAIS",
-    "vars": [
-      "EQUACOES DIFERENCIAIS",
-      "EQUA. DIFERENCIAS",
-      "EQUACOES DIF."
-    ]
-  },
-  {
-    "canonical": "MODELAGEM_E_SIMULACAO_DE_PROJETOS",
-    "vars": [
-      "MODELAGEM E SIMULACAO DE PROJETOS",
-      "MODELAGEM SIMULACAO DE PROJETOS"
-    ]
-  },
-  {
-    "canonical": "SUSTENTABILIDADE",
-    "vars": [
-      "SUSTENTABILIDADE",
-      "GESTAO AMBIENTAL"
-    ]
-  },
-  {
-    "canonical": "ELETROQUIMICA",
-    "vars": [
-      "ELETROQUIMICA",
-      "ELETRO-QUIMICA"
-    ]
-  },
-  {
-    "canonical": "ANALIZE_POR_ELEMENTOS_FINITOS",
-    "vars": [
-      "ANALIZE POR ELEMENTOS FINITOS",
-      "ANALISE POR ELEM. FINITOS"
-    ]
-  },
-  {
     "canonical": "LIDERANCA_E_GESTAO_DE_TALENTOS_E_PROJETOS",
     "vars": [
       "LIDERANCA E GESTAO DE TALENTOS E PROJETOS",
       "LIDERANCA GESTAO DE TALENTOS PROJETOS"
+    ]
+  },
+  {
+    "canonical": "LOGISTICA",
+    "vars": [
+      "GESTAO LOGISTICA",
+      "LOGISTICA E DISTRIBUICAO",
+      "LOGISTICA INDUSTRIAL"
     ]
   },
   {
@@ -867,6 +1066,14 @@
     ]
   },
   {
+    "canonical": "MATERIAIS_DE_ENGENHARIA",
+    "vars": [
+      "MATERIAIS DE ENGENHARIA",
+      "MATERIAIS NA ENGENHARIA",
+      "MATERIAIS PARA ENGENHARIA"
+    ]
+  },
+  {
     "canonical": "MATERIAS_PRIMAS_AGROINDUSTRIAIS",
     "vars": [
       "MATERIAS PRIMAS AGROINDUSTRIAIS"
@@ -884,7 +1091,9 @@
       "MEC. DOS FLUIDOS 1",
       "MEC. DOS FLUIDOS I",
       "MECANICA DOS FLUIDOS 1",
-      "MECANICA DOS FLUIDOS I"
+      "MECANICA DOS FLUIDOS I",
+      "MECANICA DOS FLUIDOS",
+      "MECANICA DOS FLUIDOS"
     ]
   },
   {
@@ -892,6 +1101,8 @@
     "vars": [
       "MECANICA DOS FLUIDOS 2",
       "MECANICA DOS FLUIDOS II",
+      "MEC. DOS FLUIDOS 2",
+      "MEC. DOS FLUIDOS II",
       "MF II"
     ]
   },
@@ -919,11 +1130,27 @@
   {
     "canonical": "MECANICA_E_CIENCIA_DOS_MATERIAIS",
     "vars": [
-      "MECANICA CIENCIA DOS MATERIAIS",
-      "MECANICA E CIENCIA DOS MATERIAIS",
       "CIEN. MATERIAIS",
       "CIENCIA DOS MATERIAIS",
-      "CIENCIA E TECNOLOGIA DOS MATERIAIS"
+      "CIENCIA E TECNOLOGIA DOS MATERIAIS",
+      "MECANICA CIENCIA DOS MATERIAIS",
+      "MECANICA E CIENCIA DOS MATERIAIS"
+    ]
+  },
+  {
+    "canonical": "MECANICA_GERAL",
+    "vars": [
+      "MEC. GERAL",
+      "MECANICA GERAL"
+    ]
+  },
+  {
+    "canonical": "MECANICA_RACIONAL",
+    "vars": [
+      "ESTATICA E DINAMICA",
+      "MEC. RACIONAL",
+      "MECANICA RACIONAL",
+      "MECANICA RACIONAL (ESTATICA E DINAMICA)"
     ]
   },
   {
@@ -948,6 +1175,15 @@
     ]
   },
   {
+    "canonical": "METODOS_COMPUTACIONAIS_EM_ENGENHARIA",
+    "vars": [
+      "CALCULO CIENTIFICO",
+      "COMPUTACAO CIENTIFICA",
+      "METODO COMPUTACIONAL EM ENGENHARIA",
+      "METODOS COMPUTACIONAIS EM ENGENHARIA"
+    ]
+  },
+  {
     "canonical": "METODOS_MATEMATICOS_PARA_ENGENHARIA",
     "vars": [
       "METODOS MATEMATICOS PARA ENGENHARIA"
@@ -963,7 +1199,33 @@
   {
     "canonical": "MICROBIOLOGIA_BASICA",
     "vars": [
-      "MICROBIOLOGIA BASICA"
+      "MICROBIOLOGIA BASICA",
+      "MICRO-BIOLOGIA BASICA",
+      "MICRO BIOLOGA BASICA",
+      "MICROBIOLOGIA BASIC."
+    ]
+  },
+  {
+    "canonical": "MODELAGEM_E_SIMULACAO_DE_PROCESSOS",
+    "vars": [
+      "MODELAGEM DE PROCESSOS",
+      "MODELAGEM E SIMULACAO DE PROCESSOS",
+      "SIMULACAO DE PROCESSOS"
+    ]
+  },
+  {
+    "canonical": "MODELAGEM_E_SIMULACAO_DE_PROJETOS",
+    "vars": [
+      "MODELAGEM E SIMULACAO DE PROJETOS",
+      "MODELAGEM SIMULACAO DE PROJETOS"
+    ]
+  },
+  {
+    "canonical": "MODELAGEM_MATEMATICA_DE_SISTEMAS_FISICOS",
+    "vars": [
+      "MODELAGEM DE SISTEMAS FISICOS",
+      "MODELAGEM MATEMATICA",
+      "MODELAGEM MATEMATICA DE SISTEMAS FISICOS"
     ]
   },
   {
@@ -1019,6 +1281,16 @@
     ]
   },
   {
+    "canonical": "PESQUISA_OPERACIONAL",
+    "vars": [
+      "OTIMIZACAO",
+      "P.O.",
+      "PESQUISA OPERACIONAL",
+      "PO",
+      "PROGRAMACAO LINEAR"
+    ]
+  },
+  {
     "canonical": "PLANEJAMENTO_ELABORACAO_E_ANALISE_DE_PROJETOS",
     "vars": [
       "PLANEJAMENTO ELABORACAO ANALISE DE PROJETOS",
@@ -1030,6 +1302,16 @@
     "vars": [
       "PLANEJAMENTO CONTROLE DA MANUTENCAO",
       "PLANEJAMENTO E CONTROLE DA MANUTENCAO"
+    ]
+  },
+  {
+    "canonical": "PLANEJAMENTO_E_CONTROLE_DA_PRODUCAO",
+    "vars": [
+      "P.C.P.",
+      "PCP",
+      "PLANEJAMENTO CONTROLE DA PRODUCAO",
+      "PLANEJAMENTO E CONTROLE DA PRODUCAO",
+      "PLANEJAMENTO E CONTROLE DE PRODUCAO"
     ]
   },
   {
@@ -1077,6 +1359,15 @@
       "PROGRAMACAO APLICADA",
       "PROGRAMACAO APLICADA A ENG",
       "PROGRAMACAO APLICADA A ENGENHARIA"
+    ]
+  },
+  {
+    "canonical": "PROGRAMACAO_PARA_ENGENHARIA",
+    "vars": [
+      "PROG. PARA ENGENHARIA",
+      "PROGRAMACAO P/ ENGENHARIA",
+      "PROGRAMACAO PARA A ENGENHARIA",
+      "PROGRAMACAO PARA ENGENHARIA"
     ]
   },
   {
@@ -1140,6 +1431,38 @@
     ]
   },
   {
+    "canonical": "QUIMICA_GERAL_II",
+    "vars": [
+      "QG 2",
+      "QG II",
+      "QUIMICA GERAL 2",
+      "QUIMICA GERAL II"
+    ]
+  },
+  {
+    "canonical": "QUIMICA_I",
+    "vars": [
+      "QUIMICA 1",
+      "QUIMICA GERAL 1",
+      "QUIMICA GERAL I",
+      "QUIMICA I"
+    ]
+  },
+  {
+    "canonical": "QUIMICA_INORGANICA",
+    "vars": [
+      "Q. INORGANICA",
+      "QUIMICA INORGANICA"
+    ]
+  },
+  {
+    "canonical": "QUIMICA_ORGANICA",
+    "vars": [
+      "Q. ORGANICA",
+      "QUIMICA ORGANICA"
+    ]
+  },
+  {
     "canonical": "REFRIGERACAO_INDUSTRIAL_E_COMERCIAL",
     "vars": [
       "REFRIGERACAO INDUSTRIAL COMERCIAL",
@@ -1173,14 +1496,76 @@
     ]
   },
   {
+    "canonical": "RESISTENCIA_DOS_MATERIAIS_I",
+    "vars": [
+      "RESISTENCIA DOS MATERIAIS 1",
+      "RESISTENCIA DOS MATERIAIS I",
+      "RM 1",
+      "RM I"
+    ]
+  },
+  {
+    "canonical": "RESISTENCIA_DOS_MATERIAIS_II",
+    "vars": [
+      "RESISTENCIA DOS MATERIAIS 2",
+      "RESISTENCIA DOS MATERIAIS II",
+      "RM 2",
+      "RM II"
+    ]
+  },
+  {
     "canonical": "SEGURANCA_E_SAUDE_DO_TRABALHO",
     "vars": [
-      "SEGURANCA E SAUDE DO TRABALHO",
-      "SEGURANCA SAUDE DO TRABALHO",
       "SEGURANCA DO TRABALHO",
+      "SEGURANCA E HIGIENE DO TRABALHO",
+      "SEGURANCA E SAUDE DO TRABALHO",
       "SEGURANCA NO TRABALHO",
-      "SST",
-      "SEGURANCA E HIGIENE DO TRABALHO"
+      "SEGURANCA SAUDE DO TRABALHO",
+      "SST"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_DE_CONTROLE_I",
+    "vars": [
+      "SIS. DE CONTROLE 1",
+      "SIS. DE CONTROLE I",
+      "SISTEMAS DE CONTROLE 1",
+      "SISTEMAS DE CONTROLE I"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_DE_CONTROLE_II",
+    "vars": [
+      "CONTROLE 2",
+      "CONTROLE II",
+      "SISTEMAS DE CONTROLE 2",
+      "SISTEMAS DE CONTROLE II"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_DE_PRODUCAO",
+    "vars": [
+      "PROCESSOS PRODUTIVOS",
+      "SISTEMA DE PRODUCAO",
+      "SISTEMAS DE PRODUCAO",
+      "SISTEMAS PRODUTIVOS"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_DIGITAIS",
+    "vars": [
+      "SIS. DIGITAIS",
+      "SISTEMAS DIGITAIS",
+      "SISTEMAS DIGITAIS I",
+      "SISTEMAS DIGITAIS II"
+    ]
+  },
+  {
+    "canonical": "SISTEMAS_ENERGETICOS",
+    "vars": [
+      "SISTEMAS DE CONVERSAO DE ENERGIA",
+      "SISTEMAS DE ENERGIA",
+      "SISTEMAS ENERGETICOS"
     ]
   },
   {
@@ -1188,6 +1573,21 @@
     "vars": [
       "SISTEMAS OPERACIONAIS",
       "SO"
+    ]
+  },
+  {
+    "canonical": "SUSTENTABILIDADE",
+    "vars": [
+      "GESTAO AMBIENTAL",
+      "SUSTENTABILIDADE"
+    ]
+  },
+  {
+    "canonical": "TECNOLOGIAS_DO_HIDROGENIO",
+    "vars": [
+      "TECNOLOGIA DO HIDROGENIO",
+      "TECNOLOGIAS DO HIDROGENIO",
+      "TECNOLOGIAS H2"
     ]
   },
   {
@@ -1251,11 +1651,43 @@
     ]
   },
   {
+    "canonical": "TERMODINAMICA_APLICADA",
+    "vars": [
+      "TERMO APLICADA",
+      "TERMODINAMICA APLICADA",
+      "TERMODINAMICA DE SISTEMAS",
+      "TERMODINAMICA DOS PROCESSOS"
+    ]
+  },
+  {
+    "canonical": "TERMODINAMICA_DOS_PROCESSOS_ENERGETICOS",
+    "vars": [
+      "PROCESSOS ENERGETICOS",
+      "TERMODINAMICA DE PROCESSOS ENERGETICOS",
+      "TERMODINAMICA DOS PROCESSOS ENERGETICOS"
+    ]
+  },
+  {
+    "canonical": "TERMODINAMICA_I",
+    "vars": [
+      "TERMODINAMICA",
+      "TERMODINAMICA 1",
+      "TERMODINAMICA I"
+    ]
+  },
+  {
+    "canonical": "TERMODINAMICA_II",
+    "vars": [
+      "TERMODINAMICA 2",
+      "TERMODINAMICA II"
+    ]
+  },
+  {
     "canonical": "TRANSFERENCIA_DE_CALOR_E_MASSA",
     "vars": [
+      "TRANSF DE CALOR E MASSA",
       "TRANSFERENCIA DE CALOR E MASSA",
-      "TRANSFERENCIA DE CALOR MASSA",
-      "TRANSF DE CALOR E MASSA"
+      "TRANSFERENCIA DE CALOR MASSA"
     ]
   },
   {
@@ -1296,421 +1728,6 @@
     "canonical": "VIBRACOES_MECANICAS",
     "vars": [
       "VIBRACOES MECANICAS"
-    ]
-  },
-  {
-    "canonical": "PLANEJAMENTO_E_CONTROLE_DA_PRODUCAO",
-    "vars": [
-      "PCP",
-      "PLANEJAMENTO E CONTROLE DA PRODUCAO",
-      "PLANEJAMENTO E CONTROLE DE PRODUCAO",
-      "PLANEJAMENTO CONTROLE DA PRODUCAO",
-      "P.C.P."
-    ]
-  },
-  {
-    "canonical": "CUSTOS_INDUSTRIAIS",
-    "vars": [
-      "CUSTOS INDUSTRIAIS",
-      "ANALISE DE CUSTOS",
-      "CUSTEIO INDUSTRIAL",
-      "CUSTO INDUSTRIAL"
-    ]
-  },
-  {
-    "canonical": "LOGISTICA",
-    "vars": [
-      "LOGISTICA E DISTRIBUICAO",
-      "LOGISTICA INDUSTRIAL",
-      "GESTAO LOGISTICA"
-    ]
-  },
-  {
-    "canonical": "PESQUISA_OPERACIONAL",
-    "vars": [
-      "PESQUISA OPERACIONAL",
-      "PO",
-      "P.O.",
-      "OTIMIZACAO",
-      "PROGRAMACAO LINEAR"
-    ]
-  },
-  {
-    "canonical": "SISTEMAS_DE_PRODUCAO",
-    "vars": [
-      "SISTEMAS DE PRODUCAO",
-      "SISTEMA DE PRODUCAO",
-      "SISTEMAS PRODUTIVOS",
-      "PROCESSOS PRODUTIVOS"
-    ]
-  },
-  {
-    "canonical": "ANALISE_E_MELHORIA_DE_PROCESSOS",
-    "vars": [
-      "ANALISE E MELHORIA DE PROCESSOS",
-      "MELHORIA DE PROCESSOS",
-      "GESTAO POR PROCESSOS",
-      "MELHORIA CONTINUA",
-      "LEAN",
-      "PDCA",
-      "KAIZEN"
-    ]
-  },
-  {
-    "canonical": "ADMINISTRACAO_DA_PRODUCAO",
-    "vars": [
-      "ADMINISTRACAO DA PRODUCAO",
-      "ADM. DA PRODUCAO",
-      "ADMINISTRACAO DE PRODUCAO",
-      "GESTAO DA PRODUCAO"
-    ]
-  },
-  {
-    "canonical": "GESTAO_ESTRATEGICA",
-    "vars": [
-      "GESTAO ESTRATEGICA",
-      "ESTRATEGIA",
-      "PLANEJAMENTO ESTRATEGICO",
-      "GESTAO DE ESTRATEGIA"
-    ]
-  },
-  {
-    "canonical": "GESTAO_DA_INOVACAO_TECNOLOGICA",
-    "vars": [
-      "GESTAO DA INOVACAO",
-      "GESTAO DA INOVACAO TECNOLOGICA",
-      "INOVACAO TECNOLOGICA",
-      "GESTAO TECNOLOGICA"
-    ]
-  },
-  {
-    "canonical": "QUIMICA_GERAL_II",
-    "vars": [
-      "QUIMICA GERAL 2",
-      "QUIMICA GERAL II",
-      "QG 2",
-      "QG II"
-    ]
-  },
-  {
-    "canonical": "QUIMICA_INORGANICA",
-    "vars": [
-      "QUIMICA INORGANICA",
-      "Q. INORGANICA"
-    ]
-  },
-  {
-    "canonical": "QUIMICA_ORGANICA",
-    "vars": [
-      "QUIMICA ORGANICA",
-      "Q. ORGANICA"
-    ]
-  },
-  {
-    "canonical": "TERMODINAMICA_I",
-    "vars": [
-      "TERMODINAMICA",
-      "TERMODINAMICA I",
-      "TERMODINAMICA 1"
-    ]
-  },
-  {
-    "canonical": "TERMODINAMICA_II",
-    "vars": [
-      "TERMODINAMICA 2",
-      "TERMODINAMICA II"
-    ]
-  },
-  {
-    "canonical": "TERMODINAMICA_APLICADA",
-    "vars": [
-      "TERMODINAMICA APLICADA",
-      "TERMO APLICADA",
-      "TERMODINAMICA DOS PROCESSOS",
-      "TERMODINAMICA DE SISTEMAS"
-    ]
-  },
-  {
-    "canonical": "TERMODINAMICA_DOS_PROCESSOS_ENERGETICOS",
-    "vars": [
-      "TERMODINAMICA DOS PROCESSOS ENERGETICOS",
-      "TERMODINAMICA DE PROCESSOS ENERGETICOS",
-      "PROCESSOS ENERGETICOS"
-    ]
-  },
-  {
-    "canonical": "SISTEMAS_ENERGETICOS",
-    "vars": [
-      "SISTEMAS ENERGETICOS",
-      "SISTEMAS DE ENERGIA",
-      "SISTEMAS DE CONVERSAO DE ENERGIA"
-    ]
-  },
-  {
-    "canonical": "CONVERSAO_DE_ENERGIA",
-    "vars": [
-      "CONVERSAO DE ENERGIA",
-      "CONVERSAO ENERGETICA",
-      "CONVERSAO DE ENERGIA I",
-      "CONVERSAO DE ENERGIA II"
-    ]
-  },
-  {
-    "canonical": "TECNOLOGIAS_DO_HIDROGENIO",
-    "vars": [
-      "TECNOLOGIAS DO HIDROGENIO",
-      "TECNOLOGIA DO HIDROGENIO",
-      "TECNOLOGIAS H2"
-    ]
-  },
-  {
-    "canonical": "ARMAZENAMENTO_DE_ENERGIA",
-    "vars": [
-      "ARMAZENAMENTO DE ENERGIA",
-      "ARMAZENAMENTO ENERGETICO",
-      "SISTEMAS DE ARMAZENAMENTO"
-    ]
-  },
-  {
-    "canonical": "CELULAS_A_COMBUSTIVEL",
-    "vars": [
-      "CELULAS A COMBUSTIVEL",
-      "CELULA A COMBUSTIVEL",
-      "FUEL CELL",
-      "FUEL CELLS",
-      "PAFC",
-      "PEMFC",
-      "SOFC"
-    ]
-  },
-  {
-    "canonical": "RESISTENCIA_DOS_MATERIAIS_I",
-    "vars": [
-      "RESISTENCIA DOS MATERIAIS 1",
-      "RESISTENCIA DOS MATERIAIS I",
-      "RM 1",
-      "RM I"
-    ]
-  },
-  {
-    "canonical": "RESISTENCIA_DOS_MATERIAIS_II",
-    "vars": [
-      "RESISTENCIA DOS MATERIAIS 2",
-      "RESISTENCIA DOS MATERIAIS II",
-      "RM 2",
-      "RM II"
-    ]
-  },
-  {
-    "canonical": "MECANICA_GERAL",
-    "vars": [
-      "MECANICA GERAL",
-      "MEC. GERAL"
-    ]
-  },
-  {
-    "canonical": "MECANICA_RACIONAL",
-    "vars": [
-      "MECANICA RACIONAL",
-      "ESTATICA E DINAMICA",
-      "MECANICA RACIONAL (ESTATICA E DINAMICA)",
-      "MEC. RACIONAL"
-    ]
-  },
-  {
-    "canonical": "ELEMENTOS_DE_MAQUINAS_I",
-    "vars": [
-      "ELEMENTOS DE MAQUINAS 1",
-      "ELEMENTOS DE MAQUINAS I",
-      "EM 1",
-      "EM I"
-    ]
-  },
-  {
-    "canonical": "ELEMENTOS_DE_MAQUINAS_II",
-    "vars": [
-      "ELEMENTOS DE MAQUINAS 2",
-      "ELEMENTOS DE MAQUINAS II",
-      "EM 2",
-      "EM II"
-    ]
-  },
-  {
-    "canonical": "AERODINAMICA",
-    "vars": [
-      "AERODINAMICA",
-      "AERODINAMICA APLICADA"
-    ]
-  },
-  {
-    "canonical": "DINAMICA_DOS_FLUIDOS_COMPUTACIONAL",
-    "vars": [
-      "DINAMICA DOS FLUIDOS COMPUTACIONAL",
-      "CFD",
-      "COMPUTATIONAL FLUID DYNAMICS",
-      "DINAMICA DE FLUIDOS COMPUTACIONAL",
-      "SIMULACAO DE FLUIDOS"
-    ]
-  },
-  {
-    "canonical": "METODOS_COMPUTACIONAIS_EM_ENGENHARIA",
-    "vars": [
-      "METODOS COMPUTACIONAIS EM ENGENHARIA",
-      "METODO COMPUTACIONAL EM ENGENHARIA",
-      "COMPUTACAO CIENTIFICA",
-      "CALCULO CIENTIFICO"
-    ]
-  },
-  {
-    "canonical": "MODELAGEM_MATEMATICA_DE_SISTEMAS_FISICOS",
-    "vars": [
-      "MODELAGEM MATEMATICA DE SISTEMAS FISICOS",
-      "MODELAGEM MATEMATICA",
-      "MODELAGEM DE SISTEMAS FISICOS"
-    ]
-  },
-  {
-    "canonical": "SISTEMAS_DE_CONTROLE_I",
-    "vars": [
-      "SISTEMAS DE CONTROLE 1",
-      "SISTEMAS DE CONTROLE I",
-      "SIS. DE CONTROLE 1",
-      "SIS. DE CONTROLE I"
-    ]
-  },
-  {
-    "canonical": "SISTEMAS_DE_CONTROLE_II",
-    "vars": [
-      "SISTEMAS DE CONTROLE 2",
-      "SISTEMAS DE CONTROLE II",
-      "CONTROLE 2",
-      "CONTROLE II"
-    ]
-  },
-  {
-    "canonical": "AUTOMACAO_INDUSTRIAL",
-    "vars": [
-      "AUTOMACAO INDUSTRIAL",
-      "AUT. INDUSTRIAL"
-    ]
-  },
-  {
-    "canonical": "ELETRONICA_DE_POTENCIA",
-    "vars": [
-      "ELETRONICA DE POTENCIA",
-      "ELET. DE POTENCIA",
-      "POWER ELECTRONICS"
-    ]
-  },
-  {
-    "canonical": "CONVERSORES_ESTATICOS",
-    "vars": [
-      "CONVERSORES ESTATICOS",
-      "CONVERSOR ESTATICO",
-      "RETIFICADORES",
-      "INVERSORES"
-    ]
-  },
-  {
-    "canonical": "ENGENHARIA_DE_SOFTWARE",
-    "vars": [
-      "ENGENHARIA DE SOFTWARE",
-      "ENG. DE SOFTWARE"
-    ]
-  },
-  {
-    "canonical": "PROGRAMACAO_PARA_ENGENHARIA",
-    "vars": [
-      "PROGRAMACAO PARA ENGENHARIA",
-      "PROG. PARA ENGENHARIA",
-      "PROGRAMACAO P/ ENGENHARIA",
-      "PROGRAMACAO PARA A ENGENHARIA"
-    ]
-  },
-  {
-    "canonical": "SISTEMAS_DIGITAIS",
-    "vars": [
-      "SISTEMAS DIGITAIS",
-      "SIS. DIGITAIS",
-      "SISTEMAS DIGITAIS I",
-      "SISTEMAS DIGITAIS II"
-    ]
-  },
-  {
-    "canonical": "QUIMICA_I",
-    "vars": [
-      "QUIMICA 1",
-      "QUIMICA I",
-      "QUIMICA GERAL 1",
-      "QUIMICA GERAL I"
-    ]
-  },
-  {
-    "canonical": "CINETICA_I",
-    "vars": [
-      "CINETICA 1",
-      "CINETICA I",
-      "CINETICA QUIMICA 1",
-      "CINETICA QUIMICA I"
-    ]
-  },
-  {
-    "canonical": "MATERIAIS_DE_ENGENHARIA",
-    "vars": [
-      "MATERIAIS DE ENGENHARIA",
-      "MATERIAIS PARA ENGENHARIA",
-      "MATERIAIS NA ENGENHARIA"
-    ]
-  },
-  {
-    "canonical": "ARQUITETURA_E_ORGANIZACAO_DE_COMPUTADORES",
-    "vars": [
-      "ARQUITETURA E ORGANIZACAO DE COMPUTADORES",
-      "ARQUITETURA DE COMPUTADORES",
-      "AOC",
-      "ORGANIZACAO DE COMPUTADORES"
-    ]
-  },
-  {
-    "canonical": "ELETRONICA_ANALOGICA_I",
-    "vars": [
-      "ELETRONICA ANALOGICA 1",
-      "ELETRONICA ANALOGICA",
-      "ELETRONICA ANALOGICA I",
-      "ELETRONICA 1",
-      "ELETRONICA I"
-    ]
-  },
-  {
-    "canonical": "ELETRONICA_DIGITAL_I",
-    "vars": [
-      "ELETRONICA DIGITAL 1",
-      "ELETRONICA DIGITAL",
-      "ELETRONICA DIGITAL I"
-    ]
-  },
-  {
-    "canonical": "DINAMICA_DOS_FLUIDOS",
-    "vars": [
-      "DINAMICA DOS FLUIDOS",
-      "DINAMICA DE FLUIDOS"
-    ]
-  },
-  {
-    "canonical": "ETICA_E_LEGISLACAO_PROFISSIONAL",
-    "vars": [
-      "ETICA E LEGISLACAO PROFISSIONAL",
-      "ETICA E LEGISLACAO",
-      "ETICA PROFISSIONAL",
-      "LEGISLACAO PROFISSIONAL"
-    ]
-  },
-  {
-    "canonical": "MODELAGEM_E_SIMULACAO_DE_PROCESSOS",
-    "vars": [
-      "MODELAGEM E SIMULACAO DE PROCESSOS",
-      "MODELAGEM DE PROCESSOS",
-      "SIMULACAO DE PROCESSOS"
     ]
   }
 ]

@@ -25,9 +25,12 @@
   {
     "canonical": "ALGEBRA_LINEAR_E_GEOMETRIA_ANALITICA",
     "vars": [
-      "ALGEBRA",
+      "ALGEBRA LINEAR",
       "ALGEBRA LINEAR E GEOMETRIA ANALITICA",
-      "ALGEBRA LINEAR GEOMETRIA ANALITICA"
+      "ALGEBRA LINEAR GEOMETRIA ANALITICA",
+      "GEOMETRIA ANALITICA",
+      "GEOMETRIA ANALITICA E ALGEBREA LINEAR",
+      "GEOMETRIA E ALGEBRA LINEAR"
     ]
   },
   {
@@ -478,6 +481,9 @@
     "canonical": "ECONOMIA_PARA_ENGENHARIA",
     "vars": [
       "ECO. PARA ENGENHARIA",
+      "ECONOMIA",
+      "ECONOMIA 1",
+      "ECONOMIA I",
       "ECONOMIA PARA ENGENHARIA"
     ]
   },
@@ -616,7 +622,9 @@
     "canonical": "ENGENHARIA_DE_SOFTWARE",
     "vars": [
       "ENG. DE SOFTWARE",
-      "ENGENHARIA DE SOFTWARE"
+      "ENGENHARIA DE SOFT.",
+      "ENGENHARIA DE SOFTWARE",
+      "ENGENHARIA SOFTWARE"
     ]
   },
   {
@@ -748,7 +756,8 @@
       "FISICO-QUIMICA",
       "FISICO-QUIMICA 1",
       "FQE 1",
-      "FQE I"
+      "FQE I",
+      "QUIMICA FISICO"
     ]
   },
   {
@@ -917,7 +926,9 @@
   {
     "canonical": "INTRODUCAO_A_ECONOMIA",
     "vars": [
-      "INTRODUCAO A ECONOMIA"
+      "INT. A ECONOMIA",
+      "INTRODUCAO A ECONOMIA",
+      "INTRODUCAO ECONOMICA"
     ]
   },
   {
@@ -1079,6 +1090,7 @@
     "vars": [
       "MEC. DOS FLUIDOS 1",
       "MEC. DOS FLUIDOS I",
+      "MECANICA DOS FLUIDOS",
       "MECANICA DOS FLUIDOS 1",
       "MECANICA DOS FLUIDOS I"
     ]
@@ -1086,6 +1098,8 @@
   {
     "canonical": "MECANICA_DOS_FLUIDOS_II",
     "vars": [
+      "MEC. DOS FLUIDOS 2",
+      "MEC. DOS FLUIDOS II",
       "MECANICA DOS FLUIDOS 2",
       "MECANICA DOS FLUIDOS II",
       "MF II"
@@ -1184,6 +1198,9 @@
   {
     "canonical": "MICROBIOLOGIA_BASICA",
     "vars": [
+      "MICRO BIOLOGA BASICA",
+      "MICRO-BIOLOGIA BASICA",
+      "MICROBIOLOGIA BASIC.",
       "MICROBIOLOGIA BASICA"
     ]
   },

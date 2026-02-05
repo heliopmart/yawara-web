@@ -112,7 +112,7 @@ HTML_XAI_TEMPLATE = """
 
             <div class="grid grid-cols-12 gap-8 mb-8">
                 
-                <div class="col-span-5" style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                <div class="col-span-5" style="text-align: center; display: flex; justify-content: center; align-items: start;">
                     {% if pdf_mode and nucleus.chart_b64 %}
                         <img src="data:image/png;base64,{{ nucleus.chart_b64 }}" style="width: 100%; max-width: 320px;">
                     {% else %}

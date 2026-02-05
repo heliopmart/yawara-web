@@ -135,15 +135,21 @@ class DynamicNeuralResolver:
             return await self._resolve_via_llm(raw_input, top_candidates)
 
         best_match_name, best_match_score = top_candidates[0]
+        second_match_score = top_candidates[1][1] if len(top_candidates) > 1 else 0.0
+        gap = best_match_score - second_match_score
 
         # Cenário B: Alta Confiança (Auto-Approve)
-        if best_match_score >= threshold:
+        if best_match_score >= threshold or gap > 0.04:
             return {
                 "canonical": best_match_name,
                 "confidence": round(best_match_score, 4),
                 "source": "NEURAL_MEMORY",
                 "new_concept": False
             }
+
+        print(f"ERRO: {raw_input} ~ {best_match_name} ({best_match_score:.2f} < {threshold}) GAP {gap:.2f} < 0.45")
+
+        return self._fallback_response(raw_input, "LLM_ERROR", top_candidates)
 
         # Cenário C: Ambiguidade -> LLM
         logger.info(f"Ambiguidade: '{raw_input}' ~ '{best_match_name}' ({best_match_score:.2f} < {threshold}). Chamando LLM.")

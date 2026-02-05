@@ -61,7 +61,7 @@ class DeterministicMathematician:
                 # Feedback Pedagógico
                 msg = f"Nota {item.candidate_grade:.1f} abaixo do esperado para o peso {item.nucleus_weight}."
                 roadmap.append(FeedbackItem(
-                    subject=item.subject,
+                    subject=item.subject.replace("_", " "),
                     message=msg,
                     type="WEAKNESS",
                     icon="alert-circle"

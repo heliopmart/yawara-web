@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     # --- PATHS & ARTIFACTS  ---
     
     # 1. Canonical Subject Engine (O Resolvedor de Nomes)
-    ML_THRESHOLD_SUBJECT_MATCH: float = 0.74
+    ML_THRESHOLD_SUBJECT_MATCH: float = 0.61
     NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
     NN_MODEL_MEMORY_FILE_ID: str = "models/vector_memory.npz"
     NN_MODEL_BASE_DATA_PATH: str = "app/resources/training/NN/canonical_labels.json"

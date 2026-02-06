@@ -12,8 +12,8 @@ class YsnaCanonicalSubjectEngine:
         self.model = YsnaCanonicalArchitecture()
         
     async def _load_models_and_data(self):
-        if(not os.path.exists(settings.NN_MODEL_BASE_DATA_PATH)):
-            raise FileNotFoundError(f"Base data file not found at {settings.NN_MODEL_BASE_DATA_PATH}")
+        if(not os.path.exists(f"{settings.NN_MODEL_CANONICAL_BASE_PATH}/{settings.NN_MODEL_LABELS_ID}")):
+            raise FileNotFoundError(f"Base data file not found at {settings.NN_MODEL_CANONICAL_BASE_PATH}/{settings.NN_MODEL_LABELS_ID}")
         
     async def predict(self, input_data: str) -> PredictResult:  
         await self._load_models_and_data()

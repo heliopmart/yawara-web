@@ -40,15 +40,7 @@ class Settings(BaseSettings):
     NN_MODEL_LABELS_ID : str = "canonical_labels.json"
     NN_MODEL_LOGS_ID : str = "ysna_logs.jsonl"
     NN_MODEL_CACHE_ID : str = "prototype_embeddings_cache.joblib"
-
-    NN_MODEL_BASE_DATA_PATH: str = "app/resources/training/NN/canonical_labels.json"
     
-    ML_THRESHOLD_SUBJECT_MATCH: float = 0.65
-    NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
-    NN_MODEL_MEMORY_FILE_ID: str = "models/vector_memory.npz"
-    NN_MODEL_LEARNED_DATA_PATH: str = "app/resources/training/NN/learned_vars.jsonl"
-    ML_CANONICAL_WEIGHTS_PATH: str = "app/resources/models/yawara_canonical_subject_model_v1.weights.h5"
-    ML_CANONICAL_WEIGHTS_ID: str = "models/yawara_canonical_subject_model_v1.weights.h5"
     # 2. Engine V2 (A Rede Neural Principal)
     ML_ENGINE_2_PATH: str = "app/resources/models/engine_v2.keras"
     ML_ENGINE_2_LABELS_PATH: str = "app/resources/models/engine_v2_labels.json"
@@ -58,7 +50,6 @@ class Settings(BaseSettings):
     SYNTHETIC_TRAIN_PATH: str = "app/resources/models/engine_v2_synthetic.keras"
 
     # --- CLOUD ARTIFACTS (Cloudinary/Training) ---
-    ML_CLOUD_FILE_MEMORY_CLOUDINARY_ID: str = "models/vector_memory.npz"
     ML_CLOUD_CHECKPOINT_NAME: str = "models/yawara_v2_checkpoint.weights.h5"
     ML_CLOUD_BEST_CHECKPOINT_NAME: str = "models/yawara_best_checkpoint_v2.weights.h5"
     ML_CLOUD_STATE_NAME: str = "models/yawara_v2_training_state.json"

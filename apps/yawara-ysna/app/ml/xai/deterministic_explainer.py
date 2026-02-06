@@ -67,10 +67,13 @@ class DeterministicMathematician:
                     icon="alert-circle"
                 ))
 
+            max_item_score = item.nucleus_weight * 10.0
+
             full_telemetry.append({
                 "feature_name": item.subject,
                 "input_value": item.candidate_grade,
                 "importance_score": impact_score,
+                "max_score": max_item_score,
                 "status": telemetry_status
             })
 

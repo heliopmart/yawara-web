@@ -4,7 +4,6 @@ from contextlib import suppress
 from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi.concurrency import run_in_threadpool
-from app.training.train_canonical_subject_ml_v2 import TrainingYsnaCanonicalV2
 from app.utils.download_models_file import verify_and_download_models_file
 from app.training.train_engine_v2 import TrainingEngineV2
 from app.utils.data_checker_for_training import check_entered_grades

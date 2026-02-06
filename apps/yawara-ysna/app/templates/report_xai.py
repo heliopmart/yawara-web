@@ -1,68 +1,36 @@
 PDF_XAI_CSS = """
 @page { size: A4; margin: 0; }
-body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; box-sizing: border-box; background-color: #fff; color: #0F172A; }
-
-/* Cores Yawara */
+body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; background-color: #fff; color: #0F172A; }
 .bg-yawara-black { background-color: #0F172A; color: white; }
 .bg-yawara-red { background-color: #DC2626; color: white; }
 .text-yawara-red { color: #DC2626; }
 .text-yawara-gray { color: #64748B; }
-.bg-gray-50 { background-color: #F8FAFC; }
-.border-b { border-bottom: 1px solid #E2E8F0; }
-
-/* Layout Utilities */
-.p-12 { padding: 3rem; }
-.p-8 { padding: 2rem; }
-.mb-4 { margin-bottom: 1rem; }
+.p-12 { padding: 8rem; }
 .mb-8 { margin-bottom: 2rem; }
 .flex { display: flex; }
 .justify-between { justify-content: space-between; }
-.items-center { align-items: center; }
-.grid { display: grid; }
-.grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; }
 .col-span-5 { grid-column: span 5; }
 .col-span-7 { grid-column: span 7; }
-.gap-8 { gap: 2rem; }
-
-/* Content Table */
-.content-table { margin-top: 50px; width: 100%; display: block; page-break-inside: auto; }
-
-/* Typography */
-.text-4xl { font-size: 2.25rem; font-weight: 700; }
-.text-2xl { font-size: 1.5rem; font-weight: 700; }
-.text-xl { font-size: 1.25rem; font-weight: 700; }
-.text-sm { font-size: 0.875rem; }
-.text-xs { font-size: 0.75rem; }
-.font-bold { font-weight: 700; }
-.uppercase { text-transform: uppercase; }
-.tracking-widest { letter-spacing: 0.1em; }
-.leading-relaxed { line-height: 1.625; }
-
-/* Components */
 .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; color: white; }
 .page-break { page-break-before: always; }
 
-/* --- TABLE FIXES (IMPORTANTE PARA PDF) --- */
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; page-break-inside: auto; }
-
-/* Garante que o cabeçalho se repita se a tabela quebrar de página */
-thead { display: table-header-group;  } 
-
-/* Evita que uma linha seja cortada ao meio na quebra de página */
-tr { page-break-inside: avoid; page-break-after: auto; } 
-
-th { text-align: left; padding: 10px 8px; background-color: #F1F5F9; color: #475569; text-transform: uppercase; font-size: 0.65rem; font-weight: bold; border-bottom: 2px solid #E2E8F0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; }
+th { text-align: left; padding: 10px 8px; background-color: #F1F5F9; color: #475569; font-size: 0.65rem; font-weight: bold; border-bottom: 2px solid #E2E8F0; }
 td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+.content-table {
+    page-break-inside: avoid;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    clear: both;
+}
+/* Estilo para a nova tabela de Gaps */
+.gap-table th { background-color: #FEF2F2; color: #991B1B; }
+.gap-table td { color: #B91C1C; }
 
 .progress-track { background-color: #E2E8F0; height: 6px; border-radius: 3px; width: 100%; overflow: hidden; }
 .progress-fill { height: 100%; }
-
-section {
-    page-break-inside: auto;
-}
-
-/* Footer */
-footer { font-size: 0.7rem; color: #94A3B8; width: 100%; text-align: center; padding: 20px; position: absolute; bottom: 0; }
+footer { font-size: 0.7rem; color: #94A3B8; width: 100%; text-align: center; padding: 20px; border-top: 1px solid #E2E8F0; }
 """
 
 HTML_XAI_TEMPLATE = """
@@ -114,74 +82,66 @@ HTML_XAI_TEMPLATE = """
                 </span>
             </div>
 
-            <div class="grid grid-cols-12 gap-8 mb-8">
-                
-                <div class="col-span-5" style="text-align: center; display: flex; justify-content: center; align-items: start;">
+            <div class="grid grid-cols-12 gap-8" style="margin-bottom: 0;">
+                <div class="col-span-5">
                     {% if pdf_mode and nucleus.chart_b64 %}
-                        <img src="data:image/png;base64,{{ nucleus.chart_b64 }}" style="width: 100%; max-width: 320px;">
-                    {% else %}
-                        <canvas id="chart-{{ loop.index }}" width="280" height="280"></canvas>
-                        <p class="text-xs text-center text-gray-400 mt-2">Visualização Interativa</p>
+                        <img src="data:image/png;base64,{{ nucleus.chart_b64 }}" style="width: 100%;">
                     {% endif %}
                 </div>
 
                 <div class="col-span-7">
-                    <h4 class="text-xs font-bold text-yawara-black uppercase mb-4">Análise de Gaps</h4>
-                    
-                    <div class="space-y-4">
-                        {% for item in nucleus.study_roadmap %}
-                        <div class="flex items-start mb-4">
-                            <div style="min-width: 25px; margin-right: 10px;">
-                                {% if item.type == 'WEAKNESS' %}
-                                    <span style="color: #DC2626; font-weight: bold; font-size: 1.2rem;">!</span>
-                                {% else %}
-                                    <span style="color: #166534; font-weight: bold; font-size: 1.2rem;">✓</span>
-                                {% endif %}
-                            </div>
-                            <div>
-                                <h5 class="text-sm font-bold text-gray-900">{{ item.subject }}</h5>
-                                <p class="text-xs text-yawara-gray leading-relaxed">{{ item.message }}</p>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    <h4 class="text-xs font-bold text-yawara-red uppercase mb-4 tracking-widest">Matriz de Desenvolvimento (Gaps)</h4>
+                    <table class="gap-table">
+                        <thead>
+                            <tr>
+                                <th width="70%">Disciplina Crítica</th>
+                                <th width="30%" style="text-align: right;">Prioridade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in nucleus.study_roadmap %}
+                            <tr>
+                                <td class="text-sm font-bold text-gray-800">{{ item.subject }}</td>
+                                <td style="text-align: right;">
+                                    <span class="badge bg-yawara-red">ALTA</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-yawara-gray italic">* Disciplinas com nota abaixo de 6.0 e impacto direto no score.</p>
                 </div>
             </div>
 
             <div class="content-table">
-                <h4 class="text-xs font-bold text-yawara-black uppercase tracking-widest mb-4">Telemetria Completa</h4>
+                <h4 class="text-xs font-bold text-yawara-black uppercase tracking-widest mb-4">Telemetria de Competências</h4>
                 <table>
                     <thead>
                         <tr>
                             <th width="40%">Disciplina</th>
-                            <th width="15%" style="text-align: center;">Nota</th>
-                            <th width="30%">Impacto no Score</th>
+                            <th width="10%" style="text-align: center;">Nota</th>
+                            <th width="35%">Performance vs Peso</th>
                             <th width="15%" style="text-align: right;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for feat in nucleus.full_telemetry %}
                         <tr>
-                            <td class="font-bold text-gray-700">
-                                {{ feat.feature_name | replace('_', ' ') | title }}
-                            </td>
-                            
-                            <td style="text-align: center; font-weight: 600; color: #334155;">
-                                {{ "%.1f"|format(feat.input_value) }}
-                            </td>
-                            
+                            <td class="font-bold text-gray-700">{{ feat.feature_name | replace('_', ' ') | title }}</td>
+                            <td style="text-align: center; font-weight: 600;">{{ "%.1f"|format(feat.input_value) }}</td>
                             <td>
                                 <div class="progress-track">
-                                    {% set bar_width = (feat.importance_score | abs) * 100 %}
+                                    {# CÁLCULO DA BARRA: Score obtido dividido pelo máximo possível da disciplina #}
+                                    {% set percentage = (feat.importance_score / feat.max_score) * 100 if feat.max_score > 0 else 0 %}
                                     {% set bar_color = '#DC2626' if feat.status == 'WEAKNESS' else '#0F172A' %}
-                                    <div class="progress-fill" style="width: {{ [bar_width, 100] | min }}%; background-color: {{ bar_color }};"></div>
+                                    <div class="progress-fill" style="width: {{ percentage }}%; background-color: {{ bar_color }};"></div>
                                 </div>
                             </td>
                             <td style="text-align: right;">
                                 {% if feat.status == 'WEAKNESS' %}
-                                    <span class="text-xs font-bold text-yawara-red bg-red-50 px-2 py-1 rounded">ATENÇÃO</span>
+                                    <span class="text-xs font-bold text-yawara-red uppercase">Atenção</span>
                                 {% else %}
-                                    <span class="text-xs text-gray-400">NORMAL</span>
+                                    <span class="text-xs text-gray-400 uppercase">Ok</span>
                                 {% endif %}
                             </td>
                         </tr>

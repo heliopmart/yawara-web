@@ -57,8 +57,7 @@ async def startup_event():
     training_scheduler.start()
 
     try:
-        #  await verify_and_download_models_file()
-        pass
+        await verify_and_download_models_file()
     except Exception as e:
         print("Error during model file verification/download:", e)
 

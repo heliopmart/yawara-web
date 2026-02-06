@@ -25,7 +25,7 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; box-sizing: 
 .gap-8 { gap: 2rem; }
 
 /* Content Table */
-.content-table { margin-top: 30px; width: 100%; }
+.content-table { margin-top: 50px; width: 100%; display: block; page-break-inside: auto; }
 
 /* Typography */
 .text-4xl { font-size: 2.25rem; font-weight: 700; }
@@ -43,19 +43,23 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; box-sizing: 
 .page-break { page-break-before: always; }
 
 /* --- TABLE FIXES (IMPORTANTE PARA PDF) --- */
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; page-break-inside: auto; }
 
 /* Garante que o cabeçalho se repita se a tabela quebrar de página */
-thead { display: table-header-group; } 
+thead { display: table-header-group;  } 
 
 /* Evita que uma linha seja cortada ao meio na quebra de página */
-tr { page-break-inside: avoid; } 
+tr { page-break-inside: avoid; page-break-after: auto; } 
 
 th { text-align: left; padding: 10px 8px; background-color: #F1F5F9; color: #475569; text-transform: uppercase; font-size: 0.65rem; font-weight: bold; border-bottom: 2px solid #E2E8F0; }
 td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
 
 .progress-track { background-color: #E2E8F0; height: 6px; border-radius: 3px; width: 100%; overflow: hidden; }
 .progress-fill { height: 100%; }
+
+section {
+    page-break-inside: auto;
+}
 
 /* Footer */
 footer { font-size: 0.7rem; color: #94A3B8; width: 100%; text-align: center; padding: 20px; position: absolute; bottom: 0; }

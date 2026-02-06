@@ -51,3 +51,4 @@ def try_parse_float(value: Optional[str]) -> Optional[float]:
         return float(value)
     except ValueError:
         return None
+

@@ -72,7 +72,7 @@ class GeminiClient:
 
         self._enforce_rate_limit()
 
-        # Formata lista de candidatos para o prompt
+        # Formata lista de candidatos para o prompt        
         candidates_text = "\n".join([f"- {name} (Score: {score:.1%})" for name, score in candidates])
         
         prompt = f"""

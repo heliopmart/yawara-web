@@ -31,7 +31,7 @@ class SystemConfigModel(BaseModel):
 
 def get_active_config() -> SystemConfigModel:
     """
-    Recupera a configuração ativa do banco de dados (Tabela `system_configs`).
+    Recupera a configuração ativa do banco de dados (Tabela `system_config`).
     
     Implementa lógica de fallback robusta para garantir que o sistema suba
     mesmo se o banco estiver inacessível ou a tabela vazia.
@@ -41,7 +41,7 @@ def get_active_config() -> SystemConfigModel:
     """
     try:
         # Busca raw do banco
-        raw_response = db_select('system_configs', "*", None, True)
+        raw_response = db_select(table='system_config', columns="*", filters=None, single=True)
         
         row = _normalize_db_response(raw_response)
 

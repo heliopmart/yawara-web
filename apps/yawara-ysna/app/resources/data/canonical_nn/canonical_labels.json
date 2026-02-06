@@ -9,10 +9,12 @@
     ]
   },
   {
-    "canonical": "ADMISTRACAO_PARA_ENGENHARIA",
+    "canonical": "ADMINISTRACAO_PARA_ENGENHARIA",
     "vars": [
       "ADM. PARA ENGENHARIA",
-      "ADMINISTRACAO PARA ENGENHARIA"
+      "ADMINISTRACAO PARA ENGENHARIA",
+      "ADMINISTRACAO ENGENHARIA",
+      "ADM. PARA ENGENHARIA"
     ]
   },
   {
@@ -25,11 +27,11 @@
   {
     "canonical": "ALGEBRA_LINEAR_E_GEOMETRIA_ANALITICA",
     "vars": [
+      "ALGEBRA LINEAR",
       "ALGEBRA LINEAR E GEOMETRIA ANALITICA",
       "ALGEBRA LINEAR GEOMETRIA ANALITICA",
-      "GEOMETRIA ANALITICA E ALGEBREA LINEAR",
       "GEOMETRIA ANALITICA",
-      "ALGEBRA LINEAR",
+      "GEOMETRIA ANALITICA E ALGEBREA LINEAR",
       "GEOMETRIA E ALGEBRA LINEAR"
     ]
   },
@@ -481,10 +483,10 @@
     "canonical": "ECONOMIA_PARA_ENGENHARIA",
     "vars": [
       "ECO. PARA ENGENHARIA",
-      "ECONOMIA PARA ENGENHARIA",
       "ECONOMIA",
       "ECONOMIA 1",
-      "ECONOMIA I"
+      "ECONOMIA I",
+      "ECONOMIA PARA ENGENHARIA"
     ]
   },
   {
@@ -750,14 +752,14 @@
       "FIS. QUIMICA 1",
       "FIS. QUIMICA I",
       "FISICO QUIMICA",
-      "QUIMICA FISICO",
       "FISICO QUIMICA I",
       "FISICO QUIMICA PARA ENGENHARIA 1",
       "FISICO QUIMICA PARA ENGENHARIA I",
       "FISICO-QUIMICA",
       "FISICO-QUIMICA 1",
       "FQE 1",
-      "FQE I"
+      "FQE I",
+      "QUIMICA FISICO"
     ]
   },
   {
@@ -926,8 +928,8 @@
   {
     "canonical": "INTRODUCAO_A_ECONOMIA",
     "vars": [
-      "INTRODUCAO A ECONOMIA",
       "INT. A ECONOMIA",
+      "INTRODUCAO A ECONOMIA",
       "INTRODUCAO ECONOMICA"
     ]
   },
@@ -1090,19 +1092,18 @@
     "vars": [
       "MEC. DOS FLUIDOS 1",
       "MEC. DOS FLUIDOS I",
-      "MECANICA DOS FLUIDOS 1",
-      "MECANICA DOS FLUIDOS I",
       "MECANICA DOS FLUIDOS",
-      "MECANICA DOS FLUIDOS"
+      "MECANICA DOS FLUIDOS 1",
+      "MECANICA DOS FLUIDOS I"
     ]
   },
   {
     "canonical": "MECANICA_DOS_FLUIDOS_II",
     "vars": [
-      "MECANICA DOS FLUIDOS 2",
-      "MECANICA DOS FLUIDOS II",
       "MEC. DOS FLUIDOS 2",
       "MEC. DOS FLUIDOS II",
+      "MECANICA DOS FLUIDOS 2",
+      "MECANICA DOS FLUIDOS II",
       "MF II"
     ]
   },
@@ -1199,10 +1200,10 @@
   {
     "canonical": "MICROBIOLOGIA_BASICA",
     "vars": [
-      "MICROBIOLOGIA BASICA",
-      "MICRO-BIOLOGIA BASICA",
       "MICRO BIOLOGA BASICA",
-      "MICROBIOLOGIA BASIC."
+      "MICRO-BIOLOGIA BASICA",
+      "MICROBIOLOGIA BASIC.",
+      "MICROBIOLOGIA BASICA"
     ]
   },
   {
@@ -1427,7 +1428,11 @@
     "vars": [
       "QUIMICA GERAL",
       "QUIMICA GERAL 1",
-      "QUIMICA GERAL I"
+      "QUIMICA GERAL I",
+      "QUIMICA 1",
+      "QUIMICA GERAL 1",
+      "QUIMICA GERAL I",
+      "QUIMICA I"
     ]
   },
   {
@@ -1437,15 +1442,6 @@
       "QG II",
       "QUIMICA GERAL 2",
       "QUIMICA GERAL II"
-    ]
-  },
-  {
-    "canonical": "QUIMICA_I",
-    "vars": [
-      "QUIMICA 1",
-      "QUIMICA GERAL 1",
-      "QUIMICA GERAL I",
-      "QUIMICA I"
     ]
   },
   {
@@ -1499,9 +1495,11 @@
     "canonical": "RESISTENCIA_DOS_MATERIAIS_I",
     "vars": [
       "RESISTENCIA DOS MATERIAIS 1",
+      "RESISTENCIA DOS MATERIAIS",
       "RESISTENCIA DOS MATERIAIS I",
-      "RM 1",
-      "RM I"
+      "RMAT 1",
+      "RMAT I",
+      "RMAT I"
     ]
   },
   {
@@ -1509,8 +1507,8 @@
     "vars": [
       "RESISTENCIA DOS MATERIAIS 2",
       "RESISTENCIA DOS MATERIAIS II",
-      "RM 2",
-      "RM II"
+      "RMAT 2",
+      "RMAT II"
     ]
   },
   {
@@ -1728,6 +1726,14 @@
     "canonical": "VIBRACOES_MECANICAS",
     "vars": [
       "VIBRACOES MECANICAS"
+    ]
+  },
+  {
+    "canonical": "ADMINISTRACAO",
+    "vars": [
+      "ADMINISTRACAO 1",
+      "ADMINISTRACAO",
+      "ADM"
     ]
   }
 ]

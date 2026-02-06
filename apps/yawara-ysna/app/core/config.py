@@ -35,10 +35,17 @@ class Settings(BaseSettings):
     # --- PATHS & ARTIFACTS  ---
     
     # 1. Canonical Subject Engine (O Resolvedor de Nomes)
-    ML_THRESHOLD_SUBJECT_MATCH: float = 0.61
+    NN_MODEL_CANONICAL_BASE_PATH : str = "app/resources/data/canonical_nn"
+    NN_MODEL_CONCEPTS_ID : str = "canonical_concepts.jsonl"
+    NN_MODEL_LABELS_ID : str = "canonical_labels.json"
+    NN_MODEL_LOGS_ID : str = "ysna_logs.jsonl"
+    NN_MODEL_CACHE_ID : str = "prototype_embeddings_cache.joblib"
+
+    NN_MODEL_BASE_DATA_PATH: str = "app/resources/training/NN/canonical_labels.json"
+    
+    ML_THRESHOLD_SUBJECT_MATCH: float = 0.65
     NN_MODEL_MEMORY_FILE_PATH: str = "app/resources/data/vector_memory.npz"
     NN_MODEL_MEMORY_FILE_ID: str = "models/vector_memory.npz"
-    NN_MODEL_BASE_DATA_PATH: str = "app/resources/training/NN/canonical_labels.json"
     NN_MODEL_LEARNED_DATA_PATH: str = "app/resources/training/NN/learned_vars.jsonl"
     ML_CANONICAL_WEIGHTS_PATH: str = "app/resources/models/yawara_canonical_subject_model_v1.weights.h5"
     ML_CANONICAL_WEIGHTS_ID: str = "models/yawara_canonical_subject_model_v1.weights.h5"

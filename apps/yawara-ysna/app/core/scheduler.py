@@ -26,25 +26,13 @@ class TrainingScheduler:
     async def _check_and_train_routine_canonical(self):
         """
         Treinamento do modelo YSNA Canonical, para integrar chamdas das LLMs dentro do modelo, se nescessário.
-        """
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(os.path.dirname(current_dir))
-        
-        learned_path = os.path.join(project_root, settings.NN_MODEL_LEARNED_DATA_PATH)
+        """ 
+        learned_path = f"{settings.NN_MODEL_CANONICAL_BASE_PATH}/{settings.NN_MODEL_CONCEPTS_ID}"
+        cache_path = f"{settings.NN_MODEL_CANONICAL_BASE_PATH}/{settings.NN_MODEL_CACHE_ID}"
 
-        if(os.path.exists(learned_path)):
+        if(os.path.exists(learned_path)) and (os.path.exists(cache_path)):
             if(os.path.getsize(learned_path) > 0):
-                logger.info("💤 Modelo YSNA Canonical já treinado. Dormindo...")
-                return False
-
-        try:            
-            logger.info("🚀 Iniciando treinamento YSNA Canonical...")
-            trainer = TrainingYsnaCanonicalV2()
-            await run_in_threadpool(trainer.train)
-            
-            return True
-        except Exception as e:
-            return False
+                os.path.remove(cache_path)
 
     async def _check_and_train_routine_engine_v2(self):
         """

@@ -4,6 +4,7 @@ app/resources/**/*.h5
 app/resources/**/*.npz
 docs/assets/**/*.pdf
 site/assets/**/*.pdf
+site/assets/**/*.joblib
 
 # tests
 app/tests/

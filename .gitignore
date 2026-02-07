@@ -1,6 +1,10 @@
 /node_modules
 /dist
 /.env
+*.joblib
+*.keras
+*.h5
+*.npz
 
 .env
 apps/frontend/.env

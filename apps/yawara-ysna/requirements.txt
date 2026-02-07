@@ -6,19 +6,17 @@ pydantic>=2.12.0
 pydantic-settings>=2.12.0
 python-multipart>=0.0.20
 
-difflib>=1.2.9
 tensorflow>=2.13.0
 numpy>=1.25.0
 pandas>=2.1.0
 scikit-learn>=1.3.2
 unidecode>=1.4.0
 
-torch
+torch>=2.10.0
 sentence_transformers>=5.2.2
 
 python-dotenv>=1.0.0
 supabase>=2.25.0
-requests>=2.31.0
 
 pdfplumber>=0.11.8
 google-genai>=1.56.0

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     # --- LLM CONFIGURATION (GOOGLE) ---
     GOOGLE_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
 
     # --- PATHS & ARTIFACTS  ---
     

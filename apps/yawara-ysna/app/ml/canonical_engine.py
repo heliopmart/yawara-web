@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.schemas.canonical import PredictResult
 
 # ARCHITECTURE IMPORT ----------------------------
-from app.ml.architectures.canonicaL_nn import YsnaCanonicalArchitecture
+from app.ml.architectures.canonical_nn import YsnaCanonicalArchitecture
 
 class YsnaCanonicalSubjectEngine:
     def __init__(self):

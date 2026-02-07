@@ -8,8 +8,10 @@ Implementa padrões de resiliência e sanitização de JSON.
 import json
 import time
 import re
+import os
 import logging
 import google.generativeai as genai
+from groq import Groq
 
 # from google import genai
 
@@ -132,3 +134,47 @@ class GeminiClient:
         except json.JSONDecodeError:
             logger.error(f"Falha ao decodificar JSON da LLM: {text[:100]}...")
             return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "Invalid JSON"}
+
+class GroqClient:
+    def __init__(self):
+        self.client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+        self.model = "llama-3.3-70b-versatile"
+
+    def check_concept_ambiguity(self, input_text: str, candidates: list) -> Dict[str, Any]:
+        """
+        Resolve ambiguidades de disciplinas usando o Groq com tempo de resposta ultra-baixo.
+        """
+        prompt = f"""
+        Analise se a disciplina '{input_text}' é equivalente ou sinônimo de uma destas: {candidates}.
+        Responda obrigatoriamente um objeto JSON no formato:
+        {{
+            "canonical": "NOME_DA_DISCIPLINA_EM_MAIUSCULO", 
+            "is_new": boolean, 
+            "reasoning": "explicação curta do porquê"
+        }}
+        Se não houver correspondência clara, defina is_new como true e crie um nome canônico adequado.
+        """
+        
+        try:
+            completion = self.client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "Você é um assistente acadêmico especialista em nomes de disciplinas e grades curriculares. Responda apenas em JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                model=self.model,
+                response_format={"type": "json_object"},
+                temperature=0.1,
+            )
+
+            return self._parse_json_response(completion.choices[0].message.content)
+            
+        except Exception as e:
+            logger.error(f"Erro na chamada do Groq: {str(e)}")
+            return {"canonical": input_text.upper().replace(" ", "_"), "is_new": True, "reasoning": "Fallback por erro na LLM"}
+
+    def _parse_json_response(self, text: str) -> Dict[str, Any]:
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            logger.error(f"Falha ao decodificar JSON: {text}")
+            return {"canonical": "UNKNOWN", "is_new": False, "reasoning": "Erro de parse"}

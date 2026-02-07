@@ -2,7 +2,9 @@ import re
 from unidecode import unidecode
 from sentence_transformers import SentenceTransformer
 import joblib
+import logging
 import os
+from time import sleep
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 import json
@@ -13,11 +15,13 @@ import asyncio
 from app.core.config import settings
 from app.schemas.canonical import PredictResult, PredictDecisionScore
 
-from app.utils.llm_client import GeminiClient
+from app.utils.llm_client import GeminiClient, GroqClient
+
+logger = logging.getLogger("yawara.ml.architectures.canonical_nn")
 
 class YsnaCanonicalArchitecture:
     def __init__(self):
-        self.llm_client = GeminiClient()
+        self.llm_client = GroqClient()
         self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
         self.canonical_space = None
@@ -99,11 +103,8 @@ class YsnaCanonicalArchitecture:
 
             if status == "REVIEW":
                 review_result = await self._llm_resolve_review(input_std, c1, c2)
-                res_id = review_result.get("canonical", None)
+                res_id = review_result.get("canonical_id", None)
                 status = "IA_ACCEPT" if res_id and res_id != "UNKNOWN" else "REVIEW"
-
-            if(res_id is None):
-                res_id = "UNKNOWN"
 
             result = PredictResult(
                 timestamp=datetime.now().isoformat(),
@@ -453,20 +454,30 @@ class YsnaCanonicalArchitecture:
         except Exception as e:
             return self._fallback_response(input_text, "LLM_ERROR", [c1_alias, c2_alias])
 
-    def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> Dict:
+    def _fallback_response(self, raw_input: str, source: str, candidates: List = None) -> PredictResult:
         """
-        If have any error in LLM call, fallback to this response, which can be the top candidate or just the raw input as canonical.
-        @param raw_input: The original raw input string that was being processed when the error occurred
-        @param source: A string indicating the source of the fallback response (e.g., "LLM_ERROR")
-        @param candidates: A list of candidate canonical IDs that were being considered before the error occurred
+        Fallback seguro que mantém o tipo de retorno consistente (PredictResult).
         """
-        fallback_name = candidates[0][0] if candidates else raw_input.upper().replace(" ", "_")
-        return {
-            "canonical_id": fallback_name,
-            "confidence": 0.0,
-            "source": source,
-            "status": False
-        }
+        fallback_name = "UNKNOWN"
+        if candidates and len(candidates) > 0:
+            if isinstance(candidates[0], dict):
+                fallback_name = candidates[0].get('canonical_id', "UNKNOWN")
+            elif isinstance(candidates[0], (list, tuple)):
+                fallback_name = candidates[0][0]
+            else:
+                fallback_name = raw_input.upper().replace(" ", "_")
+        else:
+            fallback_name = raw_input.upper().replace(" ", "_")
+
+        return PredictResult(
+            timestamp=datetime.now().isoformat(),
+            raw_input=raw_input,
+            input_std=self._roman_to_arabic(self._normalize(raw_input)),
+            status="ERROR", 
+            canonical_id=fallback_name,
+            decision_scores=PredictDecisionScore(sim1=0.0, sim2=0.0, gap=0.0, s1=0.0, s2=0.0),
+            candidates=[]
+        )
 
     # ====================================
     # =============== SAVE ===============
@@ -477,10 +488,56 @@ class YsnaCanonicalArchitecture:
            f.write(json.dumps(log_data.model_dump()) + "\n")
             
     
-    async def _save_new_concept(self, input_text : str, canon_id : str):
-        new_concept_data = {
-            "canonical": canon_id,
-            "vars": [input_text]
-        }
-        with open(self.new_concept_path, "a") as f:
-            f.write(json.dumps(new_concept_data) + "\n")
+    async def _save_new_concept(self, input_text: str, canon_id: str):
+        """
+        Salva um novo conceito ou adiciona uma variante a um conceito existente de forma atômica.
+        Garante que não existam duplicatas de input_text dentro de vars.
+        """
+        concepts = []
+        found_canonical = False
+        modified = False
+
+        if os.path.exists(self.new_concept_path):
+            try:
+                with open(self.new_concept_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if not line.strip():
+                            continue
+                        data = json.loads(line)
+                        
+                        if data.get("canonical") == canon_id:
+                            found_canonical = True
+                            if input_text not in data.get("vars", []):
+                                data.setdefault("vars", []).append(input_text)
+                                modified = True
+                        
+                        concepts.append(data)
+            except Exception as e:
+                logger.error(f"Erro ao ler arquivo de conceitos: {e}")
+                return
+
+        if not found_canonical:
+            concepts.append({
+                "canonical": canon_id,
+                "vars": [input_text]
+            })
+            modified = True
+
+        if modified:
+            dir_name = os.path.dirname(self.new_concept_path)
+            fd, temp_path = tempfile.mkstemp(dir=dir_name, text=True)
+            
+            try:
+                with os.fdopen(fd, 'w', encoding="utf-8") as tmp:
+                    for concept in concepts:
+                        tmp.write(json.dumps(concept, ensure_ascii=False) + "\n")
+                
+                os.replace(temp_path, self.new_concept_path)
+                logger.info(f"✅ Conceito '{canon_id}' atualizado com variante '{input_text}'.")
+                
+            except Exception as e:
+                logger.error(f"Falha no salvamento atômico: {e}")
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
+        else:
+            logger.debug(f"ℹ️ Variante '{input_text}' já existe para o conceito '{canon_id}'.")

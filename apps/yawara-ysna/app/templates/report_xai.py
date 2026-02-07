@@ -5,7 +5,7 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; background-c
 .bg-yawara-red { background-color: #DC2626; color: white; }
 .text-yawara-red { color: #DC2626; }
 .text-yawara-gray { color: #64748B; }
-.p-12 { padding: 8rem; }
+.p-12 { padding: 3rem; }
 .mb-8 { margin-bottom: 2rem; }
 .flex { display: flex; }
 .justify-between { justify-content: space-between; }
@@ -23,6 +23,11 @@ td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle
     margin-top: 0 !important;
     padding-top: 0 !important;
     clear: both;
+
+    h4 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
 }
 /* Estilo para a nova tabela de Gaps */
 .gap-table th { background-color: #FEF2F2; color: #991B1B; }

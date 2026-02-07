@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
         return new NextResponse(pythonResponse.body, {
             status: 200,
             headers: {
-                'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="Relatorio_Y-SNA.pdf"',
-                'Content-Length': pythonResponse.headers.get('Content-Length') || '',
+                'Content-Type': 'application/x-ndjson', 
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
             },
         });
 

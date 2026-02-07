@@ -26,55 +26,62 @@ export const useYsaPreview = () => {
             });
 
             if (!res.ok) throw 'INTERNAL_SERVER_ERROR';
-
-            const contentLength = res.headers.get('Content-Length');
-            
-            const total = contentLength ? parseInt(contentLength, 10) : 0;
-            
-            if(!res.body){
-                throw 'NO_RESPONSE_BODY';
-            }
+            if (!res.body) throw 'NO_RESPONSE_BODY';
 
             const reader = res.body.getReader();
-            const chunks = [];
-            let receivedLength = 0; 
+            const decoder = new TextDecoder();
+            let accumulatedData = '';
 
             while (true) {
                 const { done, value } = await reader.read();
+                if (done) break;
 
-                if (done) {
-                    break; 
-                }
+                accumulatedData += decoder.decode(value, { stream: true });
 
-                chunks.push(value);
-                receivedLength += value.length;
+                const lines = accumulatedData.split('\n');
+                accumulatedData = lines.pop() || ''; 
 
-                if (total > 0) {
-                    const percent = Math.round((receivedLength / total) * 100);
-                    setProgress(percent);
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+
+                    try {
+                        const data = JSON.parse(line);
+
+                        if (data.status === 'progress') {
+                            setProgress(data.percent);
+                        }
+
+                        if (data.status === 'complete' && data.pdf_base64) {
+                            const byteCharacters = atob(data.pdf_base64);
+                            const byteNumbers = new Uint8Array(byteCharacters.length);
+                            for (let i = 0; i < byteCharacters.length; i++) {
+                                byteNumbers[i] = byteCharacters.charCodeAt(i);
+                            }
+                            const blob = new Blob([byteNumbers], { type: 'application/pdf' });
+
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `Y-SNA_Report_${new Date().getTime()}.pdf`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                        }
+                    } catch (e) {
+                        console.warn("Chunk não processável como JSON:", line);
+                        alert("Um erro foi detectado ao analizar seu histórico academico, tente novamente mais tarde.")
+                    }
                 }
             }
-
-            const blob = new Blob(chunks, { type: 'application/pdf' });
-            
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Y-SNA_Report_PREVIEW_${new Date().getTime()}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
         } catch (error) {
-            console.error('Error uploading/downloading:', error);
+            console.error('Erro no processamento assíncrono:', error);
+            alert("O Servidor YSNA está passando por instabilidades, tente novamente mais tarde")
         } finally {
             setIsAnalyzing(false);
-            setTimeout(() => setProgress(0), 1000); 
+            setTimeout(() => setProgress(0), 1000);
         }
     }
-
 
     return {
         file, setFile,

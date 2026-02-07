@@ -2,9 +2,10 @@ import logging
 import time
 import tensorflow as tf
 from fastapi import APIRouter, UploadFile, File, HTTPException, Response, status, Body
+from fastapi.responses import StreamingResponse
 from fastapi.concurrency import run_in_threadpool
-from typing import List
-import asyncio
+import base64
+import json
 
 # Serviços e Schemas
 from app.services.ingestion import ingest_academic_record_from_pdf
@@ -49,35 +50,37 @@ async def run_valence_forge():
         print(f"Erro na Valence Engine: {e}")
         raise HTTPException(status_code=500, detail="Falha crítica na forja dos times.")
 
-@router.post("/ysna/preview", summary="Preview Y-SNA PDF", description="Processa um PDF via Y-SNA e retorna o PDF gerado.")
+@router.post("/ysna/preview", summary="Preview Y-SNA PDF")
 async def previewYsna(file: UploadFile = File(...)):
     try:
         pdf_bytes = await file.read()
 
-        try:
-            analysis_result = await asyncio.wait_for(
-                selection_pipeline.execute_preview(pdf_bytes), 
-                timeout=30.0
-            )
-        except asyncio.TimeoutError:
-            logger.warning("⏳ Timeout no Y-SNA pipeline.")
-            raise HTTPException(
-                status_code=408, 
-                detail="O processamento do Y-SNA demorou mais que o esperado. Tente novamente."
-            )
-        report_bytes = analysis_result.get('pdf_bytes')
+        async def generate_steps():
+            yield json.dumps({"status": "progress", "percent": 10, "message": "Iniciando análise..."}) + "\n"
+        
+            result = await selection_pipeline.execute_preview(pdf_bytes)
+            report_bytes = result.get('pdf_bytes')
+            
+            if not report_bytes:
+                yield json.dumps({"status": "error", "message": "Falha na geração do PDF"}) + "\n"
+                return
+            
 
-        return Response(
-            content=report_bytes,
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": "attachment; filename=preview_yawara_ysna.pdf",
-                "Content-Length": str(len(report_bytes)) 
-            }
+            pdf_b64 = base64.b64encode(report_bytes).decode('utf-8')
+            yield json.dumps({
+                "status": "complete", 
+                "percent": 100, 
+                "pdf_base64": pdf_b64
+            }) + "\n"
+
+        return StreamingResponse(
+            generate_steps(), 
+            media_type="application/x-ndjson"
         )
+
     except Exception as e:
         logger.error(f"Erro no endpoint /ysna/preview: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Erro interno ao processar o PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
     
 @router.post(
     "/upload/academic_history", 

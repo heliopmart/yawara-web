@@ -187,11 +187,22 @@ class YsnaCanonicalArchitecture:
             self.flat_prototypes = data['protos']
         else:
             print("--- Gerando Novo Espaço Amostral (Primeira Execução) ---")
-            with open(self.base_labels_path, 'r') as f:
-                base_labels_space = json.load(f)
+            new_concept_space = []
+            base_labels_space = []
 
-            with open(self.new_concept_path, 'r') as f:
-                new_concept_space = json.load(f)
+            if os.path.exists(self.new_concept_path) and os.path.getsize(self.new_concept_path) > 0:
+                with open(self.new_concept_path, 'r') as f:
+                    try:
+                        new_concept_space = json.load(f) or []
+                    except json.JSONDecodeError:
+                        new_concept_space = []
+
+            if os.path.exists(self.base_labels_path) and os.path.getsize(self.base_labels_path) > 0:
+                with open(self.base_labels_path, 'r') as f:
+                    try:
+                        base_labels_space = json.load(f) or []
+                    except json.JSONDecodeError:
+                        base_labels_space = []
 
             canonical_space = base_labels_space + new_concept_space
 

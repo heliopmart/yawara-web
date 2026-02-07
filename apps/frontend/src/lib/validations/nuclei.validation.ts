@@ -14,4 +14,9 @@ export const updateNucleiConfigSchema = zod.object({
     ).min(1, 'Deve haver pelo menos uma disciplina.')
 })
 
+export const createNucleusSchema = zod.object({
+    name: zod.string().min(1, 'O nome do núcleo é obrigatório.'),
+    leader_id: zod.string().uuid('ID do líder deve ser um UUID válido.')
+})
+
 export const nucleiUuidParamSchema = zod.string().uuid()

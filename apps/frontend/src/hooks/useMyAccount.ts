@@ -101,6 +101,7 @@ export const useMyAccount = () => {
 
     const handleGetWorkItemsFromData = (data: MyAccountUserDataRepository) => {
         const artList: WorkCard[] = data.users_arts.map((item) => ({
+            original_id: item.art.id || "",
             id: item.art.code,
             type: 'ART',
             code: item.art.code,
@@ -110,6 +111,7 @@ export const useMyAccount = () => {
         }));
 
         const arttcList: WorkCard[] = data.users_arttcs.map((item) => ({
+            original_id: item.arttc.id || "",
             id: item.arttc.code,
             type: 'ARTTC',
             code: item.arttc.code,

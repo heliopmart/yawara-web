@@ -28,12 +28,11 @@ export class authService {
         try {
             const userData = await AuthRepository.getUserByEmail(email);
 
-            console.log(userData)
-
             if (!userData) {
                 throw 'USER_NOT_FOUND'
             }
 
+            // TODO: Talvez seja melhor comparar senha no banco de dados ( pesquisar se é mais seguro )
             if (!(await verifyPasswordString(password, userData.password))) {
                 throw 'INVALID_CREDENTIALS'
             }

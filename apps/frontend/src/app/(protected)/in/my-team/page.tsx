@@ -1,6 +1,4 @@
 'use client';
-
-import { useUserRole } from '@/hooks/useUserRole';
 import {useMyTeam} from "@/hooks/useMyTeam"
 import styles from '@/app/(protected)/in/my-team/myTeam.module.scss'
 
@@ -36,7 +34,6 @@ const MyTeamPage = () => {
                 </aside>
                 
                 <section className={styles.mainContent}>
-                    <TaskWall />
                     <ArtGrid data={artGrid} title='ART' type='ART' />
                     <ArtGrid data={arttcsGrid} title='ARTTC' type='ARTTC' />
                 </section>

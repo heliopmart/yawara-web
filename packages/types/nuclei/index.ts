@@ -88,6 +88,11 @@ export interface UpdateNucleiConfigData {
     subject_weights: SubjectWeight[]
 }
 
+export interface MemberToCreateNucleus {
+    id: string;
+    name: string;
+    score: number;
+}
 
 // --------------------------------------------
 // ----------------- FRONTEND -----------------

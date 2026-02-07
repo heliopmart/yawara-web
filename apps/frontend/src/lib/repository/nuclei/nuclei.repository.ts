@@ -1,6 +1,6 @@
 import { create_rls_client, supabase } from "@/lib/db"
 import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps} from '@yawara/types'
+import { TokenPayload, PsEditionAndNucleiConfigs, UpdateNucleiConfigData, NucleiRepositoryFactory, NucleiShowProps, MemberToCreateNucleus} from '@yawara/types'
 
 export class NucleiRepository {
     private auth?: TokenPayload;
@@ -24,20 +24,6 @@ export class NucleiRepository {
 
     async getActivePsEditionAndNucleiConfigs() : Promise<PsEditionAndNucleiConfigs> {
         try{
-            // const res = await getRows({
-            //     bd: this.bd,
-            //     table: this.TablePsEditionsName,
-            //     filters: [{ column: 'is_active', op: 'eq', value: true }, { column: 'nuclei_configs.nuclei.leader', op: 'eq', value: this.auth?.user_id }],
-            //     columns: `
-            //         id, name, 
-            //         nuclei_configs: nuclei_configs!nuclei_configs_ps_edition_id_fkey ( id, open_vacancies, 
-            //             nuclei: nuclei ( id, leader ),
-            //             nuclei_subject_weights: nuclei_subject_weights!nuclei_subject_weights_config_id_fkey ( id, subject_name, weight )
-            //         )
-            //     `,
-            //     single: true
-            // })
-
             const res = await callRpc<PsEditionAndNucleiConfigs>({
                 bd: this.bd,
                 functionName: 'get_active_ps_with_leader_configs',
@@ -74,6 +60,24 @@ export class NucleiRepository {
         }
     }
 
+    async getMembersForNucleusAdm() : Promise<MemberToCreateNucleus[]> {
+        try{
+            const res = await callRpc({
+                bd: this.bd,
+                functionName: 'get_members_for_nucleus_adm',
+                params: {}
+            })
+
+            if(!res.status){
+                throw 'MEMBERS_FETCH_FAILED';
+            }
+
+            return res.data as MemberToCreateNucleus[];
+        }catch(err){
+            throw err;
+        }
+    }
+
     /*
         =========================================================
         ======================  UPDATE ==========================
@@ -98,6 +102,37 @@ export class NucleiRepository {
                 throw 'NUCLEI_CONFIG_UPDATE_FAILED';
             }
             return res.data || { config_id: '', subjects: [] };
+        }catch(err){
+            throw err;
+        }
+    }
+
+    /*
+        =========================================================
+        ======================  CREATE ==========================
+        =========================================================
+    */
+
+    async createNucleus(data: { name: string, leader_id: string }) : Promise<boolean> {
+        try{
+            const res = await callRpc<any>({
+                bd: this.bd,
+                functionName: 'create_nucleus',
+                params: {
+                    p_name: data.name,
+                    p_leader_id: data.leader_id
+                }
+            })
+
+            if(!res.status){
+                throw 'NUCLEUS_CREATION_FAILED';
+            }
+            
+            if(res.data?.error){
+                throw res.data.error;
+            }
+
+            return true;
         }catch(err){
             throw err;
         }

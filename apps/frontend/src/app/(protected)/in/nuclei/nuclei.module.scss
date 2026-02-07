@@ -10,14 +10,48 @@ $border-glow: rgba(230, 0, 0, 0.1);
     color: #fff;
 }
 
+
+.sectionActions {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 2rem 0;
+
+    a {
+        text-transform: uppercase;
+        font-weight: 900;
+        padding: 12px 24px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .primaryBtn {
+        background: $yawara-red;
+        color: #fff;
+        border: none;
+        clip-path: polygon(0 0, 100% 0, 100% 70%, 85% 100%, 0 100%);
+
+        &:hover {
+            background: #ff1a1a;
+            padding-right: 35px;
+        }
+    }
+}
+
 .header {
     margin-bottom: 3rem;
+
     .breadcrumb {
         font-family: 'JetBrains Mono', monospace;
         color: $yawara-red;
         font-size: 0.7rem;
         letter-spacing: 2px;
     }
+
     h1 {
         font-size: 2.2rem;
         font-weight: 900;
@@ -34,7 +68,7 @@ $border-glow: rgba(230, 0, 0, 0.1);
 
 .nucleusCard {
     background: $card-bg;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 2rem;
     position: relative;
     transition: 0.3s;
@@ -48,15 +82,23 @@ $border-glow: rgba(230, 0, 0, 0.1);
     &::before {
         content: "";
         position: absolute;
-        top: 0; right: 0;
-        width: 40px; height: 40px;
+        top: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
         background: linear-gradient(45deg, transparent 50%, rgba($yawara-red, 0.1) 50%);
     }
 }
 
 .cardHeader {
     margin-bottom: 1rem;
-    h2 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 0.5rem; }
+
+    h2 {
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
     .stats {
         display: flex;
         justify-content: space-between;
@@ -70,6 +112,7 @@ $border-glow: rgba(230, 0, 0, 0.1);
     height: 4px;
     background: #1a1a1a;
     margin-bottom: 2rem;
+
     .fill {
         height: 100%;
         background: $yawara-red;
@@ -91,12 +134,18 @@ $border-glow: rgba(230, 0, 0, 0.1);
 .artsList {
     list-style: none;
     padding: 0;
+
     li {
         font-family: 'JetBrains Mono', monospace;
         font-size: 0.8rem;
         padding: 8px 0;
-        border-bottom: 1px solid rgba(255,255,255,0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
         color: #aaa;
-        .artId { color: #555; margin-right: 10px; font-weight: 400; }
+
+        .artId {
+            color: #555;
+            margin-right: 10px;
+            font-weight: 400;
+        }
     }
 }

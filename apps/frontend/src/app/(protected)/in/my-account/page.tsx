@@ -1,10 +1,11 @@
 'use client';
 
 import styles from './my-account.module.scss';
+import Link from 'next/link';
 import {
   FaUserEdit, FaDownload, FaRobot, FaPowerOff, FaUserSlash, FaFileAlt, FaExternalLinkAlt
 } from 'react-icons/fa';
-import {useMyAccount} from '@/hooks/useMyAccount';
+import { useMyAccount } from '@/hooks/useMyAccount';
 import MyAccountLoader from "@/components/account/MyAccountLoader";
 
 export default function MyAccountPage() {
@@ -20,9 +21,9 @@ export default function MyAccountPage() {
   } = useMyAccount()
 
 
-  if(loading || !user){
+  if (loading || !user) {
     return (
-      <MyAccountLoader/>
+      <MyAccountLoader />
     )
   }
 
@@ -99,7 +100,7 @@ export default function MyAccountPage() {
               <div key={item.id} className={styles.workCard}>
                 <div className={styles.cardHeader}>
                   <span className={styles.type}>{item.type} • {item.code} {item.role && `• ${item.role}`} </span>
-                  
+
                   <span className={styles.status} style={{ color: item.status === 'FINALIZED' ? '#888' : '#4caf50' }}>
                     {item.status}
                   </span>
@@ -108,9 +109,11 @@ export default function MyAccountPage() {
                 <p>Vinculado ao {user.nucleus.name}</p>
 
                 <div className={styles.cardFooter}>
-                  <button>
-                    <FaExternalLinkAlt /> Ver Detalhes
-                  </button>
+                  <Link href={`/in/my-team/manage/${item.type.toLowerCase()}/${item.original_id}`} className={styles.detailsBtn}>
+                    <button>
+                      <FaExternalLinkAlt /> Ver Detalhes
+                    </button>
+                  </Link>
                 </div>
               </div>
             ))}

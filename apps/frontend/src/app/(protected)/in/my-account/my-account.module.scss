@@ -180,6 +180,12 @@ $border: #333;
       margin-top: 1.5rem;
       display: flex;
       justify-content: flex-end;
+
+      a{
+        text-decoration: none;
+        width: auto;
+        height: auto;
+      }
       
       button {
         background: transparent;

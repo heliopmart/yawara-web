@@ -13,7 +13,6 @@ export async function GET() {
 
     try {
         const { payload } = await jwtVerify(token, new TextEncoder().encode(SECRET)) as { payload: {role: string} };
-        console.log(payload)
         
         return NextResponse.json({ role: payload.role ?? 'GUEST' });
     } catch (error) {

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { SubjectWeight, CycleData, NucleiShowProps } from '@yawara/types';
+import { useState, useEffect, useMemo } from 'react';
+import { useUserRole } from '@/hooks/useUserRole';
+import { SubjectWeight, CycleData, NucleiShowProps, MemberToCreateNucleus } from '@yawara/types';
 
 export const useNucleusManagement = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -104,6 +105,7 @@ export const useNucleusManagement = () => {
 };
 
 export const useNuclei = () => {
+    const { role, isLoading, user } = useUserRole();
     const [nuclei, setNuclei] = useState<NucleiShowProps[]>([]);
 
     const handleGet = async () => {
@@ -131,6 +133,82 @@ export const useNuclei = () => {
     },[])
 
     return {
-        nuclei
+        nuclei,
+        role,
+        isLoading,
+        user
     }
 }
+
+export const useCreateNucleus = () => {
+    const [name, setName] = useState('');
+    const [selectedLeaderId, setSelectedLeaderId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [members, setMembers] = useState<MemberToCreateNucleus[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            setIsLoading(true);
+            try {
+                const res = await fetch('/api/admin/nuclei/create', { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+                if(!res.ok){
+                    throw 'Erro ao buscar membros para seleção';
+                }
+                
+                const data = await res.json();
+
+                console.log(data)
+                if (data.success) setMembers(data.data);
+            } catch (error) {
+                console.error('Erro ao buscar membros:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchMembers();
+    }, []);
+
+    const filteredMembers = useMemo(() => {
+        return members.filter(m => 
+            m.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [searchTerm, members]);
+
+    const handleCreate = async () => {
+        if (!name || !selectedLeaderId) {
+            alert('Preencha o nome do núcleo e selecione um líder.');
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const res = await fetch('/api/admin/nuclei/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, leader_id: selectedLeaderId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Núcleo criado com sucesso!');
+            } else {
+                throw new Error(data.error.message);
+            }
+        } catch (error: any) {
+            alert(error.message || 'Erro ao criar núcleo');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    return {
+        name, setName,
+        searchTerm, setSearchTerm,
+        selectedLeaderId, setSelectedLeaderId,
+        filteredMembers,
+        handleCreate,
+        isLoading,
+        isSaving
+    };
+};

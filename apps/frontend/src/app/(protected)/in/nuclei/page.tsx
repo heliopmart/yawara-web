@@ -1,11 +1,10 @@
 'use client';
-
-import {useNuclei} from '@/hooks/useNucleusManagement';
+import Link from 'next/link';
+import { useNuclei } from '@/hooks/useNucleusManagement';
 import styles from './nuclei.module.scss';
 
-
 const NucleiPage = () => {
-    const { nuclei } = useNuclei();
+    const { nuclei, role, isLoading } = useNuclei();
 
     return (
         <main className={styles.container}>
@@ -16,7 +15,16 @@ const NucleiPage = () => {
                 </div>
             </header>
 
+            <section className={styles.sectionActions}>
+                {
+                    role === 'ADMIN' && (
+                        <Link href="/in/nuclei/create" type='button' className={styles.primaryBtn}>Adicionar Núcleo</Link>
+                    )
+                }
+            </section>
+            
             <div className={styles.nucleiGrid}>
+
                 {nuclei.map((n) => (
                     <section key={n.id} className={styles.nucleusCard}>
                         <div className={styles.cardHeader}>
@@ -25,7 +33,7 @@ const NucleiPage = () => {
                                 <span>{n.nucleiConfig.totalMembers} MEMBROS</span>
                             </div>
                         </div>
-                        
+
                         <div className={styles.artsSection}>
                             <h3>ARTs EM EXECUÇÃO</h3>
                             {n.activeArts.length > 0 ? (

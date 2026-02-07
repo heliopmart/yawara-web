@@ -1,34 +1,29 @@
-// apps/frontend/src/styles/globals.scss
 
-@import 'variables'; // Importa nossas variáveis (sem o underscore no import)
-@import 'utils';     // Importa mixins e utilitários
+@import 'variables'; 
+@import 'utils';     
 
-// CSS Reset e Box-sizing
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-// Estilos base para o Body
 body {
   margin: 0;
   padding: 0;
   font-family: $font-family-primary;
-  background-color: $color-secondary; // Fundo preto
-  color: $color-text-light; // Texto branco
+  background-color: $color-secondary; 
+  color: $color-text-light; 
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-// Classe para containers centrais (Max-width)
 .contentWrapper {
   max-width: $breakpoint-widescreen;
   margin: 0 auto;
   padding: 0 $spacing-md;
 }
 
-// Estilos para links padrão (que não são botões)
 a {
   color: $color-primary;
   text-decoration: none;
@@ -37,13 +32,12 @@ a {
   }
 }
 
-// Reset de Margens para Headings e Parágrafos
 h1, h2, h3, h4, h5, h6, p {
   margin-top: 0;
+  margin-bottom: 0px;
 }
 
-// Ajuste para o conteúdo principal (Main)
 main {
-    padding-top: 60px; // Altura base do Header fixo
+    padding-top: 60px;
     min-height: 100vh;
 }

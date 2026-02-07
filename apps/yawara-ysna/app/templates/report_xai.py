@@ -14,15 +14,13 @@ body { font-family: 'Helvetica', sans-serif; margin: 0; padding: 0; background-c
 .col-span-7 { grid-column: span 7; }
 .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; color: white; }
 .page-break { page-break-before: always; }
-
+.status-user-nucleus { max-height: 40px; display: block;}
 table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 20px; }
 th { text-align: left; padding: 10px 8px; background-color: #F1F5F9; color: #475569; font-size: 0.65rem; font-weight: bold; border-bottom: 2px solid #E2E8F0; }
 td { padding: 12px 8px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
 .content-table {
-    page-break-inside: avoid;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    clear: both;
 
     h4 {
         margin-top: 0 !important;
@@ -82,7 +80,7 @@ HTML_XAI_TEMPLATE = """
             
             <div class="flex justify-between items-center mb-8 border-b" style="padding-bottom: 1rem; border-bottom: 2px solid #F1F5F9;">
                 <h2 class="text-2xl font-bold text-yawara-black uppercase">{{ nucleus.nucleus_name }}</h2>
-                <span class="badge" style="background-color: {{ nucleus.status_color }};">
+                <span class="badge status-user-nucleus" style="background-color: {{ nucleus.status_color }};">
                     {{ nucleus.status_label }}
                 </span>
             </div>

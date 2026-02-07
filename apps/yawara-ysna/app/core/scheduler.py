@@ -31,7 +31,7 @@ class TrainingScheduler:
 
         if(os.path.exists(learned_path)) and (os.path.exists(cache_path)):
             if(os.path.getsize(learned_path) > 0):
-                os.path.remove(cache_path)
+                os.remove(cache_path)
 
     async def _check_and_train_routine_engine_v2(self):
         """

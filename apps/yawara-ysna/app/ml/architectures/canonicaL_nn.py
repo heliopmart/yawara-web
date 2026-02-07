@@ -100,7 +100,7 @@ class YsnaCanonicalArchitecture:
             if status == "REVIEW":
                 review_result = await self._llm_resolve_review(input_std, c1, c2)
                 res_id = review_result.get("canonical", None)
-                status = "ACCEPT" if res_id and res_id != "UNKNOWN" else "REVIEW"
+                status = "IA_ACCEPT" if res_id and res_id != "UNKNOWN" else "REVIEW"
 
             if(res_id is None):
                 res_id = "UNKNOWN"

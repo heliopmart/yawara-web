@@ -2,7 +2,7 @@
 import '@/styles/globals.scss';
 
 import React, { useState, useMemo } from 'react';
-import styles from './processoSeletivoLayout.module.scss';
+import styles from './layout.module.scss';
 import SideNav from '@/components/selectionProcess/SideNav';
 import { AuthRole } from '@yawara/types';
 import { usePathname } from 'next/navigation'; 

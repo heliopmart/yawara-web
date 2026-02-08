@@ -1,40 +1,31 @@
-// apps/frontend/src/styles/utils.scss
 
 @import 'variables';
 
-// --- MIXINS DE RESPONSIVIDADE ---
 
-// Dispositivos Móveis e Tablets (Máximo)
 @mixin mobile-only {
   @media (max-width: ($breakpoint-tablet - 1px)) {
     @content;
   }
 }
 
-// Tablets para cima
 @mixin tablet {
   @media (min-width: $breakpoint-tablet) {
     @content;
   }
 }
 
-// Desktops para cima
 @mixin desktop {
   @media (min-width: $breakpoint-desktop) {
     @content;
   }
 }
 
-// --- MIXINS ÚTEIS ---
-
-// Mixin para centralizar conteúdo em flex
 @mixin flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-// Mixin para remover o estilo padrão de botões
 @mixin button-reset {
   background: none;
   border: none;

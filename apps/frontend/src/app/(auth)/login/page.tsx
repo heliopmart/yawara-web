@@ -37,6 +37,10 @@ const LoginPage: React.FC = () => {
             });
 
             if(!res.ok){
+                if(res.status === 401){
+                    setError({ message: "Ops! Parece que esse usuário não existe." });
+                    return;
+                }
                 throw 'INTERNAL_SERVER_ERROR';
             }
 
@@ -52,7 +56,6 @@ const LoginPage: React.FC = () => {
             }
         }
         catch (error) {
-            console.error('Erro de rede ou parsing:', error);
             setError({ message: "Ah não! estamos passando por instabilidades." });
         }
     }
@@ -75,6 +78,13 @@ const LoginPage: React.FC = () => {
                 body: JSON.stringify(data),
             });
 
+            if(!response.ok){
+                if(response.status === 401){
+                    setError({ message: "Ops! Parece que seu e-mail ou senha estão incorretos." });
+                    return;
+                }
+            }
+
             const apiResponse = await response.json();
 
             if (apiResponse.success) {
@@ -84,7 +94,6 @@ const LoginPage: React.FC = () => {
             }
 
         } catch (error) {
-            console.error('Erro de rede ou parsing:', error);
             setError({ message: "Ah não! estamos passando por instabilidades." });
         }
     };

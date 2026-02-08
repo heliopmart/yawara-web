@@ -18,7 +18,7 @@ const NucleiPage = () => {
             <section className={styles.sectionActions}>
                 {
                     role === 'ADMIN' && (
-                        <Link href="/in/nuclei/create" type='button' className={styles.primaryBtn}>Adicionar Núcleo</Link>
+                        <Link href="/in/admin/nucleusManager/create" type='button' className={styles.primaryBtn}>Adicionar Núcleo</Link>
                     )
                 }
             </section>

@@ -13,10 +13,9 @@
   }
 }
 
-// MyAccount.module.scss
 $bg-dark: #121212;
 $bg-card: #1e1e1e;
-$accent: #d32f2f; // Vermelho Yawara
+$accent: #d32f2f;
 $text-main: #f5f5f5;
 $text-muted: #a0a0a0;
 $border: #333;
@@ -26,6 +25,10 @@ $border: #333;
   background-color: $bg-dark;
   color: $text-main;
   padding: 3rem 1.5rem;
+
+  @include mobile{
+    padding: 2rem .5rem;
+  }
 }
 
 .wrapper {
@@ -36,12 +39,15 @@ $border: #333;
   gap: 3rem;
 }
 
-// SEÇÃO 1: CABEÇALHO E DADOS
 .profileSection {
   background-color: $bg-card;
   border-radius: 12px;
   border: 1px solid $border;
   padding: 2rem;
+
+  @include mobile{
+    padding: 1rem;
+  }
   
   .header {
     display: flex;
@@ -52,8 +58,12 @@ $border: #333;
     border-bottom: 1px solid $border;
 
     .avatar {
-      width: 80px;
-      height: 80px;
+      max-width: 80px;
+      max-height: 80px;
+      min-width: 40px;
+      min-height: 40px;
+      width: 100vw;
+      height: 100vh;
       background: linear-gradient(135deg, $accent, darken($accent, 20%));
       border-radius: 50%;
       display: flex;

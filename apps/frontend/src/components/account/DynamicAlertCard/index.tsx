@@ -1,5 +1,3 @@
-// apps/frontend/src/components/account/DynamicAlertCard/index.tsx
-
 import React from 'react';
 import Link from 'next/link';
 import styles from './dynamicAlertCard.module.scss';

@@ -1,9 +1,19 @@
 @import '@/styles/variables.scss';
 @import '@/styles/utils.scss';
 
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
 .dashboardContainer {
     padding: $spacing-xl $spacing-lg;
     width: 100%;
+
+    @include mobile {
+        padding: $spacing-sm;
+    }
 
     h1 {
         font-size: 2.5rem;

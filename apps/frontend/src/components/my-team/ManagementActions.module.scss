@@ -1,3 +1,6 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss';
+
 $bg-black: #050505;
 $card-dark: #0f0f0f;
 $yawara-red: #e60000;
@@ -9,6 +12,11 @@ $border-tech: rgba(255, 255, 255, 0.03);
 .adminActions {
   display: flex;
   gap: 1rem;
+  width: 100%;
+
+  @include mobile-only {
+    flex-direction: column;
+  }
 
   button {
     text-transform: uppercase;

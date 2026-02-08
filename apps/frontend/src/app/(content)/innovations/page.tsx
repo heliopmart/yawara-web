@@ -56,12 +56,12 @@ const Innovation = () => {
             <div className={styles.compactCard}>
               <FaIndustry />
               <h3>Engenharia de Produção</h3>
-              <p>Otimização de processos, gestão de manufatura e logística de suprimentos para o MotoStudent.</p>
+              <p>Otimização de processos, gestão de manufatura e logística de suprimentos para o Yawara.</p>
             </div>
             <div className={styles.compactCard}>
               <FaMicrochip />
-              <h3>Sistemas Embarcados</h3>
-              <p>Firmware proprietário e integração IoT para telemetria em tempo real na nuvem.</p>
+              <h3>Engenharia de Computação</h3>
+              <p>Hardware, Software e processos tecnológicos integrados para inovação contínua. Perfeita para o modelo inovador do Yawara</p>
             </div>
           </div>
         </div>

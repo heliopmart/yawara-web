@@ -3,13 +3,23 @@
 @import '@/styles/variables.scss';
 @import '@/styles/utils.scss';
 
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
 .cardContainer {
     background-color: $color-dark-surface;
     padding: $spacing-xl;
-    border-radius: 0; // Design flat
-    border-left: 5px solid transparent; // Borda de status
+    border-radius: 0;
+    border-left: 5px solid transparent;
     width: 100%;
     max-width: 900px;
+
+    @include mobile {
+        padding: $spacing-md;
+    }
 }
 
 .title {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useCreateNucleus } from '@/hooks/useNucleusManagement';
-import styles from './CreateNuclei.module.scss';
+import styles from './createNuclei.module.scss';
 import { FaUserTie, FaSearch, FaSave, FaArrowLeft, FaIdCard } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 

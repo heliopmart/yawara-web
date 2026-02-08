@@ -189,7 +189,7 @@ const SnaPredictor = () => {
                     </div>
 
                     <div className={styles.linkGrid}>
-                        <Link href="/docs/Yawara_SNA_Technical_Architecture_v3.pdf" target="_blank" className={styles.resourceCard}>
+                        <a href="/docs/Yawara_SNA_Technical_Architecture_v3.pdf" download="Yawara_SNA_Technical_Architecture.pdf" className={styles.resourceCard}>
                             <div className={styles.cardContent}>
                                 <div className={styles.iconBox}>
                                     <span className={styles.pdfIcon}>PDF</span>
@@ -200,9 +200,9 @@ const SnaPredictor = () => {
                                 </div>
                             </div>
                             <span className={styles.externalLinkIcon}>↓</span>
-                        </Link>
+                        </a>
 
-                        <Link href="/docs/Yawara System Neural Architecture - Valence Model Engine.pdf" target="_blank" className={styles.resourceCard}>
+                        <a href="/docs/Yawara_System_Neural_Architecture-Valence-Model-Engine.pdf" download="Yawara_System_Neural_Architecture-Valence-Model-Engine.pdf" className={styles.resourceCard}>
                             <div className={styles.cardContent}>
                                 <div className={styles.iconBox}>
                                     <span className={styles.pdfIcon}>PDF</span>
@@ -213,7 +213,7 @@ const SnaPredictor = () => {
                                 </div>
                             </div>
                             <span className={styles.externalLinkIcon}>↓</span>
-                        </Link>
+                        </a>
 
                         <Link href="https://teamyawara-y-sna.hf.space/docs/ysna/" target="_blank" className={styles.resourceCard}>
                             <div className={styles.cardContent}>

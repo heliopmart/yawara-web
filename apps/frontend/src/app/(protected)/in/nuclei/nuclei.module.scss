@@ -1,3 +1,7 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
+
 $yawara-red: #e60000;
 $bg-black: #050505;
 $card-bg: #0d0d0d;
@@ -6,10 +10,14 @@ $border-glow: rgba(230, 0, 0, 0.1);
 .container {
     padding: 2rem;
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
     color: #fff;
-}
 
+    @include mobile-only {
+        padding: 1rem;
+    }
+}
 
 .sectionActions {
     width: 100%;

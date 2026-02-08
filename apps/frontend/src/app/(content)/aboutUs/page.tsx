@@ -91,6 +91,7 @@ const AboutUs = () => {
                         <span>Auanne Dias Rodrigues</span>
                         <span>Adalto Barbosa de Oliveira Neto</span>
                         <span>Eduardo Rizzi Rodrigues</span>
+                        <span>Luana Beatriz Viegas Vieira</span>
                     </div>
                 </div>
             </section>

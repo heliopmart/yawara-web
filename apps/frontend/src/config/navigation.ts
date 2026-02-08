@@ -29,8 +29,8 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'MINHA EQUIPE', href: '/in/my-team' },
         { label: 'NÚCLEOS', href: '/in/nuclei' },
         { label: 'FERRAMENTAS', href: '/in/tools' },
+        { label: 'CERTIFICADOS', href: '/in/admin/certificates' },
         { label: 'REQUISIÇÕES', href: '/in/requests' },
-
         { label: 'GERENCIAR NÚCLEO', href: '/in/admin/nucleusManager' },
         ...COMMON_LINKS
     ],
@@ -41,9 +41,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'REQUISIÇÕES', href: '/in/requests' },
         { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/ps/create' },
         { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
-
-        // REMOVE
-        { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },
+        { label: 'CERTIFICADOS', href: '/in/admin/certificates' },
         ...COMMON_LINKS
     ],
 
@@ -54,7 +52,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'REQUISIÇÕES', href: '/in/requests' },
         { label: 'DOCUMENTOS', href: '/in/admin/docs' },
         { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
-        { label: 'EVENTOS', href: '/in/events' },
+        { label: 'CERTIFICADOS', href: '/in/admin/certificates' },
 
         ...COMMON_LINKS
     ],
@@ -67,7 +65,7 @@ export const NAVIGATION_BY_ROLE: Record<AuthRole, NavLink[]> = {
         { label: 'DOCUMENTOS', href: '/in/admin/docs' },
         { label: 'GERENCIAR NÚCLEO', href: '/in/admin/nucleusManager' },
         { label: 'CRIAR PROCESSO SELETIVO', href: '/in/admin/ps/create' },
-        { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
+        // { label: 'PROCESSO SELETIVO | PRESENÇA', href: '/in/admin/ps/management' },
         { label: 'EVENTOS', href: '/in/events' },
         { label: 'PROCESSO SELETIVO', href: '/in/selection-process' },
         ...COMMON_LINKS

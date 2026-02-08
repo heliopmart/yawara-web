@@ -1,3 +1,7 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss';
+
+
 $yawara-red: #e60000;
 $bg-dark: #050505;
 $border-color: rgba(255, 255, 255, 0.05);
@@ -5,8 +9,14 @@ $border-color: rgba(255, 255, 255, 0.05);
 .container {
     padding: 2rem;
     max-width: 1400px;
+    width: 100%;
     margin: 0 auto;
+    overflow-x: hidden;
     color: #fff;
+
+    @include mobile-only {
+        padding: 1rem;
+    }
 }
 
 .header {
@@ -67,108 +77,127 @@ $border-color: rgba(255, 255, 255, 0.05);
         filter: brightness(1.15);
     }
 
-    @media (max-width: 500px) {
+    @include mobile-only {
         padding: 10px 12px;
     }
 }
 
-    .tableWrapper {
-        background: #080808;
-        border: 1px solid $border-color;
-        overflow-x: auto;
-    }
+.tableWrapper {
+    background: #080808;
+    border: 1px solid $border-color;
+    overflow-x: auto;
+}
 
-    .rosterTable {
-        width: 100%;
-        border-collapse: collapse;
+.rosterTable {
+    width: 100%;
+    border-collapse: collapse;
 
-        th {
-            text-align: left;
-            padding: 1.5rem;
-            background: #0c0c0c;
-            font-size: 0.65rem;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+    th {
+        text-align: left;
+        padding: 1.5rem;
+        background: #0c0c0c;
+        font-size: 0.65rem;
+        color: #444;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+
+        @include mobile-only {
+            padding: .7rem .3rem;
+            font-size: .59rem;
         }
+    }
 
-        td {
-            padding: 1.2rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+
+        @include mobile-only {
+            padding: .9rem .3rem;
+            font-size: .8em;
         }
     }
+}
 
-    .scoreGrid {
-        display: flex;
-        gap: 8px;
+.scoreGrid {
+    display: flex;
+    gap: 8px;
+}
+
+.scoreInput {
+    width: 45px;
+    background: #000;
+    border: 1px solid #222;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    font-family: 'JetBrains Mono', monospace;
+
+    &:focus:not(:disabled) {
+        border-color: $yawara-red;
+        outline: none;
     }
 
-    .scoreInput {
-        width: 45px;
-        background: #000;
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    @include mobile-only {
+        width: 35px;
+        font-size: 1em;
+    }
+}
+
+.leaderTag {
+    background: $yawara-red;
+    font-size: 0.5rem;
+    padding: 2px 4px;
+    margin-left: 10px;
+    font-weight: 900;
+}
+
+.actionGroup {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+
+    button {
+        background: #111;
         border: 1px solid #222;
         color: #fff;
-        text-align: center;
-        padding: 5px;
-        font-family: 'JetBrains Mono', monospace;
+        width: 35px;
+        height: 35px;
+        cursor: pointer;
+        transition: 0.3s;
 
-        &:focus:not(:disabled) {
+        &.warnBtn:hover {
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        &.banBtn:hover {
             border-color: $yawara-red;
-            outline: none;
+            color: $yawara-red;
         }
 
-        &:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+        &.reallocateBtn:hover {
+            border-color: #0088ff;
+            color: #0088ff;
         }
     }
+}
 
-    .leaderTag {
-        background: $yawara-red;
+.warningActive {
+    color: #ffaa00;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+.cleanRecord {
+    color: #444;
+    font-size: 0.75rem;
+
+    @include mobile-only {
         font-size: 0.5rem;
-        padding: 2px 4px;
-        margin-left: 10px;
-        font-weight: 900;
     }
-
-    .actionGroup {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-
-        button {
-            background: #111;
-            border: 1px solid #222;
-            color: #fff;
-            width: 35px;
-            height: 35px;
-            cursor: pointer;
-            transition: 0.3s;
-
-            &.warnBtn:hover {
-                border-color: #ffaa00;
-                color: #ffaa00;
-            }
-
-            &.banBtn:hover {
-                border-color: $yawara-red;
-                color: $yawara-red;
-            }
-
-            &.reallocateBtn:hover {
-                border-color: #0088ff;
-                color: #0088ff;
-            }
-        }
-    }
-
-    .warningActive {
-        color: #ffaa00;
-        font-weight: 700;
-        font-size: 0.75rem;
-    }
-
-    .cleanRecord {
-        color: #444;
-        font-size: 0.75rem;
-    }
+}

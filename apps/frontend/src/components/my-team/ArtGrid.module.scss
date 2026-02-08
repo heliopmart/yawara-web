@@ -5,6 +5,11 @@ $yawara-red-glow: rgba(230, 0, 0, 0.15);
 $text-gray: #888;
 $border-tech: rgba(255, 255, 255, 0.03);
 
+.sectionWrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
 .artGrid {
   display: grid;

@@ -1,11 +1,19 @@
+@import '@/styles/variables.scss';
+@import '@/styles/utils.scss'; 
+
 $yawara-red: #e60000;
 $bg-dark: #050505;
 
 .container {
     padding: 2rem;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     color: #fff;
+
+    @include mobile-only{
+        padding: 1rem;
+    }
 }
 
 .cardHeader{

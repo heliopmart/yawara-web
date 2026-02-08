@@ -3,6 +3,12 @@ $black-pure: #000000;
 $gray-dark: #0a0a0a;
 $white: #ffffff;
 
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
 .wrapper {
   background-color: $black-pure;
   color: $white;
@@ -23,8 +29,9 @@ $white: #ffffff;
   h1 {
     font-size: clamp(3rem, 8vw, 5rem);
     font-weight: 900;
-    margin: 0;
     letter-spacing: 4px;
+    line-height: 55px;
+    margin: 25px 0px;
   }
 
   .subtitle {
@@ -145,6 +152,10 @@ $white: #ffffff;
   padding: 4rem;
   text-align: center;
   color: $white;
+
+  @include mobile {
+    padding: 2rem;
+  }
 
   h2 { font-size: 2rem; margin-bottom: 1.5rem; font-weight: 800; }
   p { font-size: 1.2rem; max-width: 800px; margin: 0 auto; }

@@ -6,9 +6,9 @@ import { jwtVerify  } from 'jose'
 const SECRET = process.env.JWT_SECRET_USER_ROLE || ''
 
 const ROLE_ROUTES = {
-    ADMIN_ROUTES: ['/in/admin', '/in/certificates', '/in/allocation'],
+    ADMIN_ROUTES: ['/in/admin', '/in/admin/certificates', '/in/allocation', '/in/nuclei/create', '/in/my-team/add'],
     MEMBER_ROUTES: ['/in/my-team', '/in/nuclei', '/in/tools', '/in/requests', '/in/docs'],
-    CANDIDATE_ROUTES: ['/in/processo-seletivo']
+    CANDIDATE_ROUTES: ['/in/selection-process']
 };
 
 export async function middleware(req: NextRequest) {
@@ -43,13 +43,6 @@ export async function middleware(req: NextRequest) {
     if (ROLE_ROUTES.ADMIN_ROUTES.some(route => path.startsWith(route))) {
         if (userRole !== 'LEADER' && userRole !== 'ADMIN') {
             return NextResponse.redirect(new URL('/in', req.url));
-        }
-    }
-
-    // --- REGRA 2: Proteção de Processo Seletivo ---
-    if (path.startsWith('/in/processo-seletivo')) {
-        if (userRole === 'MEMBER' || userRole === 'LEADER') {
-            return NextResponse.redirect(new URL('/in/my-team', req.url));
         }
     }
 

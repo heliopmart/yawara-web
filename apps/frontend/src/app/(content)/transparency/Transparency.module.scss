@@ -4,6 +4,12 @@ $white: #ffffff;
 $bg-gray: #f9f9f9;
 $border: #eeeeee;
 
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
 .transparencyWrapper {
   background-color: $white;
   color: $black-pure;
@@ -11,7 +17,7 @@ $border: #eeeeee;
   padding-bottom: 5rem;
 }
 
-.loading{
+.loading {
   width: 100vw;
   height: 90vh;
   display: flex;
@@ -28,38 +34,54 @@ $border: #eeeeee;
   color: $white;
   padding: 7rem 0px 4rem 0px;
   text-align: center;
-  h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
-  p { color: #888; font-size: 1.1rem; }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #888;
+    font-size: 1.1rem;
+  }
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
+
+  @include mobile {
+    padding: 0 1rem;
+  }
 }
 
 .section {
   margin-top: 4rem;
-  
+
   .title {
     display: flex;
     align-items: center;
     gap: 1rem;
     font-size: 1.8rem;
     margin-bottom: 2rem;
-    svg { color: $red-yawara; }
+
+    svg {
+      color: $red-yawara;
+    }
   }
 
 }
 
-.psResultsSection{
+.psResultsSection {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   justify-content: center;
   align-items: start;
-  
-  .subsection{
+
+  .subsection {
     width: 100%;
   }
 }
@@ -73,16 +95,32 @@ $border: #eeeeee;
   .cardFinance {
     padding: 2rem;
     border: 1px solid $border;
-    span { display: block; color: #666; font-size: 0.9rem; margin-bottom: 0.5rem; }
-    strong { font-size: 1.8rem; }
-    .green { color: #28a745; }
-    .red { color: $red-yawara; }
+
+    span {
+      display: block;
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    strong {
+      font-size: 1.8rem;
+    }
+
+    .green {
+      color: #28a745;
+    }
+
+    .red {
+      color: $red-yawara;
+    }
   }
 }
 
 .artCard {
   border: 1px solid $border;
   margin-bottom: 2rem;
+
   .artHeader {
     background: $bg-gray;
     padding: 1.5rem;
@@ -103,6 +141,7 @@ $border: #eeeeee;
   .actions {
     display: flex;
     gap: 1rem;
+
     a {
       font-size: 0.85rem;
       color: $red-yawara;
@@ -112,14 +151,18 @@ $border: #eeeeee;
       gap: 0.4rem;
       border: 1px solid $red-yawara;
       padding: 0.4rem 0.8rem;
-      &:hover { background: $red-yawara; color: white; }
+
+      &:hover {
+        background: $red-yawara;
+        color: white;
+      }
     }
   }
 }
 
 .nucleoGroup {
   margin-bottom: 4rem;
-  
+
   .nucleoName {
     font-size: 1.5rem;
     color: $red-yawara;
@@ -142,9 +185,21 @@ $border: #eeeeee;
     padding: 1.5rem;
     background: #fafafa;
     border-bottom: 1px solid #eee;
+    gap: 1rem;
 
-    h4 { margin: 0; font-size: 1.2rem; }
-    
+    @include mobile {
+      padding: 1rem;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 1.2rem;
+
+      @include mobile {
+        font-size: .8rem;
+      }
+    }
+
     .btnMainFile {
       background: $black-pure;
       border: none;
@@ -156,7 +211,14 @@ $border: #eeeeee;
       cursor: pointer;
       gap: 0.5rem;
       text-decoration: none;
-      &:hover { opacity: 0.8; }
+
+      @include mobile {
+        font-size: 0.65rem;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }
@@ -167,12 +229,35 @@ $border: #eeeeee;
   align-items: center;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #f5f5f5;
-  
-  &:last-child { border-bottom: none; }
+  gap: 1rem;
+
+  @include mobile {
+    padding: 1rem;
+  }
+
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   .arttcInfo {
-    p { margin: 0.2rem 0; font-size: 0.95rem; }
-    .resp { color: #888; font-size: 0.85rem; }
+    p {
+      margin: 0.2rem 0;
+      font-size: 0.95rem;
+
+      @include mobile {
+        font-size: 0.8rem
+      }
+    }
+
+    .resp {
+      color: #888;
+      font-size: 0.85rem;
+
+      @include mobile {
+        font-size: 0.7rem
+      }
+    }
   }
 
   .arttcActions {
@@ -193,7 +278,15 @@ $border: #eeeeee;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      &:hover { border-color: $red-yawara; color: $red-yawara; }
+
+      @include mobile {
+        font-size: 0.65rem;
+      }
+
+      &:hover {
+        border-color: $red-yawara;
+        color: $red-yawara;
+      }
     }
 
     .reportLink {
@@ -217,12 +310,35 @@ $border: #eeeeee;
 .table {
   width: 100%;
   border-collapse: collapse;
-  th, td {
+
+  th,
+  td {
     padding: 1.2rem;
     text-align: left;
     border-bottom: 1px solid $border;
+
+    @include mobile {
+      padding: 0.6rem;
+    }
   }
-  th { background: $bg-gray; font-size: 0.9rem; text-transform: uppercase; }
+
+  th {
+
+    background: $bg-gray;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+
+    @include mobile {
+      font-size: .5rem;
+    }
+  }
+
+  td {
+    @include mobile {
+      font-size: .8rem;
+    }
+
+  }
 }
 
 .btnDownload {
@@ -235,5 +351,8 @@ $border: #eeeeee;
   align-items: center;
   gap: 0.8rem;
   font-weight: 600;
-  &:hover { background: #222; }
+
+  &:hover {
+    background: #222;
+  }
 }

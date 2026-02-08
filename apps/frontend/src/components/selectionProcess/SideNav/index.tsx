@@ -42,7 +42,7 @@ const SideNav: React.FC<SideNavProps> = ({ links, isOpen, onClose }) => {
                 <Link 
                   href={link.href} 
                   className={`${styles.navLink} ${isActive ? styles.active : ''}`}
-                  onClick={onClose} // Fecha o menu ao clicar no link
+                  onClick={onClose}
                 >
                   {link.label.toUpperCase()}
                 </Link>

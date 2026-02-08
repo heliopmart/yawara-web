@@ -1,5 +1,3 @@
-// apps/frontend/src/app/(protected)/processoSeletivoLayout.module.scss (ADICIONAIS)
-
 @import '@/styles/variables.scss';
 @import '@/styles/utils.scss'; 
 
@@ -7,6 +5,10 @@
     display: flex;
     min-height: calc(100vh - 60px); 
     background-color: $color-secondary; 
+
+    @include mobile-only {
+        padding-top: 75px;
+    }
 }
 
 .contentArea {
@@ -15,11 +17,10 @@
     color: $color-text-light;
     
     @include mobile-only {
-        padding: $spacing-md;
+        padding: 5px;
     }
 }
 
-// --- BOTÃO HAMBURGUER (MOBILE) ---
 .hamburgerButton {
     @include button-reset;
     @include mobile-only {
@@ -27,16 +28,21 @@
         top: 15px;
         left: 15px;
         z-index: 999;
-        color: $color-primary; // Cor de destaque do Yawara
-        font-size: 2em;
+        color: $color-primary; 
+        font-size: 3em;
         padding: 5px;
+
+        width: 50px;
+        height: 47px;
+        border-radius: 6px;
+        line-height: 40px;
+        background-color: #0C0C0C;
     }
     @include tablet {
-        display: none; // Esconde em desktop
+        display: none;
     }
 }
 
-// --- OVERLAY ---
 .overlay {
     @include mobile-only {
         position: fixed;
@@ -45,6 +51,6 @@
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.7);
-        z-index: 990; // Abaixo do menu (1000)
+        z-index: 990;
     }
 }

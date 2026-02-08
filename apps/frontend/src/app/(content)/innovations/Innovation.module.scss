@@ -4,6 +4,12 @@ $gray-dark: #0a0a0a;
 $white: #ffffff;
 $border-soft: #1a1a1a;
 
+@mixin mobile {
+  @media (max-width: 1023px) {
+    @content;
+  }
+}
+
 .techWrapper {
   background-color: $black-pure;
   color: $white;
@@ -37,6 +43,10 @@ $border-soft: #1a1a1a;
     border: 1px solid $border-soft;
     border-left: 5px solid $red-yawara;
     padding: 3.5rem;
+
+    @include mobile {
+      padding: 1.5rem;
+    }
     
     .mainIcon { font-size: 3.5rem; color: $red-yawara; margin-bottom: 1.5rem; }
     h2 { font-size: 2.2rem; margin-bottom: 1.5rem; }
@@ -60,6 +70,10 @@ $border-soft: #1a1a1a;
     border: 1px solid $border-soft;
     text-align: center;
     transition: border-color 0.2s;
+
+    @include mobile {
+      padding: 2rem;
+    }
 
     &:hover { border-color: $red-yawara; }
 
@@ -86,6 +100,10 @@ $border-soft: #1a1a1a;
     padding: 3rem;
     border: 1px solid $border-soft;
     background: $black-pure;
+
+    @include mobile {
+      padding: 1.5rem;
+    }
 
     svg { font-size: 2rem; color: $red-yawara; margin-bottom: 1.5rem; }
     h3 { font-size: 1.5rem; margin-bottom: 1rem; }

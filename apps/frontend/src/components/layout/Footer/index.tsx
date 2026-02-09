@@ -50,7 +50,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* --- GRID DE LINKS --- */}
         <div className={styles.linksGrid}>
           {renderLinkColumn(group1, 'Empresa')}
           {renderLinkColumn(group2, 'Comunidade')}
@@ -62,7 +61,7 @@ const Footer: React.FC = () => {
       
       <div className={styles.copyrightBar}>
           <p className={styles.copyrightText}>
-              Team Yawara MotoStudent © Todos os direitos e programação é propriedade intelectual da comunidade acadêmica, sob licença MIT.
+              Team Yawara MotoStudent UFGD © Todos os projetos são propriedade intelectual da comunidade acadêmica.
           </p>
       </div>
     </footer>

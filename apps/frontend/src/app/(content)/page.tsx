@@ -6,7 +6,6 @@ import Link from 'next/link';
 const HomePage = () => {
   return (
     <div className={styles.homeWrapper}>
-      {/* Hero Section: Impacto e Tecnologia */}
       <section className={styles.hero}>
         <div className={styles.container}>
           <p className={styles.tagline}>Acelere o futuro com o Team Yawara</p>
@@ -26,7 +25,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Seção de Valores Chave */}
       <section className={styles.keyFeatures}>
         <div className={styles.container}>
           <div className={styles.featuresGrid}>
@@ -49,7 +47,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Seção de Inovação em Destaque (Y-SNA) */}
       <section className={styles.innovationHighlight}>
         <div className={styles.container}>
           <div className={styles.highlightContent}>
@@ -74,7 +71,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Chamada para o Processo Seletivo / Parcerias */}
       <section className={styles.callToAction}>
         <div className={styles.container}>
           <h2>Faça Parte da Próxima Revolução.</h2>

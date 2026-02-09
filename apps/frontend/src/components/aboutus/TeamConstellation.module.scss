@@ -1,0 +1,77 @@
+$gray-dark: #000000;
+
+.desktopContainer {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $gray-dark;
+  font-family: 'Inter', sans-serif;
+  cursor: none;
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: none;
+  background-color: $gray-dark;
+
+  color: #fff;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.seoHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  color: #000000;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mobileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  padding: 40px 20px;
+  background-color: #000000;
+  font-family: 'Inter', sans-serif;
+}
+
+.memberCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  background: #0a0a0a;
+
+  .name {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .role {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-top: 4px;
+    text-align: center;
+  }
+}
+
+

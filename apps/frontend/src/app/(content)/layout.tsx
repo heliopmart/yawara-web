@@ -14,11 +14,6 @@ export const metadata: Metadata = {
     description: 'Projeto de extensão e pesquisa da equipe Yawara Motostudent focado em engenharia de alta performance e sustentabilidade.',
 };
 
-
-interface RootLayoutProps {
-    children: React.ReactNode;
-}
-
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
 return (
     <html

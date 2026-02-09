@@ -1,15 +1,15 @@
-'use client'
 import styles from './aboutUs.module.scss';
+import TeamConstellation from "@/components/aboutus"
 import { useAboutUs } from "@/hooks/aboutUs";
 
-const AboutUs = () => {
+const AboutUs = async () => {
     const {
-        nuclei
-    } = useAboutUs()
+        nuclei,
+        members
+    } = await useAboutUs()
 
     return (
         <div className={styles.wrapper}>
-            {/* Hero Section - O Impacto Visual */}
             <section className={styles.hero}>
                 <div className={styles.overlay}>
                     <h1>PROJETO YAWARA</h1>
@@ -17,7 +17,6 @@ const AboutUs = () => {
                 </div>
             </section>
 
-            {/* Introdução Institucional */}
             <section className={styles.section}>
                 <div className={styles.container}>
                     <div className={styles.gridTwoCols}>
@@ -44,7 +43,6 @@ const AboutUs = () => {
                 </div>
             </section>
 
-            {/* Estrutura Técnica - Diferencial para Empresas */}
             <section className={`${styles.section} ${styles.darkBg}`}>
                 <div className={styles.container}>
                     <h2 className={styles.centerTitle}>Nossa Metodologia: Estrutura por Núcleos</h2>
@@ -58,8 +56,8 @@ const AboutUs = () => {
                             nuclei.map((nucleus) => (
                                 <div key={nucleus.id} className={styles.artCard}>
                                     <h3>{nucleus.name}</h3>
-                                    <p>Total de Membros: {nucleus.nucleiConfig.totalMembers}</p>
-                                    <p>Vagas Abertas: {nucleus.nucleiConfig.open_vacancies}</p>
+                                    <p>Total de Membros: {nucleus.total_members}</p>
+                                    <p>Vagas Abertas: {nucleus.open_vacancies}</p>
                                 </div>
                             ))
                         }
@@ -67,7 +65,6 @@ const AboutUs = () => {
                 </div>
             </section>
 
-            {/* O Desafio MotoStudent */}
             <section className={styles.section}>
                 <div className={styles.container}>
                     <div className={styles.competitionBox}>
@@ -81,7 +78,6 @@ const AboutUs = () => {
                 </div>
             </section>
 
-            {/* Fundadores e Governança */}
             <section className={`${styles.section} ${styles.teamSection}`}>
                 <div className={styles.container}>
                     <h2 className={styles.centerTitle}>Conselho de Fundadores</h2>
@@ -94,6 +90,10 @@ const AboutUs = () => {
                         <span>Luana Beatriz Viegas Vieira</span>
                     </div>
                 </div>
+            </section>
+
+            <section>
+                <TeamConstellation members={members} key={'team_constellation'} />
             </section>
         </div>
     );

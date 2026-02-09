@@ -1,5 +1,7 @@
 'use client';
 
+// TODO: TRANSFORMAR A PAGINA EM SERVER HIDRATATION E DEIXAR APENAS O DOWNLOAD DOS DOCUMENTOS COMO CLIENT COMPONENT
+
 import styles from './Transparency.module.scss';
 import { useTransparency } from '@/hooks/useTransparency';
 import {

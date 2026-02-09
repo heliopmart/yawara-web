@@ -1,5 +1,3 @@
-// apps/frontend/src/components/layout/Header/header.module.scss
-
 @import '@/styles/variables.scss'; 
 
 @mixin mobile {
@@ -8,7 +6,6 @@
   }
 }
 
-// --- VARIÁVEIS LOCAIS ---
 $header-height: 60px;
 
 .header {
@@ -52,9 +49,8 @@ $header-height: 60px;
     font-size: 1.1em;
 }
 
-// --- NAVEGAÇÃO DESKTOP (Padrão) ---
 .desktopNav {
-    display: none; // Oculta em mobile
+    display: none; 
 
     @media (min-width: 1024px) {
         display: block; 
@@ -63,16 +59,15 @@ $header-height: 60px;
     }
 }
 
-// --- NAVEGAÇÃO MOBILE (Slide-out) ---
 .mobileNav {
     @include mobile {
         position: fixed;
-        top: $header-height; // Abaixo do header
+        top: $header-height; 
         left: 0;
         width: 100%;
         height: calc(100vh - #{$header-height});
         background-color: #000000;
-        transform: translateX(-100%); // Escondido por padrão
+        transform: translateX(-100%); 
         transition: transform 0.3s ease-in-out;
         z-index: 999;
         overflow-y: auto;
@@ -82,7 +77,6 @@ $header-height: 60px;
         display: none;
     }
 
-    // Estilo da lista de links dentro do menu mobile
     .navList {
         flex-direction: column;
         align-items: flex-start;
@@ -100,9 +94,8 @@ $header-height: 60px;
     }
 }
 
-// Classe que abre o menu mobile
 .navListOpen {
-    transform: translateX(0); // Faz o menu deslizar para dentro da tela
+    transform: translateX(0);
 }
 
 
@@ -123,12 +116,12 @@ $header-height: 60px;
   transition: color 0.3s ease;
   
   &:hover {
-    color: #d32f2f; // Cor de destaque do Yawara
+    color: #d32f2f;
   }
 }
 
 .loginButton {
-  background-color: #d32f2f; // Botão vermelho no canto direito
+  background-color: #d32f2f; 
   color: #ffffff;
   padding: 8px 15px;
   border-radius: 4px;
@@ -148,11 +141,11 @@ $header-height: 60px;
     color: #ffffff;
     font-size: 1.5em;
     cursor: pointer;
-    display: block; // Mostra em mobile
-    order: 3; // Garante que fique no final para não sobrepor o botão de login
+    display: block; 
+    order: 3; 
 
     @media (min-width: 1024px) {
-        display: none; // Oculta em desktop
+        display: none; 
     }
 }
 
@@ -164,7 +157,7 @@ $header-height: 60px;
         right: 0;
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 998; // Abaixo do menu (999), mas acima do conteúdo
+        z-index: 998; 
     }
     @media (min-width: 1024px) {
         display: none;

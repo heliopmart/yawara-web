@@ -37,7 +37,7 @@ export default function EmissionPage() {
             id="student_name"
             name="student_name"
             type="text"
-            placeholder="Ex: Helio da Silva"
+            placeholder="Ex: Pedro da Silva"
             value={formData.student_name}
             onChange={handleChange}
             required

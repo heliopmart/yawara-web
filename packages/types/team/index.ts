@@ -1,4 +1,4 @@
-import { Users, ArttcsGridProps, ArtsGridProps } from '../index';;
+import { Users, ArttcsGridProps, ArtsGridProps, ART, ARTTC } from '../index';;
 
 // --------------------------------------------
 // ------------ TEAM INTERFACES --------------
@@ -10,8 +10,6 @@ export interface Team {
     id: string;
     user_id: string;
     nuclei_id: string;
-    art_id: string;
-    arttc_id: string;
     status: boolean;
     candidate_entry: string;
     ps_entry: string;
@@ -39,6 +37,12 @@ export interface TeamNoteNTech {
     delivery: number;
 }
 
+export interface SignDocs {
+    sign: string;
+    signed_at: string;
+    nuclei_id: string | null;
+    team: Pick<Users, 'name' | 'course'>;
+}
 
 // --------------------------------------------
 // ----------- BACKEND INTERFACES -------------
@@ -65,8 +69,8 @@ export type ScoreCategory = 'n_social' | 'n_tech';
 
 export interface TeamMember {
     id: Team['id'];
-    art_id: Team['art_id'];
-    arttc_id: Team['arttc_id'];
+    art_id: ART['id'];
+    arttc_id: ARTTC['id'];
     user : Pick<Users, 'id' | 'name'>;
     role: Team['role'];
     warnings: Team['warnings'];
@@ -81,5 +85,7 @@ export interface TeamMemberMinify {
     id: Team['id'];
     user: Pick<Users, 'id' | 'name'>;
     role: Team['role'];
+    art_count: number;
+    arttc_count: number;
     warnings: Team['warnings'];
 }

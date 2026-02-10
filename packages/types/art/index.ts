@@ -1,4 +1,4 @@
-import { Users, ARTTC } from '../index';
+import { Users, ARTTC, Team } from '../index';
 
 // --------------------------------------------
 // ------------ ART INTERFACES --------------
@@ -67,9 +67,14 @@ export interface ArtMinify {
 
 export interface ArtManageProps {
     title: ART['title']
-    desctiption: ART['description'];
+    description: ART['description'];
     file_id: ART['file_id'];
     status: ART['status'];
+    members: {
+        team_id: Team['id'];
+        name: Users['name'];
+        role: UsersArts['role'];
+    }[];
     arttc: {
         title: ARTTC['title'];
         id: ARTTC['id'];

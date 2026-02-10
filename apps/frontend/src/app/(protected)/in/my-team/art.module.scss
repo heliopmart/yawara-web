@@ -429,26 +429,28 @@ $border-color: rgba(255, 255, 255, 0.05);
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    gap: 10px;
+    gap: 20px;
 
   }
+
+
 }
 
-.downloadBtn{
-      background: transparent;
-    border: 1px solid $yawara-red;
-    color: $yawara-red;
-    font-size: 0.65rem;
-    font-weight: 800;
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-left: 10px;
-    
-    &:hover {
-      background: $yawara-red;
-      color: #fff;
-    }
+.downloadBtn {
+  background: transparent;
+  border: 1px solid $yawara-red;
+  color: $yawara-red;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-left: 10px;
+
+  &:hover {
+    background: $yawara-red;
+    color: #fff;
+  }
 }
 
 .sidebarSection {
@@ -456,7 +458,7 @@ $border-color: rgba(255, 255, 255, 0.05);
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
-  gap: 5px;
+  gap: 30px;
 
   margin: 25px 0px;
 
@@ -471,7 +473,80 @@ $border-color: rgba(255, 255, 255, 0.05);
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    gap: 10px;
+    gap: 20px;
 
+    p {
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .download_art_file {
+      width: 100%;
+      background: $card-bg;
+      color: #fff;
+      padding: 1.2rem;
+      font-weight: 900;
+      border: none;
+      cursor: pointer;
+      clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+
+      @media (min-width: 768px) {
+        padding: 1.5rem;
+        clip-path: polygon(2% 0, 100% 0, 98% 100%, 0% 100%);
+      }
+
+      &:hover {
+        filter: brightness(1.2);
+        transform: translateY(-2px);
+      }
+    }
+
+  }
+}
+
+.instructionCard, .instructionCardMembers {
+  width: 100%;
+  background: $card-bg;
+  border: 1px solid $border-color;
+  padding: 15px;
+
+  h4 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #ccc;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+}
+
+.instructionCardMembers{
+  background-color: #1a1a1a;
+  .membersList{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: start;
+    .member{
+      background-color: #000;
+      padding: 10px;
+      border: 1px solid #222;
+      width: 100%;
+      color: #fff;
+      font-size: 0.9rem;
+
+      span{
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: $yawara-red;
+
+        i{
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }

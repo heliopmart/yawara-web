@@ -266,3 +266,36 @@ $border: #333;
     }
   }
 }
+
+.signatureBox {
+  margin-top: 15px;
+  padding: 12px;
+  background-color: #1a1a1a; 
+  border-left: 4px solid #d82d0f;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  code {
+    color: #d82d0f;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .copyBtn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      background: #444;
+      color: #fff;
+    }
+  }
+}

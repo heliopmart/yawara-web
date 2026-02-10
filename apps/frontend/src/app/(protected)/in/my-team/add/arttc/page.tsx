@@ -81,7 +81,8 @@ const AddArttcPage = () => {
                                 <div key={member.id} className={styles.memberCard}>
                                     <div className={styles.memberInfo}>
                                         <span className={styles.memberName}>{member.user.name}</span>
-                                        <span className={styles.memberScore}>Advertência: {member.warnings}</span>
+                                        <span className={styles.memberScore}>ARTS: {member.art_count} | ARTTCS: {member.arttc_count}</span>
+                                        <span className={styles.memberScore}>Advertêcias: {member.warnings}</span>
                                     </div>
                                     <button type="button" onClick={() => handleAllocateMember(member.id)} className={styles.addBtn}>
                                         + ADD

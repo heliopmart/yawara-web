@@ -1,7 +1,7 @@
 'use client';
 
 import { useManageArt } from "@/hooks/useMyTeam";
-import styles from '@/app/(protected)/in/my-team/art.module.scss'; 
+import styles from '@/app/(protected)/in/my-team/art.module.scss';
 import Link from "next/link";
 
 const ManageArtPage = () => {
@@ -44,7 +44,7 @@ const ManageArtPage = () => {
                                     <h4>{arttc.title}</h4>
                                     <span className={styles.typeBadge}>{arttc.type}</span>
                                 </div>
-                                
+
                                 <div className={styles.cardBody}>
                                     <p>Criada em: {new Date(arttc.created_at || '').toLocaleDateString('pt-BR')}</p>
                                     {arttc.finish_at && (
@@ -53,13 +53,13 @@ const ManageArtPage = () => {
                                 </div>
 
                                 <div className={styles.cardFooter}>
-                                    <Link 
-                                        href={`/in/my-team/manage/arttc/${arttc.id}`} 
+                                    <Link
+                                        href={`/in/my-team/manage/arttc/${arttc.id}`}
                                         className={styles.manageBtn}
                                     >
                                         GERENCIAR ARTTC <span>→</span>
                                     </Link>
-                                    
+
                                     {arttc.report_file_id && (
                                         <button onClick={() => handleDownload(arttc.report_file_id, `${arttc.title}-report`, 'ARTTC')} className={styles.downloadBtn}>
                                             BAIXAR REPORT
@@ -73,20 +73,35 @@ const ManageArtPage = () => {
 
                 <aside className={styles.sidebarSection}>
                     <h3 className={styles.sectionTitle}>FUNDAÇÃO DA ART</h3>
+
+                    <div className={styles.instructionCardMembers}>
+                        <h4>Membros Alocados</h4>
+
+                        <div className={styles.membersList}>
+                            {
+                                art?.members?.map((member) => (
+                                    <div className={styles.member} key={member.team_id}>
+                                        <span>{member.name} | <i>{member.role}</i></span>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    <div className={styles.instructionCard}>
+                        <h4>Resumo do Núcleo</h4>
+                        <p>{art?.description || "Nenhuma descrição detalhada fornecida."}</p>
+                    </div>
+
                     <div className={styles.foundationCard}>
                         <p>Documento original de planejamento do núcleo.</p>
                         {art?.file_id ? (
-                            <button onClick={() => handleDownload(art.file_id, `${art.title}-plano-inicial`, 'ART')}>
+                            <button className={styles.download_art_file} onClick={() => handleDownload(art.file_id, `${art.title}-plano-inicial`, 'ART')}>
                                 DOWNLOAD PLANO INICIAL
                             </button>
                         ) : (
                             <span className={styles.noFile}>Sem documento de fundação</span>
                         )}
-                    </div>
-
-                    <div className={styles.instructionCard}>
-                        <h4>Resumo do Núcleo</h4>
-                        <p>{art?.desctiption || "Nenhuma descrição detalhada fornecida."}</p>
                     </div>
                 </aside>
             </div>

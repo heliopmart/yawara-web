@@ -1,7 +1,8 @@
 import { TokenPayload } from '@yawara/types';
+import { createHmac } from 'crypto';
 import { MyTeamRepository } from '@/lib/repository/myTeam/myTeam.repository'
-import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify, ArtMinify, ArttcManageProps } from "@yawara/types"
-import {CloudinaryService} from '@/lib/services/cloudinary/cloudinary.service'
+import { TeamNotesHistory, ArtManageProps, myTeamDataProps, TeamMember, TeamMemberMinify, ArtMinify, ArttcManageProps, SignDocs } from "@yawara/types"
+import { CloudinaryService } from '@/lib/services/cloudinary/cloudinary.service'
 
 export class MyTeamService {
     private auth: TokenPayload;
@@ -20,7 +21,7 @@ export class MyTeamService {
      * Get my team data 
      * @return {Promise<myTeamDataProps>} My team data
      */
-    async getMyTeamData() : Promise<myTeamDataProps> {
+    async getMyTeamData(): Promise<myTeamDataProps> {
         try {
             const teamData = await this.myTeamRepository.getMyTeamData(); // RPC call
             return teamData;
@@ -33,7 +34,7 @@ export class MyTeamService {
      * Get team members
      * @return {Promise<TeamMember[]>} Team members
      */
-    async getTeamMember() : Promise<TeamMember[]> {
+    async getTeamMember(): Promise<TeamMember[]> {
         try {
             const teamMember = await this.myTeamRepository.getTeamMember();
             return teamMember;
@@ -46,11 +47,11 @@ export class MyTeamService {
      * Get my team data for notes, only user dont have art assigned
      * @return {Promise<{team: TeamMemberMinify[], arts: ArtMinify[]}>} My team data for notes
      */
-    async getMyTeamDataForNote(type:'ART' | 'ARTTC') : Promise<{team: TeamMemberMinify[], arts: ArtMinify[]}> {
+    async getMyTeamDataForNote(type: 'ART' | 'ARTTC'): Promise<{ team: TeamMemberMinify[], arts: ArtMinify[] }> {
         try {
             const teamData = await this.myTeamRepository.getMyTeamDataForNote(type);
 
-            if(type === 'ARTTC'){
+            if (type === 'ARTTC') {
                 const arts = await this.myTeamRepository.getArtsActives();
                 return { team: teamData, arts };
             }
@@ -91,6 +92,16 @@ export class MyTeamService {
         }
     }
 
+
+    async getSign(sign: string): Promise<SignDocs> {
+        try{
+            const signData = await this.myTeamRepository.getSign(sign);
+            return signData;
+        }catch(err){
+            throw err;
+        }
+    }
+
     // ===========================================
     // ================== CREATE =================
     // ===========================================
@@ -118,12 +129,27 @@ export class MyTeamService {
      * @param {string[]} members - Team members
      * @return {Promise<ArtManageProps>} Created arttc
      */
-    async createArttc(title: string, members: string[], description: string, art_id: string) : Promise<string> {
+    async createArttc(title: string, members: string[], description: string, art_id: string): Promise<string> {
         try {
             const createdArt = await this.myTeamRepository.createArttc(title, members, description, art_id);
             return createdArt;
         }
         catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Create a new sign for document signing
+     * @return {Promise<string>} Created sign
+     */
+    async createSign(): Promise<string> {
+        try {
+            const sign = await this.handleCreateSign()
+            await this.myTeamRepository.saveSign(sign)
+
+            return sign;
+        } catch (err) {
             throw err;
         }
     }
@@ -186,40 +212,40 @@ export class MyTeamService {
 
     async uploadArtFile(artId: string, file: File): Promise<boolean> {
         try {
-        
+
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'art',
                 resourceType: 'raw',
-                uploadType: 'private'
+                uploadType: 'upload'
             });
 
             const uploadResult = await this.myTeamRepository.uploadArtFile(artId, uploaded_file_id.public_id);
             return uploadResult;
-        }catch(err){
+        } catch (err) {
             throw err;
         }
     }
-    
+
 
     async uploadArttcFile(arttcId: string, file: File): Promise<boolean> {
         try {
-        
+
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'arttc',
                 resourceType: 'raw',
-                uploadType: 'private'
+                uploadType: 'upload'
             });
 
             const uploadResult = await this.myTeamRepository.uploadArttcFile(arttcId, uploaded_file_id.public_id);
             return uploadResult;
-        }catch(err){
+        } catch (err) {
             throw err;
         }
     }
 
-     async uploadArttcReportFile(arttcId: string, file: File): Promise<boolean> {
+    async uploadArttcReportFile(arttcId: string, file: File): Promise<boolean> {
         try {
-        
+
             const uploaded_file_id = await CloudinaryService.upload(file, {
                 folder: 'arttc/reports',
                 resourceType: 'raw',
@@ -228,10 +254,35 @@ export class MyTeamService {
 
             const uploadResult = await this.myTeamRepository.uploadArttcReportFile(arttcId, uploaded_file_id.public_id);
             return uploadResult;
-        }catch(err){
+        } catch (err) {
             throw err;
         }
     }
-    
 
+
+    // ===========================================
+    // ================= HANDLE ==================
+    // ===========================================
+
+    private async handleCreateSign(): Promise<string> {
+        try {
+            if (!process.env.SIGN_DOCS_SALT) {
+                throw 'MISSING_SIGN_DOCS_SALT';
+            }
+
+            const hmac = createHmac('sha256', process.env.SIGN_DOCS_SALT);
+
+            const timestamp = new Date().toISOString();
+            const rawPayload = `${this.auth.user_id}-${this.auth.nuclei_id}-${timestamp}`;
+
+            hmac.update(rawPayload);
+            const fullHash = hmac.digest('hex').toUpperCase();
+
+            const finalToken = `YSNA-${fullHash.substring(0, 4)}-${fullHash.substring(8, 12)}-${fullHash.substring(16, 20)}`;
+
+            return finalToken;
+        } catch (err) {
+            throw err;
+        }
+    }
 }

@@ -27,7 +27,7 @@ export const ArtGrid = ({data, title, type}: {data: ArttcsGridProps[] | ArtsGrid
                                     </span>
                                 ))}
                             </div>
-                            <Link href={`/in/my-team/manage/art/${item.id}`}><button className={styles.viewButton}>Ver Detalhes</button></Link>
+                            <Link href={`/in/my-team/manage/${type.toLowerCase()}/${item.id}`}><button className={styles.viewButton}>Ver Detalhes</button></Link>
                         </div>
                     </div>
                 ))}

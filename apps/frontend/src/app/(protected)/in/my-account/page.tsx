@@ -14,6 +14,9 @@ export default function MyAccountPage() {
     workItems,
     isEditing,
     loading,
+    signatureToken,
+    isGenerating,
+    generateSignature,
     handleUpdateInformation,
     handleInputChange,
     handleDownloadData,
@@ -124,6 +127,28 @@ export default function MyAccountPage() {
           <h2>Dados e Privacidade</h2>
 
           <div className={styles.actionsList}>
+            <div className={styles.actionRow}>
+              <div className={styles.actionInfo}>
+                <h4>Assinatura de Documentos (ART/ARTTC)</h4>
+                <p>Gere um token de autenticidade para os modelos de Word.</p>
+
+                {signatureToken && (
+                  <div className={styles.signatureBox}>
+                    <code>{signatureToken}</code>
+                    <button
+                      className={styles.copyBtn}
+                      onClick={() => navigator.clipboard.writeText(signatureToken)}
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button onClick={generateSignature} disabled={isGenerating}>
+                <FaFileAlt /> {signatureToken ? 'Regerar Token' : 'Gerar Assinatura'}
+              </button>
+            </div>
+
             <div className={styles.actionRow}>
               <div className={styles.actionInfo}>
                 <h4>Baixar meus dados</h4>

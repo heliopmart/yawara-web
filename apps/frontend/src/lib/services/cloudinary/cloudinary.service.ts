@@ -119,6 +119,12 @@ export class CloudinaryService {
                 content_disposition: `attachment; filename="${finalFileName}"`,
                 expires_at: Math.floor(Date.now() / 1000) + 3600
             });
+
+            // https://res.cloudinary.com/dfobzuz0w/raw/upload/sQNZQst3A/v1/art/bojl9nmkcio0hxw6jjmy
+            // https://res.cloudinary.com/dfobzuz0w/raw/private/s--QNZQst3A--/v1770685486/art/bojl9nmkcio0hxw6jjmy
+
+            console.log('Generated signed URL:', url);
+
             return url;
         } catch (error) {
             console.error('Failed to generate signed URL:', error);

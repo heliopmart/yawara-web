@@ -1,6 +1,6 @@
 import { create_rls_client } from "@/lib/db"
-import { getRows, updateRow, callRpc } from '@/utils/bd'
-import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps, ArtMinify, ArttcManageProps} from '@yawara/types'
+import { getRows, insertRow, callRpc } from '@/utils/bd'
+import { TokenPayload, ArtManageProps, TeamNotesHistory, TeamMember, TeamMemberMinify, myTeamDataProps, ArtMinify, ArttcManageProps, SignDocs} from '@yawara/types'
 
 export class MyTeamRepository {
     private auth: TokenPayload;
@@ -46,19 +46,30 @@ export class MyTeamRepository {
 
     async getMyTeamDataForNote(type:'ART' | 'ARTTC'): Promise<TeamMemberMinify[]> {
         try {
-            const res = await getRows<TeamMemberMinify>({
-                table: 'team',
-                columns: `
-                    id,
-                    user: user_id ( id, name ),
-                    role,
-                    warnings
-                `,
-                bd: this.bd,
-                filters: [{ column: type === 'ART' ? 'art_id' : 'arttc_id', value: null, op: 'is' }, { column: 'nuclei_id', value: this.auth.nuclei_id ?? null, op: 'eq' }],
-            })
+            // ? Deprecated code
+            // const res = await getRows<TeamMemberMinify>({
+            //     table: 'team',
+            //     columns: `
+            //         id,
+            //         user: user_id ( id, name ),
+            //         role,
+            //         warnings
+            //     `,
+            //     bd: this.bd,
+            //     filters: [{ column: type === 'ART' ? 'art_id' : 'arttc_id', value: null, op: 'is' }, { column: 'nuclei_id', value: this.auth.nuclei_id ?? null, op: 'eq' }],
+            // })
 
-            return res as TeamMemberMinify[];
+            const res = await callRpc<TeamMemberMinify[]>({
+                bd: this.bd,
+                functionName:'get_team_members_with_counts',
+                params: { p_nuclei_id: this.auth.nuclei_id ?? null }
+            });
+
+            if(!res.status){
+                throw 'ERROR_FETCHING_TEAM_MEMBERS';
+            }
+
+            return res.data as TeamMemberMinify[];
         } catch (err) {
             throw err;
         }
@@ -108,6 +119,26 @@ export class MyTeamRepository {
         }
     }
 
+    async getSign(sign: string): Promise<SignDocs> {
+        try{
+            const res = await callRpc<any>({
+                functionName: 'get_sign_details',
+                params: {
+                    p_sign_id: sign,
+                },
+                bd: this.bd,
+            })
+
+            if(!res.status){
+                throw 'ERROR_FETCHING_SIGN_DETAILS';
+            }
+
+            return res.data as SignDocs;
+        }catch(err){
+            throw err;
+        }
+    }
+
     // ===========================================
     // ================== CREATE =================
     // ===========================================
@@ -147,6 +178,31 @@ export class MyTeamRepository {
             return res.data?.id as string;
         }
         catch (err) {
+            throw err;
+        }
+    }
+
+    async saveSign(sign: string): Promise<void> {
+        try {
+            const res = await callRpc<any>({
+                functionName: 'save_sign',
+                params: {
+                    p_sign: sign,
+                    p_nuclei_id: this.auth.nuclei_id ?? null,
+                    p_user_id: this.auth.user_id ?? null,
+                    p_payload: JSON.stringify({ sign, nuclei_id: this.auth.nuclei_id ?? null, user_id: this.auth.user_id ?? null })
+                },
+                bd: this.bd,
+            })
+
+            if(!res.status){
+                throw 'ERROR_SAVING_SIGN';
+            }
+
+            if(!res.data.status){
+                throw 'ERROR_SAVING_SIGN';
+            }
+        }catch (err) {
             throw err;
         }
     }

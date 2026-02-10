@@ -6,8 +6,11 @@ export const useMyAccount = () => {
     const [somethingChanged, setSomethingChanged] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [workItems, setWorkItems] = useState<WorkCard[]>([]);
-
     const [isEditing, setIsEditing] = useState(false);
+
+    const [signatureToken, setSignatureToken] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!user) {
@@ -99,6 +102,31 @@ export const useMyAccount = () => {
         }
     }
 
+    const generateSignature = async () => {
+        setIsGenerating(true)
+
+        try{
+            const res = await fetch('/api/user/my-account/sign', {
+                method: 'POST'
+            });
+            if(!res.ok){
+                throw "INTERNAL_SERVER_ERROR"
+            }
+
+            const data = await res.json();
+
+            if(!data.success){
+                throw data.message || "INTERNAL_SERVER_ERROR"
+            }
+
+            setSignatureToken(data.data)
+        }catch(error){
+            console.error('useMyAccount.generateSignature error:', error);
+        }finally{
+            setIsGenerating(false)
+        }
+    };
+
     const handleGetWorkItemsFromData = (data: MyAccountUserDataRepository) => {
         const artList: WorkCard[] = data.users_arts.map((item) => ({
             original_id: item.art.id || "",
@@ -120,7 +148,6 @@ export const useMyAccount = () => {
             role: undefined
         }));
 
-        // 3. Fundir as duas listas e atualizar o estado
         setWorkItems([...artList, ...arttcList]);
     }
 
@@ -134,6 +161,9 @@ export const useMyAccount = () => {
         workItems,
         isEditing,
         loading,
+        signatureToken,
+        isGenerating,
+        generateSignature,
         handleUpdateInformation,
         setUser,
         handleInputChange,

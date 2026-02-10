@@ -242,7 +242,7 @@ export const useManagerTeam = () => {
 
         team,
         setTeam,
-
+        
         handleScoreUpdate,
         handleSubmitScores,
         createNewWarnings,

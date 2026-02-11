@@ -1,6 +1,7 @@
 
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import styles from './Sponsors.module.scss';
 import { FaHandshake, FaLightbulb, FaTools, FaTrophy, FaBuilding, FaEnvelope, FaChevronRight } from 'react-icons/fa';
 
@@ -36,19 +37,17 @@ const Sponsors = () => {
 
   return (
     <div className={styles.sponsorsWrapper}>
-      {/* Hero: A Visão */}
       <section className={styles.hero}>
         <div className={styles.container}>
           <span className={styles.tag}>O Futuro é Sustentável</span>
           <h1>Impulsione a Próxima Geração da Engenharia</h1>
           <p>
-            O Projeto Yawara é o ponto de encontro entre a excelência acadêmica da UFGD 
+            O Projeto Yawara é o ponto de encontro entre a excelência acadêmica da UFGD
             e as demandas reais do mercado de tecnologia limpa.
           </p>
         </div>
       </section>
 
-      {/* O que é o Yawara? */}
       <section className={styles.about}>
         <div className={styles.container}>
           <div className={styles.aboutGrid}>
@@ -78,20 +77,21 @@ const Sponsors = () => {
         </div>
       </section>
 
-      {/* Exaltação dos Patrocinadores Atuais */}
       <section className={styles.partnersShowcase}>
         <div className={styles.container}>
           <h2 className={styles.centerTitle}>Marcas que já acreditam em nós</h2>
           <div className={styles.logoCloud}>
-            {/* Aqui entrariam os logos reais dos seus patrocinadores */}
-            <div className={styles.logoPlaceholder}>LOGO PARCEIRO A</div>
-            <div className={styles.logoPlaceholder}>LOGO PARCEIRO B</div>
-            <div className={styles.logoPlaceholder}>LOGO PARCEIRO C</div>
+            <div className={styles.logoPlaceholder}>
+              <Link href={'https://www.solidworks.com/'}>SOLIDWORK</Link>
+            </div>
+            <div className={styles.logoPlaceholder}>
+              <Link href={'http://ufgd.edu.br/'}>UFGD</Link>
+            </div>
+            {/* <div className={styles.logoPlaceholder}>LOGO PARCEIRO C</div> */}
           </div>
         </div>
       </section>
 
-      {/* Níveis de Investimento */}
       <section className={styles.tiers}>
         <div className={styles.container}>
           <h2 className={styles.centerTitle}>Níveis de Parceria</h2>
@@ -110,14 +110,13 @@ const Sponsors = () => {
         </div>
       </section>
 
-      {/* Formulário de Conversão */}
       <section className={styles.cta} id='be'>
         <div className={styles.container}>
           <div className={styles.ctaBox}>
             <div className={styles.ctaText}>
               <h2>Vamos construir o legado Yawara juntos?</h2>
               <p>
-                Ao patrocinar o Yawara, sua empresa não apenas expõe a marca, mas investe 
+                Ao patrocinar o Yawara, sua empresa não apenas expõe a marca, mas investe
                 diretamente na redução da lacuna tecnológica brasileira em energias limpas.
               </p>
               <ul className={styles.checkList}>

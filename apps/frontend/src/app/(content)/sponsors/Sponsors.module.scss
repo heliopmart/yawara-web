@@ -69,7 +69,22 @@ $gray-light: #f4f4f4;
     flex-wrap: wrap;
     margin-top: 3rem;
     opacity: 0.6;
-    .logoPlaceholder { border: 2px dashed #ccc; padding: 2rem; font-weight: 700; color: #999; }
+    .logoPlaceholder { border: 2px dashed #ccc; padding: 2rem; font-weight: 700; color: #999; 
+      &:hover{
+        border-color: $red-yawara;
+        cursor: pointer;
+
+        a{
+          color: $red-yawara;
+          text-decoration: underline;
+        }
+      }
+      
+      a{
+        text-decoration: none;
+        color: #999;
+      }
+    }
   }
 }
 

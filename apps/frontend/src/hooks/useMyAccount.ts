@@ -108,6 +108,9 @@ export const useMyAccount = () => {
                 setSomethingChanged(false)
             } catch (error) {
                 console.error('useMyAccount.handleGetUserData error:', error);
+                alert('Erro ao atualizar os dados da conta: ' + error);
+            } finally {
+                setSomethingChanged(false)
             }
         }
 

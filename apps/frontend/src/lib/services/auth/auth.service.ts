@@ -84,6 +84,8 @@ export class authService {
             const user_create_response = await UserRepository.insertUser({
                 name: credentials.name,
                 course: credentials.course,
+                wpa_enabled: credentials.wpa_enabled,
+                wpa_subscription: credentials.wpa_subscription,
                 semester: await this.convertYearOfEntryToSemester(credentials.yearOfEntry),
             });
 

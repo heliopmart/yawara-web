@@ -80,6 +80,28 @@
   }
 }
 
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: $color-primary; 
+  }
+
+  .checkboxLabel {
+    font-size: 0.8rem;
+    color: $color-text-light; 
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+}
+
 .submitButton {
   @include button-reset;
   background-color: $color-primary; 

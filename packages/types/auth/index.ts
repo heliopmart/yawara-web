@@ -38,6 +38,8 @@ export interface AuthServiceRegistreCredentials {
     yearOfEntry: number;
     course: Users['course'];
     password: Auth['password'];
+    wpa_enabled: Users['wpa_enabled'];
+    wpa_subscription: Users['wpa_subscription'];
 }   
 
 export interface ResetPasswordCredentials {
@@ -104,7 +106,7 @@ export interface AuthFormProps {
   buttonText: string;
   error: { message: string } | null;
   onForgotPassword?: () => void;
-  onSubmit: (data: Record<string, string>) => void;
+  onSubmit: (data: Record<string, string | boolean>) => void;
 }
 export interface AuthErrorRespose {
   code: string;

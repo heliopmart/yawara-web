@@ -76,6 +76,20 @@ export default function MyAccountPage() {
                 disabled={!isEditing}
               />
             </div>
+            <div className={`${styles.field} ${styles.notificationGroup}`}>
+              <label htmlFor='wpa_enabled'>Notificações</label>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  id='wpa_enabled'
+                  name="wpa_enabled"
+                  checked={user?.wpa_enabled ?? false}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+                <span className={`${styles.slider} ${styles.round}`}></span>
+              </label>
+            </div>
             <div className={styles.field}>
               <label>Núcleo Alocado</label>
               <input

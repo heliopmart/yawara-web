@@ -1,6 +1,7 @@
 import { callRpc, insertRow, updateRow } from '@/utils/bd'
 import { supabaseAdmin, create_rls_client } from '@/lib/db'
 import { UserRespositoryUserDataById, Users, TokenPayload, MyAccountUserDataRepository } from '@yawara/types';
+import { json } from 'zod';
 
 export class UserRepository {
     private static userTableName = 'users';
@@ -46,6 +47,11 @@ export class UserRepository {
 
     async update(data: Partial<Users>): Promise<boolean> {
         try {
+            if(!data.wpa_enabled){
+                data.wpa_subscription = null;
+            }
+
+
             const res = await updateRow({
                 table: UserRepository.userTableName,
                 data: data,

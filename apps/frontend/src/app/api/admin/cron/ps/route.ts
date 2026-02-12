@@ -13,6 +13,11 @@ const adminPayload: TokenPayload = {
 };
 
 export async function POST(req: Request) {
+    const headers = req.headers;
+    if (headers.get('Upstash-Schedule-Id') !== process.env.CRON_SECRET)
+        throw "UNAUTHORIZED";
+
+
     const psService = new PsService(adminPayload);
     const target = await psService.checkAndOrchestrateActiveEdition()
 

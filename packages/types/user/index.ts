@@ -11,6 +11,8 @@ export interface Users{
     course: string;
     phone: string;
     semester: number;
+    wpa_enabled: boolean;
+    wpa_subscription: WpaSubscription | null;
 }
 
 
@@ -18,12 +20,24 @@ export interface MyAccountUserData {
   id: Users['id'];
   name: Users['name'];
   phone: Users['phone'];
+  wpa_enabled: Users['wpa_enabled'];
+  wpa_subscription: Users['wpa_subscription'];
   nucleus: {
     name: string;
     id: string;
   };
   initials: string;
 }
+
+export interface WpaSubscription {
+    endpoint: string;
+    expirationTime: number | null;
+    keys: {
+        p256dh: string;
+        auth: string;
+    };
+}
+
 
 // --------------------------------------------
 // ----------- BACKEND INTERFACES -------------
@@ -32,13 +46,14 @@ export interface MyAccountUserData {
 // =============== USER SERVICE ===============
 
 
-
 // ============= USER REPOSITORY ==============
 
 export interface UserRespositoryUserDataById {
     name: Users['name'];
     course: Users['course'];
     semester: Users['semester']
+    wpa_enabled: Users['wpa_enabled'];
+    wpa_subscription: Users['wpa_subscription'];
 }
 
 

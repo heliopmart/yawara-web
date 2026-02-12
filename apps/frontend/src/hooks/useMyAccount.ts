@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MyAccountUserDataRepository, WorkCard } from '@yawara/types';
+import { MyAccountUserDataRepository, WorkCard, WpaSubscription } from '@yawara/types';
 
 export const useMyAccount = () => {
     const [user, setUser] = useState<MyAccountUserDataRepository>();
@@ -17,12 +17,56 @@ export const useMyAccount = () => {
             return
         }
 
-        setUser({ ...user, [e.target.name]: e.target.value });
+        if(e.target.type === 'checkbox'){
+            setUser({ ...user, [e.target.name]: e.target.checked });
+        } else {
+            setUser({ ...user, [e.target.name]: e.target.value });
+        }
+        
         setSomethingChanged(true)
     };
 
     const handleUpdateInformation = async () => {
         if (somethingChanged) {
+            let subscription = null;
+            let wpa_subscription = user?.wpa_subscription;
+            let wpa_enabled = user?.wpa_enabled;
+
+            if (wpa_enabled && !wpa_subscription) {
+                try {
+                    if (!user) {
+                        throw new Error("User data is not available.");
+                    }
+
+                    if (!('serviceWorker' in navigator)) {
+                        throw new Error("Service Worker não suportado pelo navegador.");
+                    }
+
+                    const registration = await navigator.serviceWorker.getRegistration();
+
+                    if (!registration) {
+                        console.error("Nenhum Service Worker encontrado. Certifique-se de que ele foi registrado no layout.");
+                        throw new Error("SW_NOT_REGISTERED");
+                    }
+
+                    const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+                    if (!publicVapidKey) throw new Error("VAPID Key não configurada.");
+
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
+
+                    if (subscription) {
+                        user.wpa_subscription = subscription.toJSON() as WpaSubscription;
+                    }
+                } catch (e) {
+                    console.warn("Permissão de notificação negada.");
+                    wpa_enabled = false;
+                }
+            }
+
+
             try {
                 const response = await fetch('/api/user/my-account',
                     {
@@ -30,7 +74,9 @@ export const useMyAccount = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: user?.name,
-                            phone: user?.phone
+                            phone: user?.phone,
+                            wpa_enabled: user?.wpa_enabled,
+                            wpa_subscription: user?.wpa_subscription
                         })
                     });
 
@@ -105,24 +151,24 @@ export const useMyAccount = () => {
     const generateSignature = async () => {
         setIsGenerating(true)
 
-        try{
+        try {
             const res = await fetch('/api/user/my-account/sign', {
                 method: 'POST'
             });
-            if(!res.ok){
+            if (!res.ok) {
                 throw "INTERNAL_SERVER_ERROR"
             }
 
             const data = await res.json();
 
-            if(!data.success){
+            if (!data.success) {
                 throw data.message || "INTERNAL_SERVER_ERROR"
             }
 
             setSignatureToken(data.data)
-        }catch(error){
+        } catch (error) {
             console.error('useMyAccount.generateSignature error:', error);
-        }finally{
+        } finally {
             setIsGenerating(false)
         }
     };
@@ -170,4 +216,15 @@ export const useMyAccount = () => {
         handleDownloadData,
         handleDangerAction
     }
+}
+
+function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getCookie } from '@/utils/cookie'
-import { jwtVerify  } from 'jose'
+import { jwtVerify } from 'jose'
 
 const SECRET = process.env.JWT_SECRET_USER_ROLE || ''
 
@@ -13,6 +13,32 @@ const ROLE_ROUTES = {
 
 export async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
+
+    if (path.startsWith('/api/')) {
+        const fetchMode = req.headers.get('sec-fetch-mode');
+        const fetchDest = req.headers.get('sec-fetch-dest');
+        
+        // const referer = req.headers.get('referer');
+        // const host = req.headers.get('host');
+
+        const isDownloadRoute = path.includes('file_download') || path.endsWith('/download');
+        
+        // const isInternalRequest = referer && referer.includes(host || '');
+
+        if (isDownloadRoute) {
+            if (true) {
+                return NextResponse.next();
+            }
+            return new NextResponse(null, { status: 404 });
+        }
+
+        if (fetchDest === 'document' || fetchMode === 'navigate') {
+            return new NextResponse(null, { status: 404 });
+        }
+
+        return NextResponse.next();
+    }
+
     const isProtectedRoute = path.startsWith('/in/');
 
     if (!isProtectedRoute) {
@@ -58,6 +84,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
+        // '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
     ],
 }

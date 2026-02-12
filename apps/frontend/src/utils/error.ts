@@ -203,3 +203,19 @@ export const handle_error = (error: unknown): ErrorDetail => {
     const detail = error_list['INTERNAL_SERVER_ERROR'];
     return { ...detail, code: 'INTERNAL_SERVER_ERROR' };
 }
+
+export interface ThrowErrorDetail {
+    message: string;
+    statusCode: number;
+    code?: ErrorCode | string;
+    
+    path: string;
+    originalError?: any;
+    
+    // Return what was expected
+    whatWaRight?: any;
+}
+
+export const handle_throw_error = (data: ThrowErrorDetail): string => {
+    return JSON.stringify(data);
+}

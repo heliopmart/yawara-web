@@ -43,6 +43,15 @@ export const registreSchema = zod.object({
         message: "Ano de ingresso inválido."
     }),
     password: strongPassword,
+    wpa_enabled: zod.boolean().default(false).optional(),
+    wpa_subscription: zod.object({
+        endpoint: zod.string(),
+        expirationTime: zod.number().nullable(),
+        keys: zod.object({
+            p256dh: zod.string(),
+            auth: zod.string(),
+        })
+    }).optional()
 })
 
 export const ALLOWED_ROLES = ['ADMIN', 'LEADER', 'MODERATOR'];

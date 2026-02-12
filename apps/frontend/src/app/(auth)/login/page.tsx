@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
         return message.map(msg => msg.message).join('<br/>');
     };
 
-    const handleForgotPasswordSubmit = async (data: Record<string, string>) => {
+    const handleForgotPasswordSubmit = async (data: Record<string, string | boolean>) => {
         setError(null);
         try{
             const validation = sendResetPasswordSchema.safeParse(data)

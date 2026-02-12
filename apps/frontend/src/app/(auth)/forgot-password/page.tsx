@@ -13,7 +13,7 @@ const ResetPasswordContent: React.FC = () => {
   
   const hash = searchParams.get('hash');
 
-  const handleResetPassword = async (data: Record<string, string>) => {
+  const handleResetPassword = async (data: Record<string, string | boolean>) => {
     setError(null);
 
     if (data.password !== data.confirmPassword) {

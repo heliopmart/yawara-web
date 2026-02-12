@@ -6,10 +6,11 @@ import styles from './authForm.module.scss';
 import {AuthFormProps} from "@yawara/types"
 
 const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, error, onForgotPassword, onSubmit }) => {
-  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<Record<string, string | boolean>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,7 +42,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, er
                 <select
                   id={field.name}
                   name={field.name}
-                  value={formData[field.name] || ''}
+                  value={formData[field.name] as string || ''}
                   onChange={handleChange}
                   className={styles.input}
                   required
@@ -65,12 +66,26 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, title, fields, buttonText, er
                     ))
                   }
                 </select>
+              ) : field.type === 'checkbox' ? (
+                <div className={styles.checkboxContainer}>
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    type="checkbox"
+                    checked={!!formData[field.name]}
+                    onChange={(e) => setFormData({ ...formData, [field.name]: e.target.checked })}
+                    className={styles.checkbox}
+                  />
+                  <label htmlFor={field.name} className={styles.checkboxLabel}>
+                    {field.label}
+                  </label>
+                </div>
               ) : (
                 <input
                   id={field.name}
                   name={field.name}
                   type={field.type}
-                  value={formData[field.name] || ''}
+                  value={formData[field.name] as string || ''}
                   onChange={handleChange}
                   className={styles.input}
                   required

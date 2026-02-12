@@ -30,6 +30,12 @@ export const useMyAccount = () => {
         if (!user) {
             return
         }
+
+        if(user.wpa_enabled){
+            setUser({ ...user, wpa_enabled: false, wpa_subscription: null });
+            return
+        }
+
         let subscription = null;
         let wpa_subscription = user?.wpa_subscription;
         let wpa_enabled = false;
@@ -70,6 +76,8 @@ export const useMyAccount = () => {
         }else{
             setUser({ ...user, wpa_enabled: false, wpa_subscription: null });
         }
+
+        setSomethingChanged(true)
     }
 
     const handleUpdateInformation = async () => {

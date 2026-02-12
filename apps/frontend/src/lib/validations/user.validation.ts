@@ -11,5 +11,5 @@ export const updateMyAccountUserDataSchema = zod.object({
             p256dh: zod.string(),
             auth: zod.string(),
         })
-    }).optional()
+    }).nullable().optional()
 })

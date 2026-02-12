@@ -61,7 +61,7 @@ const LoginPage: React.FC = () => {
     }
 
     
-    const handleLogin = async (data: Record<string, string>) => {
+    const handleLogin = async (data: Record<string, string | boolean>) => {
         setError(null);
         try {
             const validation = loginSchema.safeParse(data)
@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (data: Record<string, string>) => {
+    const handleSubmit = async (data: Record<string, string | boolean>) => {
         if (styleForm === 'login') {
             await handleLogin(data);
         } else if (styleForm === 'forgot') {

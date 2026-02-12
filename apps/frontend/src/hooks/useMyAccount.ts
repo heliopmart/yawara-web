@@ -32,7 +32,7 @@ export const useMyAccount = () => {
         }
         let subscription = null;
         let wpa_subscription = user?.wpa_subscription;
-        let wpa_enabled = null
+        let wpa_enabled = false;
 
         try {
             if (!user) {
@@ -58,6 +58,7 @@ export const useMyAccount = () => {
                 applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
             });
 
+            wpa_enabled = true;
             wpa_subscription = subscription.toJSON() as WpaSubscription;
         } catch (e) {
             console.error("Permissão de notificação negada.");

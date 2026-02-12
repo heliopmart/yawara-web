@@ -71,7 +71,8 @@ export const useMyAccount = () => {
             console.error("Permissão de notificação negada. ", e);
             wpa_enabled = false;
         }
-
+        
+        alert(wpa_subscription)
         if(wpa_enabled){
             setUser({ ...user, wpa_enabled, wpa_subscription });
         }else{
@@ -108,7 +109,6 @@ export const useMyAccount = () => {
                 setSomethingChanged(false)
             } catch (error) {
                 console.error('useMyAccount.handleGetUserData error:', error);
-                alert('Erro ao atualizar os dados da conta: ' + error);
             } finally {
                 setSomethingChanged(false)
             }

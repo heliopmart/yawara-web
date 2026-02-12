@@ -6,10 +6,10 @@ export const updateMyAccountUserDataSchema = zod.object({
     wpa_enabled: zod.boolean().default(false).optional(),
     wpa_subscription: zod.object({
         endpoint: zod.string(),
-        expirationTime: zod.number().nullable(),
+        expirationTime: zod.number().nullable().optional(),
         keys: zod.object({
             p256dh: zod.string(),
             auth: zod.string(),
-        })
+        }).optional()
     }).nullable().optional()
 })

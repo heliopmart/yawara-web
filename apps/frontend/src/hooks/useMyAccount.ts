@@ -67,7 +67,8 @@ export const useMyAccount = () => {
             wpa_enabled = true;
             wpa_subscription = subscription.toJSON() as WpaSubscription;
         } catch (e) {
-            console.error("Permissão de notificação negada.");
+            alert('Permissão de notificação negada. ' + e);
+            console.error("Permissão de notificação negada. ", e);
             wpa_enabled = false;
         }
 

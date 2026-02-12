@@ -1,0 +1,22 @@
+{
+  "name": "Team Yawara MotoStudent",
+  "short_name": "Yawara",
+  "description": "Projeto de extensão universitário de engenharia de alta tecnologia vinculado à UFGD.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#d32f2f",
+  "icons": [
+    {
+      "src": "/images/yawara-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/yawara-icon-black.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

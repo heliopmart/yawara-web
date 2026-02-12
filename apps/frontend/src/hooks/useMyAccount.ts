@@ -17,56 +17,62 @@ export const useMyAccount = () => {
             return
         }
 
-        if(e.target.type === 'checkbox'){
+        if (e.target.type === 'checkbox') {
             setUser({ ...user, [e.target.name]: e.target.checked });
         } else {
             setUser({ ...user, [e.target.name]: e.target.value });
         }
-        
+
         setSomethingChanged(true)
     };
 
-    const handleUpdateInformation = async () => {
-        if (somethingChanged) {
-            let subscription = null;
-            let wpa_subscription = user?.wpa_subscription;
-            let wpa_enabled = user?.wpa_enabled;
+    const handleWpa = async () => {
+        if (!user) {
+            return
+        }
+        let subscription = null;
+        let wpa_subscription = user?.wpa_subscription;
+        let wpa_enabled = null
 
-            if (wpa_enabled && !wpa_subscription) {
-                try {
-                    if (!user) {
-                        throw new Error("User data is not available.");
-                    }
-
-                    if (!('serviceWorker' in navigator)) {
-                        throw new Error("Service Worker não suportado pelo navegador.");
-                    }
-
-                    const registration = await navigator.serviceWorker.getRegistration();
-
-                    if (!registration) {
-                        console.error("Nenhum Service Worker encontrado. Certifique-se de que ele foi registrado no layout.");
-                        throw new Error("SW_NOT_REGISTERED");
-                    }
-
-                    const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-                    if (!publicVapidKey) throw new Error("VAPID Key não configurada.");
-
-                    subscription = await registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-                    });
-
-                    if (subscription) {
-                        user.wpa_subscription = subscription.toJSON() as WpaSubscription;
-                    }
-                } catch (e) {
-                    console.warn("Permissão de notificação negada.");
-                    wpa_enabled = false;
-                }
+        try {
+            if (!user) {
+                throw new Error("User data is not available.");
             }
 
+            if (!('serviceWorker' in navigator)) {
+                throw new Error("Service Worker não suportado pelo navegador.");
+            }
 
+            const registration = await navigator.serviceWorker.getRegistration();
+
+            if (!registration) {
+                console.error("Nenhum Service Worker encontrado. Certifique-se de que ele foi registrado no layout.");
+                throw new Error("SW_NOT_REGISTERED");
+            }
+
+            const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+            if (!publicVapidKey) throw new Error("VAPID Key não configurada.");
+
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+            });
+
+            wpa_subscription = subscription.toJSON() as WpaSubscription;
+        } catch (e) {
+            console.error("Permissão de notificação negada.");
+            wpa_enabled = false;
+        }
+
+        if(wpa_enabled){
+            setUser({ ...user, wpa_enabled, wpa_subscription });
+        }else{
+            setUser({ ...user, wpa_enabled: false, wpa_subscription: null });
+        }
+    }
+
+    const handleUpdateInformation = async () => {
+        if (somethingChanged) {
             try {
                 const response = await fetch('/api/user/my-account',
                     {
@@ -214,7 +220,8 @@ export const useMyAccount = () => {
         setUser,
         handleInputChange,
         handleDownloadData,
-        handleDangerAction
+        handleDangerAction,
+        handleWpa
     }
 }
 

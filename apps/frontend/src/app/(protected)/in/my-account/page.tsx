@@ -20,7 +20,8 @@ export default function MyAccountPage() {
     handleUpdateInformation,
     handleInputChange,
     handleDownloadData,
-    handleDangerAction
+    handleDangerAction,
+    handleWpa
   } = useMyAccount()
 
 
@@ -84,7 +85,9 @@ export default function MyAccountPage() {
                   id='wpa_enabled'
                   name="wpa_enabled"
                   checked={user?.wpa_enabled ?? false}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    handleWpa();
+                  }}
                   disabled={!isEditing}
                 />
                 <span className={`${styles.slider} ${styles.round}`}></span>

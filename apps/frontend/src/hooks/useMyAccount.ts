@@ -72,10 +72,6 @@ export const useMyAccount = () => {
             wpa_enabled = false;
         }
 
-        alert(JSON.stringify(subscription))
-        alert(JSON.stringify(user?.wpa_subscription))
-        alert(wpa_enabled)
-
         if(wpa_enabled){
             setUser({ ...user, wpa_enabled, wpa_subscription });
         }else{

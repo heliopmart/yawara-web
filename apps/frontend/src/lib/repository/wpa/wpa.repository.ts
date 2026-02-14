@@ -14,7 +14,7 @@ export class WpaRepository{
     public async getDataForWpa(): Promise<WPADataPayload> {
         try{
             const res = await callRpc({
-                functionName: "get_data_for_wpa",
+                functionName: "get_data_for_wpa_stateless",
                 params: {},
                 bd: this.bd
             })
@@ -49,38 +49,6 @@ export class WpaRepository{
                         }
                     ] as WpaRawData[]
 
-                }
-            }))
-        }
-    }
-
-    public async saveWpaSent(data: WPA[]): Promise<boolean> {
-        try {
-            const res = await callRpc({
-                functionName: "save_wpa_sent",
-                params: {
-                    p_wpa_data: data
-                },
-                bd: this.bd
-            })
-
-            console.log(res)
-
-            if(!res.status){
-                throw "Error saving WPA sent data" 
-            }
-
-            return true
-        }
-        catch (e) {
-            throw (handle_throw_error({
-                message: "Error saving WPA sent data",
-                statusCode: 500,
-                path: "/repository/wpa/wpa.repository (WpaRepository.saveWpaSent)",
-                code: "WPA_SAVE_ERROR",
-                originalError: e,
-                whatWaRight: {
-                    status: true
                 }
             }))
         }

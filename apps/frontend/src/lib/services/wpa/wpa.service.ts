@@ -5,6 +5,9 @@ import { handle_throw_error } from '@/utils/error'
 
 export class WpaService {
     private repository: WpaRepository;
+    private readonly MS_TIMEZONE = 'America/Campo_Grande';
+    private readonly ONE_DAY_MS = 86400000;
+
 
     constructor() {
         this.repository = new WpaRepository();
@@ -13,26 +16,18 @@ export class WpaService {
     public async wpa_service(): Promise<boolean> {
         try {
             const data = await this.handle_get_data_for_wpa();
+
+            console.log(data)
+
             if (data.length === 0) return true;
 
             const results = await Promise.allSettled(
                 data.map(item => this.send_wpa(item.subscription, item.title, item.body))
             );
 
-            const successfulSentWpa = results
-                .map((result, index) => {
-                    console.log("Result for WPA ", index, ": ", result);
-                    if (result.status === 'fulfilled' && result.value === true) {
-                        return data[index].wpa;
-                    }
-                    return null;
-                })
-                .filter((item): item is WPA => item !== null);
+            if (results.length === 0) return true;
 
-            if (successfulSentWpa.length === 0) return true;
-
-            return await this.handle_save_wpa_sent(successfulSentWpa);
-
+            return false;
         } catch (e) {
             throw new Error(handle_throw_error({
                 message: "Error in WPA service",
@@ -52,104 +47,97 @@ export class WpaService {
     private async handle_get_data_for_wpa(): Promise<WpaData[]> {
         try {
             const payload = await this.repository.getDataForWpa();
-            
-            if (!payload.users || payload.users.length === 0) return [];
+            if (!payload.users?.length) return [];
 
-            const notifications_to_send: WpaData[] = [];
+            console.log(payload)
 
-            for (const user of payload.users) {
-                const user_notifications: any[] = [];
+            const now = WpaService.get_ms_date();
+            const nowTime = now.getTime();
 
-                if (payload.edition) {
-                    console.log("user_notifications")
+            return payload.users
+                .map(user => {
+                    if (!user.wpa_subscription) return null;
 
+                    const notifications: string[] = [];
+                    const psUserCard = payload.user_cards.find(uc => uc.user_id === user.id);
 
-                    user_notifications.push(this.create_message_layout(WpaNotificationType.PS, {
-                        resource_id: payload.edition.id,
-                        title: "Inscrições encerrando!",
-                        body: "Hoje é o último dia para se inscrever no PS."
-                    }));
-                }
+                    // 1. Fluxo de Inscrição (Candidatos não registrados)
+                    if (payload.edition?.registration_closing && !psUserCard) {
+                        const regClosing = WpaService.get_ms_date(payload.edition.registration_closing).getTime();
+                        const diff = regClosing - nowTime;
 
-                const user_card = payload.user_cards.find(c => c.user_id === user.id);
-                if (user_card) {
-                    user_notifications.push(this.create_message_layout(WpaNotificationType.PS, {
-                        resource_id: user_card.id,
-                        title: "Tarefa pendente",
-                        body: "Você tem um card do PS que vence em breve!"
-                    }));
-                }
+                        if (diff > 0 && diff <= this.ONE_DAY_MS) {
+                            notifications.push("🚨 Prazo de inscrição se encerra em menos de 24h!");
+                        }
+                    }
 
-                if (user_notifications.length > 0) {
+                    // 2. Fluxo de Progresso (Candidatos registrados)
+                    if (psUserCard && payload.edition) {
+                        const finishTime = WpaService.get_ms_date(payload.edition.finish_date).getTime();
+                        const diffFinish = finishTime - nowTime;
 
-                    const title = user_notifications.length > 1
-                        ? `Yawara: ${user_notifications.length} avisos importantes`
-                        : user_notifications[0].title;
+                        // Verificação de Cards Pendentes
+                        if (psUserCard.cards_progress && payload.card_configs) {
+                            payload.card_configs.forEach(pc => {
+                                const progress = psUserCard.cards_progress.find(cp => cp.card_id === pc.card_id);
+                                if (progress && progress.state !== "COMPLETED") {
+                                    const eventDate = WpaService.get_ms_date(pc.start_time || pc.deadline);
+                                    notifications.push(`📅 Tarefa pendente: ${pc.title} em ${pc.location || 'Online'} (${eventDate.toLocaleDateString('pt-BR')})`);
+                                }
+                            });
+                        }
 
-                    const body = user_notifications.map(n => `• ${n.body}`).join('\n');
+                        // Alerta de Encerramento Próximo
+                        if (diffFinish > 0 && diffFinish <= this.ONE_DAY_MS) {
+                            const msg = psUserCard.nuclei_chosen?.length === 0
+                                ? "⚠️ O PS encerra em 24h! Escolha seus núcleos agora."
+                                : "⚠️ O PS encerra em 24h! Revise suas entregas pendentes.";
+                            notifications.push(msg);
+                        }
 
-                    notifications_to_send.push({
+                        // Feedback de Encerramento (D+1)
+                        if (nowTime > finishTime && nowTime <= (finishTime + this.ONE_DAY_MS)) {
+                            notifications.push("🏁 O processo foi encerrado! Obrigado por participar da nossa jornada.");
+                        }
+                    }
+
+                    // 3. Fluxo de Liderança (Avaliações)
+                    if(payload.teams_to_notify){
+                        const teamAlerts = payload.teams_to_notify.filter(t => t.leader_user_id === user.id);
+                        teamAlerts.forEach(tn => {
+                            notifications.push(`⚖️ Há notas pendentes no núcleo ${tn.name}. Acesse para avaliar.`);
+                        });
+                    }
+
+                    if (notifications.length === 0) return null;
+
+                    return {
                         subscription: user.wpa_subscription as WpaSubscription,
-                        title,
-                        body,
-                        wpa: {
-                            user_id: user.id,
-                            resource_id: user.id,
-                            type: user_notifications.length > 1 ? WpaNotificationType.OTHERS : user_notifications[0].type,
-                            wpa_log: {
-                                timestamp: new Date().toISOString(),
-                                wps_notification: user_notifications.map(n => ({ id: n.resource_id, type: n.type }))
-                            } as WPA['wpa_log']
-                        } as Pick<WPA, 'resource_id' | 'type' | 'user_id' | 'wpa_log'>
-                    });
-                }
-            }
+                        title: `Yawara: ${notifications.length} atualizaç${notifications.length > 1 ? 'ões' : 'ão'} para você!`,
+                        body: notifications.join('\n')
+                    } as WpaData;
 
-            return notifications_to_send;
+                })
+                .filter((item): item is WpaData => item !== null);
 
         } catch (e) {
             throw new Error(handle_throw_error({
-                message: "Error processing WPA payload",
+                message: "Error processing WPA stateless payload",
                 statusCode: 500,
-                path: "/services/wpa/wpa.service (WpaService.handle_get_data_for_wpa)",
-                code: "WPA_PAYLOAD_ERROR",
+                path: "/services/wpa/wpa.service (handle_get_data_for_wpa)",
                 originalError: e
             }));
         }
     }
 
-    private async handle_save_wpa_sent(data: WPA[]): Promise<boolean> {
-        try {
-            console.log("Saving sent WPA data: ", data);
-            return this.repository.saveWpaSent(data);
-        } catch (e) {
-            // throw (handle_throw_error({
-            //     message: "Error saving sent WPA data",
-            //     statusCode: 500,
-            //     path: "/services/wpa/wpa.service (WpaService.handle_save_wpa_sent)",
-            //     code: "WPA_SAVE_ERROR",
-            //     originalError: e,
-            //     whatWaRight: {
-            //         success: true
-            //     }
-            // }))
-            console.error("Error saving sent WPA data: ", e);
-            return false
-        }
-    }
 
-    // =========================================== 
-    // ============= MESSAGE LAYOUT ============== 
-    // =========================================== 
-
-    private create_message_layout(type: WpaNotificationType, data: any) {
-        return {
-            type,
-            resource_id: data.id || 'system',
-            title: data.title || "Notificação Yawara",
-            body: data.body || "Você tem uma nova atualização."
-        };
-    }
+    private static get_ms_date = (date: Date | string = new Date()) => {
+        const targetDate = typeof date === 'string' ? new Date(date) : date;
+        const msString = targetDate.toLocaleString("en-US", {
+            timeZone: "America/Campo_Grande"
+        });
+        return new Date(msString);
+    };
 
     // =========================================== 
     // ================== CALL =================== 

@@ -38,9 +38,15 @@ export interface WPADataPayload {
     users: Pick<Users, 'id'| 'name' | 'wpa_subscription'>[];
     edition: Pick<ps_editions, 'id' | 'finish_date' | 'registration_closing' | 'is_completed'> | null;
     leaders: Team[];
-    user_cards: { id: UUID; user_id: UUID; edition_id: UUID; cards_progress: cards_progress[] }[];
-    card_configs: Pick<ps_card_configs, 'id' | 'event_date' | 'deadline' | 'location' | 'start_time'>[];
-    teams_by_nuclei: Record<string, Team[]>;
+    user_cards: { id: UUID; user_id: UUID; edition_id: UUID; cards_progress: cards_progress[], nuclei_chosen: string[] }[];
+    card_configs: Pick<ps_card_configs, 'id' | 'event_date' | 'deadline' | 'location' | 'start_time' | 'card_id' | 'title'>[];
+    teams_to_notify: {
+        id: string;
+        leader_user_id: string;
+        nuclei_id: string;
+        name: string;
+        note_created_at: string;
+    }[];
 };
 
 
@@ -53,7 +59,7 @@ export interface WpaData {
     subscription: WpaSubscription;
     title: string;
     body: string;
-    wpa: Pick<WPA, 'resource_id' | 'type' | 'user_id' | 'wpa_log'>;
+    wpa?: Pick<WPA, 'resource_id' | 'type' | 'user_id' | 'wpa_log'>;
 }
 
 export interface WpaRawData {

@@ -369,7 +369,7 @@ export class PsService {
         const edition = await this.psRepository.getPsEditions()
 
         const now = new Date();
-        const registrationClosing = this.toCampoGrandeDate(edition.registration_closing);
+        const registrationClosing = edition.registration_closing ? this.toCampoGrandeDate(edition.registration_closing) : null;
         const finishDate = this.toCampoGrandeDate(edition.finish_date);
 
         const deactivationDate = new Date(finishDate);
@@ -383,7 +383,7 @@ export class PsService {
             return { action: 'FINISH_PROCESS', id: edition.id };
         }
 
-        if (now > registrationClosing) {
+        if (registrationClosing && now > registrationClosing) {
             return { action: 'CLOSE_REGISTRATION', id: edition.id };
         }
 
@@ -453,25 +453,30 @@ export class PsService {
     * @param dateStr String de data (ex: '2026-03-11' ou '2026-03-11 22:00:00')
     * @param timeStr Hora opcional (usada apenas se dateStr não tiver hora)
     */
-    private toCampoGrandeDate(dateStr: string, timeStr?: string): Date {
+    private toCampoGrandeDate(dateStr: string | null | undefined, timeStr?: string | null): Date {
+        if (!dateStr) {
+            console.error("[DATE_ERROR] Recebido valor nulo ou vazio");
+            throw "INTERNAL_DATE_ERROR";
+        }
+
         let isoString: string;
 
         if (dateStr.includes(' ')) {
-            const isoFormat = dateStr.replace(' ', 'T');
-            isoString = `${isoFormat}-04:00`;
+            isoString = dateStr.replace(' ', 'T');
         } else {
             const cleanDate = dateStr.split('T')[0];
-            const timeParts = (timeStr || "00:00:00").split(':');
-            const hour = timeParts[0].padStart(2, '0');
-            const minute = (timeParts[1] || '00').padStart(2, '0');
-            const second = (timeParts[2] || '00').padStart(2, '0');
-            isoString = `${cleanDate}T${hour}:${minute}:${second}-04:00`;
+            const [hour, minute, second] = (timeStr || "00:00:00").split(':').map(p => (p || '00').padStart(2, '0'));
+            isoString = `${cleanDate}T${hour}:${minute}:${second}`;
+        }
+
+        if (!isoString.includes('-04:00') && !isoString.endsWith('Z')) {
+            isoString = `${isoString}-04:00`;
         }
 
         const finalDate = new Date(isoString);
 
         if (isNaN(finalDate.getTime())) {
-            console.error("[DATE_ERROR] Falha ao converter:", isoString);
+            console.error("[DATE_ERROR] Falha crítica na conversão:", isoString);
             throw "INTERNAL_DATE_ERROR";
         }
 
